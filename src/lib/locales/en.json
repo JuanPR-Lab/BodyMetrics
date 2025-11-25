@@ -1,0 +1,149 @@
+{
+  "app": {
+    "title": "BodyMetrics",
+    "subtitle": "",
+    "privacy_badge": "Local Data"
+  },
+  "common": {
+    "male_short": "M",
+    "female_short": "F",
+    "year_short": "y"
+  },
+  "units": {
+    "kg": "kg",
+    "percent": "%",
+    "kcal": "kcal",
+    "rating": "Rating",
+    "years": "years"
+  },
+  "welcome": {
+    "title": "Welcome to BodyMetrics",
+    "subtitle": "Your private and secure bioimpedance management tool.",
+    "step1_title": "1. Total Privacy",
+    "step1_text": "This app does NOT upload data to the cloud. Everything is saved in this browser (your device).",
+    "step2_title": "2. Workflow",
+    "step2_text": "Weigh as 'Guest' > Upload SD card files (.csv) here > Assign measurements to clients.",
+    "step3_title": "3. Security",
+    "step3_text": "Make frequent backups in Settings. If you clear cache, clients are lost (but not SD data).",
+    "cta": "To start, create your first client:",
+    "cta_import": "Or restore a backup:",
+    "btn_import": "Restore Backup (.json)",
+    "privacy_hint": "⚠️ For privacy, use CODES (e.g., CLI-001) and/or ALIASES instead of real names. Keep the real link in a private Excel."
+  },
+  "upload": {
+    "instruction_title": "Load SD Card Data",
+    "instruction_text": "",
+    "instruction_path": "Path: SD CARD > TANITA > GRAPHV1 > DATA > Select all files (.csv)",
+    "drop_zone": "Drag & Drop all CSV files here (DATA1.CSV...)",
+    "browse": "Browse Files",
+    "processing": "Processing...",
+    "error": "Error. Verify Tanita DATA files."
+  },
+  "dashboard": {
+    "tabs": {
+      "inbox": "Inbox",
+      "clients": "Clients",
+      "settings": "Settings"
+    },
+    "filters": {
+      "title": "Filters:",
+      "last_month": "Last Month",
+      "last_3_months": "Last 3 Months",
+      "last_6_months": "Last 6 Months",
+      "last_year": "Last Year",
+      "all": "All History",
+      "from": "From:",
+      "to": "To:"
+    },
+    "inbox_empty": "No pending measurements. Upload SD files.",
+    "assign_btn": "Assign",
+    "create_btn": "Create Client",
+    "filter_placeholder": "Search by code or alias...",
+    "select_client_prompt": "Select a client to view history and charts.",
+    "latest_reading": "Latest Measurement",
+    "last_visit": "Last visit:",
+    "record_count": "records",
+    "client_id_placeholder": "Code (Ex: cli001)",
+    "client_alias_placeholder": "Alias (Ex: Athlete A)",
+    "metabolic_health": "Metabolic Health",
+    "target": "Target",
+    "actual_age": "Actual Age",
+    "evolution_chart": "Evolution Chart",
+    "detach_record": "Unlink selected measurement",
+    "delete_client_confirm": "Are you sure you want to delete this client and unlink their data?",
+    "no_data_client": "No data."
+  },
+  "analysis": {
+    "date": "Date"
+  },
+  "metrics": {
+    "weight": "Weight",
+    "bmi": "BMI",
+    "body_fat": "Body Fat",
+    "muscle_mass": "Muscle Mass",
+    "visceral_fat": "Visceral Fat",
+    "water": "Body Water",
+    "bone_mass": "Bone Mass",
+    "metabolic_age": "Metabolic Age",
+    "dci": "Daily Calorie Intake (DCI)"
+  },
+  "csv_headers": {
+    "date": "Date",
+    "time": "Time",
+    "model": "Model",
+    "fat_trunk": "Trunk Fat",
+    "fat_arm_r": "R. Arm Fat",
+    "fat_arm_l": "L. Arm Fat",
+    "fat_leg_r": "R. Leg Fat",
+    "fat_leg_l": "L. Leg Fat",
+    "mus_trunk": "Trunk Muscle",
+    "mus_arm_r": "R. Arm Muscle",
+    "mus_arm_l": "L. Arm Muscle",
+    "mus_leg_r": "R. Leg Muscle",
+    "mus_leg_l": "L. Leg Muscle"
+  },
+  "segments": {
+    "title": "Segmental Analysis",
+    "right_arm": "Right Arm",
+    "left_arm": "Left Arm",
+    "trunk": "Trunk",
+    "right_leg": "Right Leg",
+    "left_leg": "Left Leg",
+    "fat": "Fat",
+    "muscle": "Muscle",
+    "visceral": "Visceral"
+  },
+  "status": {
+    "under": "Low",
+    "healthy": "Healthy",
+    "over": "High",
+    "obese": "Obese",
+    "unknown": "--"
+  },
+  "settings": {
+    "title": "Data Management",
+    "backup_section": "Backup & Restore",
+    "backup_desc": "Save your client list and assignments to a .json file. Save app data to use on another device or in case browser data is cleared.",
+    "backup_help": "",
+    "btn_export": "Export Database",
+    "btn_import": "Restore Database",
+    "import_success": "Database restored.",
+    "import_error": "Invalid file.",
+    "privacy_warning_title": "⚠️ IMPORTANT",
+    "privacy_warning_text": "Client-Data relationships are saved in this browser.",
+    "privacy_points": {
+      "1": "Clearing cache deletes names (not medical data).",
+      "2": "Export backups frequently here.",
+      "3": "You are responsible for real name privacy."
+    },
+    "delete_all_btn": "Factory Reset (Delete All)",
+    "delete_all_confirm": "WARNING: This will delete ALL clients and assignments from this browser. Are you sure?"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete Client?",
+    "export_csv": "Excel (CSV)",
+    "print": "Print"
+  }
+}

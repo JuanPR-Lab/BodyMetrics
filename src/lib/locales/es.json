@@ -1,0 +1,149 @@
+{
+  "app": {
+    "title": "BodyMetrics",
+    "subtitle": "",
+    "privacy_badge": "Datos Locales"
+  },
+  "common": {
+    "male_short": "H",
+    "female_short": "M",
+    "year_short": "a"
+  },
+  "units": {
+    "kg": "kg",
+    "percent": "%",
+    "kcal": "kcal",
+    "rating": "Nivel",
+    "years": "años"
+  },
+  "welcome": {
+    "title": "Te damos la bienvenida a BodyMetrics",
+    "subtitle": "Tu herramienta de gestión de bioimpedancia privada y segura.",
+    "step1_title": "1. Privacidad Total",
+    "step1_text": "Esta app NO sube datos a internet. Todo se guarda en este navegador (tu dispositivo).",
+    "step2_title": "2. Flujo de Trabajo",
+    "step2_text": "Pesa como 'Invitado' > Sube los archivos de la tarjeta SD (.csv) aquí > Asigna las mediciones a los clientes.",
+    "step3_title": "3. Seguridad",
+    "step3_text": "Haz copias de seguridad frecuentes en Ajustes. Si borras el caché, se pierden los clientes (pero no los datos de la SD).",
+    "cta": "Para empezar, crea tu primer cliente:",
+    "cta_import": "O restaura una copia de seguridad:",
+    "btn_import": "Restaurar Backup (.json)",
+    "privacy_hint": "⚠️ Por privacidad, usa CÓDIGOS (ej: CLI-001) y/o ALIAS en lugar de nombres reales. Guarda la relación real en un Excel privado."
+  },
+  "upload": {
+    "instruction_title": "Cargar datos de la tarjeta SD",
+    "instruction_text": "",
+    "instruction_path": "Ruta: TARJETA SD > TANITA > GRAPHV1 > DATA > Selecciona todos los archivos (.csv)",
+    "drop_zone": "Arrastra aquí todos los archivos CSV (DATA1.CSV...)",
+    "browse": "Buscar archivos",
+    "processing": "Procesando...",
+    "error": "Error. Verifica que son archivos DATA de Tanita."
+  },
+  "dashboard": {
+    "tabs": {
+      "inbox": "Bandeja de Entrada",
+      "clients": "Clientes",
+      "settings": "Ajustes"
+    },
+    "filters": {
+      "title": "Filtros:",
+      "last_month": "Último Mes",
+      "last_3_months": "Últimos 3 Meses",
+      "last_6_months": "Últimos 6 Meses",
+      "last_year": "Último Año",
+      "all": "Todo el Historial",
+      "custom": "Rango Personalizado",
+      "from": "Desde:",
+      "to": "Hasta:"
+    },
+    "inbox_empty": "No hay mediciones pendientes. Sube archivos de la SD.",
+    "assign_btn": "Asignar",
+    "create_btn": "Crear Cliente",
+    "filter_placeholder": "Buscar por código o alias...",
+    "select_client_prompt": "Selecciona un cliente para ver su historial y gráficas.",
+    "latest_reading": "Última Medición",
+    "last_visit": "Última visita:",
+    "record_count": "registros",
+    "client_id_placeholder": "Código (Ej: cli001)",
+    "client_alias_placeholder": "Alias (Ej: Deportista A)",
+    "metabolic_health": "Salud Metabólica",
+    "target": "Objetivo",
+    "actual_age": "Edad Real",
+    "evolution_chart": "Gráfica de Evolución",
+    "detach_record": "Desvincular medición seleccionada",
+    "delete_client_confirm": "¿Estás seguro de borrar este cliente y desvincular sus datos?",
+    "no_data_client": "Sin datos."
+  },
+  "analysis": {
+    "date": "Fecha"
+  },
+  "metrics": {
+    "weight": "Peso",
+    "bmi": "IMC",
+    "body_fat": "Grasa",
+    "muscle_mass": "Masa Muscular",
+    "visceral_fat": "Grasa Visceral",
+    "water": "Agua",
+    "bone_mass": "Masa Ósea",
+    "metabolic_age": "Edad Metabólica",
+    "dci": "Ingesta Calórica (DCI)"
+  },
+  "csv_headers": {
+    "date": "Fecha",
+    "time": "Hora",
+    "model": "Modelo",
+    "fat_trunk": "Grasa Tronco",
+    "fat_arm_r": "Grasa Brazo Der.",
+    "fat_arm_l": "Grasa Brazo Izq.",
+    "fat_leg_r": "Grasa Pierna Der.",
+    "fat_leg_l": "Grasa Pierna Izq.",
+    "mus_trunk": "Músculo Tronco",
+    "mus_arm_r": "Músculo Brazo Der.",
+    "mus_arm_l": "Músculo Brazo Izq.",
+    "mus_leg_r": "Músculo Pierna Der.",
+    "mus_leg_l": "Músculo Pierna Izq."
+  },
+  "segments": {
+    "title": "Composición Segmental",
+    "right_arm": "Brazo Derecho",
+    "left_arm": "Brazo Izquierdo",
+    "trunk": "Tronco",
+    "right_leg": "Pierna Derecha",
+    "left_leg": "Pierna Izquierda",
+    "fat": "Grasa",
+    "muscle": "Músculo",
+    "visceral": "Visceral"
+  },
+  "status": {
+    "under": "Bajo",
+    "healthy": "Saludable",
+    "over": "Alto",
+    "obese": "Obesidad",
+    "unknown": "--"
+  },
+  "settings": {
+    "title": "Gestión de Datos",
+    "backup_section": "Copia de Seguridad",
+    "backup_desc": "Guarda tu lista de clientes y asignaciones en un archivo .json para usarlo en otro dispositivo o por si borras el navegador.",
+    "btn_export": "Exportar Base de Datos",
+    "btn_import": "Restaurar Base de Datos",
+    "import_success": "Base de datos restaurada correctamente.",
+    "import_error": "El archivo está dañado o no es válido.",
+    "privacy_warning_title": "⚠️ IMPORTANTE",
+    "privacy_warning_text": "La relación Cliente-Datos se guarda en este navegador.",
+    "privacy_points": {
+      "1": "Si borras el caché, perderás los nombres (no los datos médicos).",
+      "2": "Haz copias de seguridad frecuentes exportando aquí.",
+      "3": "Tú eres responsable de la privacidad de los nombres reales."
+    },
+    "delete_all_btn": "Restablecer de fábrica (Borrar todo)",
+    "delete_all_confirm": "ATENCIÓN: Esto borrará TODOS los clientes y asignaciones de este navegador. ¿Estás seguro?"
+  },
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "¿Borrar Cliente?",
+    "export_csv": "Excel (CSV)",
+    "print": "Imprimir"
+  }
+}
