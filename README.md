@@ -1,38 +1,55 @@
-# sv
+# BodyMetrics PWA 📊
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+BodyMetrics is a privacy-focused Progressive Web App (PWA) designed for dietitians and health professionals. It visualizes body composition data directly from **Tanita BC-601/602** SD cards without uploading any data to the cloud.
 
-## Creating a project
+## 🚀 Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+* **100% Local & Private:** No server, no cloud database. All data remains in the browser.
+* **SD Card Parsing:** Drag & drop `DATA.CSV` files directly from the scale.
+* **Client Management:** Assign anonymous scale data to specific client profiles locally.
+* **Interactive Charts:** Visualize progress (Weight, Body Fat, Muscle Mass, etc.) with dynamic charts.
+* **Segmental Analysis:** Visual body map for arm/leg/trunk composition.
+* **Export:** Generate standard CSV reports compatible with Excel/LibreOffice.
+* **PWA Support:** Installable on Desktop and Mobile.
 
-```sh
-# create a new project in the current directory
-npx sv create
+## 🛠️ Tech Stack
 
-# create a new project in my-app
-npx sv create my-app
-```
+* **Framework:** [SvelteKit](https://kit.svelte.dev/)
+* **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+* **CSV Parsing:** PapaParse
+* **I18n:** svelte-i18n (English/Spanish)
 
-## Developing
+## 📦 Installation
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/YOUR_USERNAME/BodyMetrics.git](https://github.com/YOUR_USERNAME/BodyMetrics.git)
+    cd BodyMetrics
+    ```
 
-```sh
-npm run dev
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+3.  **Run development server:**
+    ```bash
+    npm run dev
+    ```
 
-## Building
+4.  Open your browser at `http://localhost:5173`.
 
-To create a production version of your app:
+## 📂 Project Structure
 
-```sh
-npm run build
-```
+* `src/routes`: Main application pages.
+* `src/lib/components`: Reusable UI components (BodyMap, etc.).
+* `src/lib/utils`: Logic for CSV parsing, exporters, and data management.
+* `src/lib/locales`: JSON translation files.
 
-You can preview the production build with `npm run preview`.
+## 🤝 Contributing
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+We welcome contributions! Please read our [Contributing Guidelines](docs/CONTRIBUTING.md) for details on how to submit pull requests, report issues, and style guides.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
