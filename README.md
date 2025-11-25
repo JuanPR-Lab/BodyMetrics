@@ -50,6 +50,14 @@ BodyMetrics is a privacy-focused Progressive Web App (PWA) designed for dietitia
 
 We welcome contributions! Please read our [Contributing Guidelines](docs/CONTRIBUTING.md) for details on how to submit pull requests, report issues, and style guides.
 
+## ⚠️ Disclaimers
+
+### Not Affiliated with Tanita
+**BodyMetrics** is an independent, open-source project and is **not** affiliated, associated, authorized, endorsed by, or in any way officially connected with **Tanita Corporation**, or any of its subsidiaries or its affiliates. The names Tanita and BC-601/602 as well as related names, marks, emblems, and images are registered trademarks of their respective owners.
+
+### No Medical Advice
+The information and data visualizations provided by this software are for **informational purposes only**. This software is not intended to be a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition. Never disregard professional medical advice or delay in seeking it because of something you have read or seen in this application.
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
