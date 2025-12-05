@@ -6,10 +6,10 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - npm_public
+      - default
+      - npm_network
 
-# Network configuration to connect with Nginx Proxy Manager
 networks:
-  npm_public:
+  npm_network:
     external: true
-    name: nginx-proxy-manager_default
+    name: proxy-net
