@@ -1,4 +1,4 @@
-import type { TanitaRecord } from './csvSDparser';
+import type { BioMetricRecord } from './csvSDparser';
 
 /**
  * Represents a Client in the local database.
@@ -168,7 +168,7 @@ export const PatientManager = {
    * @param clientId The client ID to filter by.
    * @param allCsvRecords The full dataset loaded from the SD Card.
    */
-  getClientHistory(clientId: string, allCsvRecords: TanitaRecord[]): TanitaRecord[] {
+  getClientHistory(clientId: string, allCsvRecords: BioMetricRecord[]): BioMetricRecord[] {
     const db = this.loadDB();
     
     // Filter records where the ID is assigned to this client in our local DB
@@ -183,11 +183,27 @@ export const PatientManager = {
 
   /**
    * Exports the local database (clients + assignments) to a JSON file.
+   * UPDATED: Uses LOCAL SYSTEM TIME to avoid UTC offsets.
+   * Format: bodymetrics_backup_YYYY-MM-DD_HH-mm-ss.json
    */
   exportBackup() {
     const db = this.loadDB();
-    const dateStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    const filename = `bodymetrics_backup_${dateStr}.json`;
+    const now = new Date();
+    
+    // Helper to pad numbers with leading zero (e.g. 5 -> "05")
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    // Manually construct Date and Time using local getters
+    const year = now.getFullYear();
+    const month = pad(now.getMonth() + 1); // getMonth is 0-indexed
+    const day = pad(now.getDate());
+    
+    const hours = pad(now.getHours());     // getHours returns local time
+    const minutes = pad(now.getMinutes());
+    const seconds = pad(now.getSeconds());
+    
+    // Assemble filename (colons replaced by hyphens for OS compatibility)
+    const filename = `bodymetrics_backup_${year}-${month}-${day}_${hours}-${minutes}-${seconds}.json`;
     
     triggerDownload(JSON.stringify(db, null, 2), filename);
   },

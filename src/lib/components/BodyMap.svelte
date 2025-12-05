@@ -1,72 +1,234 @@
 <script lang="ts">
   import { t } from 'svelte-i18n';
-  import type { TanitaRecord } from '$lib/utils/csvSDparser';
-  
-  export let record: TanitaRecord | null = null;
+  import type { BioMetricRecord } from '$lib/utils/csvSDparser';
+  import { getBodyFatStatus, type HealthStatus } from '$lib/utils/ranges';
 
-  const fmt = (n: number, unit: string) => (n ? `${n.toFixed(1)}${unit}` : '--');
+  export let record: BioMetricRecord | null = null;
+
+  let viewMode: 'fat' | 'muscle' = 'fat';
+  let hoveredSegment: string | null = null;
+
+  // --- HELPERS ---
+  const formatVal = (val: number | undefined, unit: string) => {
+    if (val === undefined || val === null || isNaN(val) || val === 0) return '--';
+    return `${val}`;
+  };
+
+  // --- REACTIVE DATA ---
+  $: data = record ? {
+    fat: {
+      armR: record.fatArmR, armL: record.fatArmL, trunk: record.fatTrunk,
+      legR: record.fatLegR, legL: record.fatLegL, unit: '%'
+    },
+    muscle: {
+      armR: record.muscleArmR, armL: record.muscleArmL, trunk: record.muscleTrunk,
+      legR: record.muscleLegR, legL: record.muscleLegL, unit: 'kg'
+    }
+  } : null;
+
+  $: currentData = data ? data[viewMode] : null;
+  
+  // Colores: Amarillo/Naranja para Grasa, Azul para Músculo
+  $: activeFill = viewMode === 'fat' ? '#eab308' : '#3b82f6'; // Base
+  $: hoverFill = viewMode === 'fat' ? '#f97316' : '#1d4ed8';  // Hover
+  
+  // --- LÓGICA DEL SEMÁFORO ---
+  $: currentStatus = (() => {
+    if (!record || viewMode !== 'fat') return 'unknown';
+
+    let valToCheck = 0;
+    
+    if (hoveredSegment && currentData) {
+      // @ts-ignore
+      valToCheck = currentData[hoveredSegment] || 0;
+    } else {
+      valToCheck = record.bodyFat;
+    }
+
+    return getBodyFatStatus(valToCheck, record.gender, record.age);
+  })();
+
+  const getTrafficLightClass = (blockType: HealthStatus, activeStatus: string) => {
+    const isActive = blockType === activeStatus;
+    if (blockType === 'under') return isActive ? 'bg-blue-500 ring-2 ring-blue-400 scale-110 opacity-100 shadow-lg' : 'bg-blue-200 opacity-30';
+    if (blockType === 'healthy') return isActive ? 'bg-green-500 ring-2 ring-green-400 scale-110 opacity-100 shadow-lg' : 'bg-green-200 opacity-30';
+    if (blockType === 'over') return isActive ? 'bg-yellow-400 ring-2 ring-yellow-300 scale-110 opacity-100 shadow-lg' : 'bg-yellow-100 opacity-30';
+    if (blockType === 'obese') return isActive ? 'bg-red-500 ring-2 ring-red-400 scale-110 opacity-100 shadow-lg' : 'bg-red-200 opacity-30';
+    return '';
+  };
 </script>
 
-<div class="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-sm border border-gray-200">
-  {#if !record}
-    <p class="text-gray-400 italic text-sm">{$t('dashboard.no_data')}</p>
-  {:else}
-    <h3 class="text-lg font-bold mb-4 text-gray-700">{$t('segments.title')}</h3>
-    
-    <svg viewBox="0 0 400 500" class="w-full max-w-md h-auto font-sans">
-      <defs>
-        <style>
-          .segment-box { fill: #f9fafb; stroke: #9ca3af; stroke-width: 2; }
-          .segment-text { font-size: 14px; text-anchor: middle; fill: #374151; }
-          .label-fat { fill: #ef4444; font-weight: bold; font-size: 13px; }
-          .label-muscle { fill: #3b82f6; font-weight: bold; font-size: 13px; }
-          .segment-title { font-size: 11px; fill: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
-        </style>
-      </defs>
-
-      <circle cx="200" cy="50" r="25" class="fill-gray-100 stroke-gray-400" stroke-width="2" />
-
-      <rect x="20" y="100" width="100" height="120" rx="8" class="segment-box" />
-      <text x="70" y="125" class="segment-text segment-title">{$t('segments.left_arm')}</text>
-      <text x="70" y="155" class="segment-text label-fat">{$t('segments.fat')}: {fmt(record.fatArmL, '%')}</text>
-      <text x="70" y="180" class="segment-text label-muscle">{$t('segments.muscle')}: {fmt(record.muscleArmL, 'kg')}</text>
-
-      <rect x="130" y="100" width="140" height="180" rx="8" class="segment-box" />
-      <text x="200" y="125" class="segment-text segment-title">{$t('segments.trunk')}</text>
-      <text x="200" y="165" class="segment-text label-fat" style="font-size: 15px;">{$t('segments.fat')}: {fmt(record.fatTrunk, '%')}</text>
-      <text x="200" y="195" class="segment-text label-muscle" style="font-size: 15px;">{$t('segments.muscle')}: {fmt(record.muscleTrunk, 'kg')}</text>
-      <text x="200" y="240" class="segment-text text-xs text-gray-400">{$t('segments.visceral')}: {record.visceralFat}</text>
-
-      <rect x="280" y="100" width="100" height="120" rx="8" class="segment-box" />
-      <text x="330" y="125" class="segment-text segment-title">{$t('segments.right_arm')}</text>
-      <text x="330" y="155" class="segment-text label-fat">{$t('segments.fat')}: {fmt(record.fatArmR, '%')}</text>
-      <text x="330" y="180" class="segment-text label-muscle">{$t('segments.muscle')}: {fmt(record.muscleArmR, 'kg')}</text>
-
-      <rect x="80" y="300" width="100" height="150" rx="8" class="segment-box" />
-      <text x="130" y="325" class="segment-text segment-title">{$t('segments.left_leg')}</text>
-      <text x="130" y="360" class="segment-text label-fat">{$t('segments.fat')}: {fmt(record.fatLegL, '%')}</text>
-      <text x="130" y="390" class="segment-text label-muscle">{$t('segments.muscle')}: {fmt(record.muscleLegL, 'kg')}</text>
-
-      <rect x="220" y="300" width="100" height="150" rx="8" class="segment-box" />
-      <text x="270" y="325" class="segment-text segment-title">{$t('segments.right_leg')}</text>
-      <text x="270" y="360" class="segment-text label-fat">{$t('segments.fat')}: {fmt(record.fatLegR, '%')}</text>
-      <text x="270" y="390" class="segment-text label-muscle">{$t('segments.muscle')}: {fmt(record.muscleLegR, 'kg')}</text>
-
-      <line x1="120" y1="140" x2="130" y2="140" stroke="#d1d5db" stroke-width="2" />
-      <line x1="270" y1="140" x2="280" y2="140" stroke="#d1d5db" stroke-width="2" />
-      <line x1="160" y1="280" x2="160" y2="300" stroke="#d1d5db" stroke-width="2" />
-      <line x1="240" y1="280" x2="240" y2="300" stroke="#d1d5db" stroke-width="2" />
-    </svg>
-    
-    <div class="flex gap-6 mt-6 text-xs justify-center uppercase tracking-wide text-gray-500">
-      <div class="flex items-center gap-2">
-        <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-        <span>{$t('segments.fat')} (%)</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-        <span>{$t('segments.muscle')} (kg)</span>
-      </div>
+<div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col h-full relative">
+  
+  <div class="flex flex-col sm:flex-row justify-between items-center mb-2 z-10 border-b border-gray-100 pb-2">
+    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 sm:mb-0">
+      {$t('segments.title')}
+    </h3>
+    <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shadow-inner">
+      <button 
+        on:click={() => viewMode = 'fat'}
+        class="text-[10px] font-bold px-4 py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'fat' ? 'bg-yellow-500 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
+      >
+        {$t('segments.fat')}
+      </button>
+      <button 
+        on:click={() => viewMode = 'muscle'}
+        class="text-[10px] font-bold px-4 py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'muscle' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
+      >
+        {$t('segments.muscle')}
+      </button>
     </div>
-  {/if}
+  </div>
+
+  <div class="flex-1 flex flex-col items-center justify-center relative min-h-[400px] w-full">
+    {#if !record}
+      <div class="text-center opacity-50">
+        <p class="text-4xl mb-2">👤</p>
+        <p class="text-xs font-medium text-gray-400">{$t('dashboard.no_data_client')}</p>
+      </div>
+    {:else}
+      <svg viewBox="-50 0 380 520" class="h-full w-full max-h-[600px] drop-shadow-xl overflow-visible">
+        <defs>
+          <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+          <filter id="hover-glow" x="-50%" y="-50%" width="200%" height="200%">
+             <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgba(0,0,0,0.3)" />
+          </filter>
+        </defs>
+
+        <path d="M140,20 C128,20 120,32 120,50 C120,72 128,82 140,82 C152,82 160,72 160,50 C160,32 152,20 140,20 Z" fill="#e5e7eb" />
+
+        <g 
+          class="group cursor-pointer transition-all duration-200 ease-out origin-center"
+          on:mouseenter={() => hoveredSegment = 'armR'}
+          on:mouseleave={() => hoveredSegment = null}
+          style={hoveredSegment === 'armR' ? 'transform: scale(1.02); filter: url(#hover-glow);' : ''}
+          role="img" aria-label="Right Arm"
+        >
+          <path 
+            d="M98,90 C90,95 75,110 65,160 C62,180 60,230 52,240 C45,250 50,265 62,260 C75,255 80,230 85,210 C90,180 105,130 118,105 L98,90 Z" 
+            style="fill: {hoveredSegment === 'armR' ? hoverFill : activeFill}; stroke: white; stroke-width: 3px;"
+            class="transition-colors duration-300"
+          />
+          <g transform="translate(-45, 130)">
+             <line x1="85" y1="25" x2="105" y2="40" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
+             <rect x="0" y="0" width="85" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
+             <text x="42" y="18" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.right_arm')}</text>
+             <text x="42" y="40" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">{formatVal(currentData?.armR, '')}</text>
+          </g>
+        </g>
+
+        <g 
+          class="group cursor-pointer transition-all duration-200 ease-out origin-center"
+          on:mouseenter={() => hoveredSegment = 'armL'}
+          on:mouseleave={() => hoveredSegment = null}
+          style={hoveredSegment === 'armL' ? 'transform: scale(1.02); filter: url(#hover-glow);' : ''}
+          role="img" aria-label="Left Arm"
+        >
+          <path 
+            d="M182,90 C190,95 205,110 215,160 C218,180 220,230 228,240 C235,250 230,265 218,260 C205,255 200,230 195,210 C190,180 175,130 162,105 L182,90 Z" 
+            style="fill: {hoveredSegment === 'armL' ? hoverFill : activeFill}; stroke: white; stroke-width: 3px;"
+            class="transition-colors duration-300"
+          />
+          <g transform="translate(235, 130)">
+             <line x1="0" y1="25" x2="-25" y2="40" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
+             <rect x="0" y="0" width="85" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
+             <text x="42" y="18" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.left_arm')}</text>
+             <text x="42" y="40" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">{formatVal(currentData?.armL, '')}</text>
+          </g>
+        </g>
+
+        <g 
+          class="group cursor-pointer transition-all duration-200 ease-out origin-center"
+          on:mouseenter={() => hoveredSegment = 'trunk'}
+          on:mouseleave={() => hoveredSegment = null}
+          style={hoveredSegment === 'trunk' ? 'transform: scale(1.02); filter: url(#hover-glow);' : ''}
+          role="img" aria-label="Trunk"
+        >
+          <path 
+            d="M120,85 C120,85 160,85 160,85 L182,100 C185,130 180,180 178,220 L190,245 L90,245 L102,220 C100,180 95,130 98,100 L120,85 Z" 
+            style="fill: {hoveredSegment === 'trunk' ? hoverFill : activeFill}; stroke: white; stroke-width: 3px;"
+            class="transition-colors duration-300"
+          />
+           <g transform="translate(100, 115)">
+             <rect x="0" y="0" width="80" height="45" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
+             <text x="40" y="16" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.trunk')}</text>
+             <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">{formatVal(currentData?.trunk, '')}</text>
+          </g>
+        </g>
+
+        <g 
+          class="group cursor-pointer transition-all duration-200 ease-out origin-center"
+          on:mouseenter={() => hoveredSegment = 'legR'}
+          on:mouseleave={() => hoveredSegment = null}
+          style={hoveredSegment === 'legR' ? 'transform: scale(1.02); filter: url(#hover-glow);' : ''}
+          role="img" aria-label="Right Leg"
+        >
+          <path 
+            d="M90,248 L138,248 L135,340 C132,380 128,450 130,490 L100,490 C102,450 98,380 95,340 L90,248 Z" 
+            style="fill: {hoveredSegment === 'legR' ? hoverFill : activeFill}; stroke: white; stroke-width: 3px;"
+            class="transition-colors duration-300"
+          />
+           <g transform="translate(10, 310)">
+             <line x1="80" y1="20" x2="95" y2="20" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
+             <rect x="0" y="0" width="80" height="45" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
+             <text x="40" y="16" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.right_leg')}</text>
+             <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">{formatVal(currentData?.legR, '')}</text>
+          </g>
+        </g>
+
+        <g 
+          class="group cursor-pointer transition-all duration-200 ease-out origin-center"
+          on:mouseenter={() => hoveredSegment = 'legL'}
+          on:mouseleave={() => hoveredSegment = null}
+          style={hoveredSegment === 'legL' ? 'transform: scale(1.02); filter: url(#hover-glow);' : ''}
+          role="img" aria-label="Left Leg"
+        >
+          <path 
+            d="M142,248 L190,248 L185,340 C182,380 178,450 180,490 L150,490 C152,450 148,380 145,340 L142,248 Z" 
+            style="fill: {hoveredSegment === 'legL' ? hoverFill : activeFill}; stroke: white; stroke-width: 3px;"
+            class="transition-colors duration-300"
+          />
+          <g transform="translate(190, 310)">
+             <line x1="0" y1="20" x2="-15" y2="20" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
+             <rect x="0" y="0" width="80" height="45" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
+             <text x="40" y="16" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.left_leg')}</text>
+             <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">{formatVal(currentData?.legL, '')}</text>
+          </g>
+        </g>
+
+      </svg>
+      
+      <div class="absolute bottom-2 right-2 bg-gray-50 px-3 py-1.5 rounded text-[11px] font-bold text-gray-500 border border-gray-200 shadow-sm">
+        {$t('common.unit')}: {currentData?.unit}
+      </div>
+
+      {#if viewMode === 'fat'}
+        <div class="absolute bottom-2 left-4 flex flex-col gap-1 w-36 bg-white/80 p-2 rounded-lg backdrop-blur-sm border border-gray-100 shadow-sm">
+          <div class="flex justify-between items-end h-3 mb-1 px-1">
+             <div class="w-3 h-3 border-l-2 border-t-2 border-gray-600 bg-white rotate-45 transform transition-all duration-300
+               {currentStatus === 'under' ? 'translate-x-2' : ''}
+               {currentStatus === 'healthy' ? 'translate-x-[2.4rem]' : ''}
+               {currentStatus === 'over' ? 'translate-x-[4.6rem]' : ''}
+               {currentStatus === 'obese' ? 'translate-x-[6.8rem]' : ''}
+               {currentStatus === 'unknown' ? 'opacity-0' : 'opacity-100'}
+             "></div>
+          </div>
+          <div class="flex w-full h-3 rounded-full overflow-hidden shadow-inner bg-gray-100 gap-[2px]">
+            <div class="flex-1 transition-all duration-300 {getTrafficLightClass('under', currentStatus)}"></div>
+            <div class="flex-1 transition-all duration-300 {getTrafficLightClass('healthy', currentStatus)}"></div>
+            <div class="flex-1 transition-all duration-300 {getTrafficLightClass('over', currentStatus)}"></div>
+            <div class="flex-1 transition-all duration-300 {getTrafficLightClass('obese', currentStatus)}"></div>
+          </div>
+          <div class="flex justify-between text-[8px] text-gray-400 font-bold uppercase mt-1 px-1">
+            <span>Bajo</span>
+            <span>Alto</span>
+          </div>
+        </div>
+      {/if}
+
+    {/if}
+  </div>
 </div>

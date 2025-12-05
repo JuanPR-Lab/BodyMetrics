@@ -1,6 +1,6 @@
 /**
  * ranges.ts
- * Logic to determine health status colors/labels based on Tanita manual standards.
+ * Logic to determine health status colors/labels based on standard bioimpedance scales.
  */
 
 // Health Status Types
@@ -17,9 +17,7 @@ export const STATUS_COLORS: Record<HealthStatus, string> = {
 
 /**
  * 1. VISCERAL FAT RATING
- * Source: Manual Page 34 (ES) / 47 (NL) / 10 (EN)
- * Range 1-12: Healthy (0)
- * Range 13-59: Excess (+)
+ * Standard Range: 1-12 Healthy, 13+ Excess
  */
 export const getVisceralFatStatus = (rating: number): HealthStatus => {
   if (rating >= 1 && rating <= 12) return 'healthy';
@@ -29,14 +27,11 @@ export const getVisceralFatStatus = (rating: number): HealthStatus => {
 
 /**
  * 2. BODY FAT PERCENTAGE
- * Source: Manual Page 33 (ES) - Charts for Age/Gender
  * Simplified logic based on standard healthy ranges (Bio-impedance standards)
- * Note: The manual provides complex age-specific charts. 
  * This is a simplified approximation for Adult Standard Mode.
  */
 export const getBodyFatStatus = (fat: number, gender: 'male' | 'female', age: number): HealthStatus => {
-  // Children logic (5-17) is complex charts, falling back to general rules or ignoring for MVP
-  // Adult Logic (18-99) based on Manual charts visual approximation:
+  // Adult Logic (18-99) based on standard charts visual approximation:
   
   if (gender === 'female') {
     // Female Ranges approx
@@ -71,7 +66,6 @@ export const getBodyFatStatus = (fat: number, gender: 'male' | 'female', age: nu
 
 /**
  * 3. TOTAL BODY WATER
- * Source: Manual Page 34 (ES)
  * Female: 45 to 60%
  * Male: 50 to 65%
  */
@@ -89,8 +83,7 @@ export const getWaterStatus = (water: number, gender: 'male' | 'female'): Health
 
 /**
  * 4. BMI (Body Mass Index)
- * Source: Manual Page 37 (ES) - WHO Guidelines
- * 18.5 - 25 is optimal
+ * WHO Guidelines: 18.5 - 25 is optimal
  */
 export const getBMIStatus = (bmi: number): HealthStatus => {
   if (bmi < 18.5) return 'under';
@@ -101,7 +94,6 @@ export const getBMIStatus = (bmi: number): HealthStatus => {
 
 /**
  * 5. BASAL METABOLIC RATE (Metabolic Age)
- * Source: Manual Page 35 (ES)
  * If Metabolic Age < Actual Age = Good (Healthy)
  * If Metabolic Age > Actual Age = Needs Improvement (Over)
  */
@@ -109,6 +101,3 @@ export const getMetabolicAgeStatus = (metabolicAge: number, actualAge: number): 
   if (metabolicAge <= actualAge) return 'healthy';
   return 'over';
 };
-
-// Physique Rating (1-9) is descriptive, doesn't strictly need a "Health Status" color, 
-// but could be mapped if desired. For now we treat it as neutral data.

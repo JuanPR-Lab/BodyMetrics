@@ -1,6 +1,7 @@
 import Papa from 'papaparse';
 
-export interface TanitaRecord {
+// Renamed from TanitaRecord to BioMetricRecord to be generic
+export interface BioMetricRecord {
   id: string;
   date: string;
   time: string;
@@ -42,7 +43,7 @@ const safeInt = (val: any) => {
   return isNaN(n) ? 0 : n;
 };
 
-// Dictionary of keys we look for in the row
+// Dictionary of keys we look for in the row (Hardware specific codes)
 const KEYS = {
   DATE: 'DT', TIME: 'Ti', MODEL: 'MO', GENDER: 'GE', AGE: 'AG', HEIGHT: 'Hm', ACTIVITY: 'AL',
   WEIGHT: 'Wk', BMI: 'MI', FAT_TOTAL: 'FW', MUSCLE_TOTAL: 'mW', BONE: 'bW', VISCERAL: 'IF',
@@ -51,20 +52,19 @@ const KEYS = {
   MUS_R_ARM: 'mr', MUS_L_ARM: 'ml', MUS_R_LEG: 'mR', MUS_L_LEG: 'mL', MUS_TRUNK: 'mT'
 };
 
-const parseSingleFile = (file: File): Promise<TanitaRecord[]> => {
+const parseSingleFile = (file: File): Promise<BioMetricRecord[]> => {
   return new Promise((resolve) => {
     Papa.parse(file, {
-      header: false, // IMPORTANT: We read as raw array of arrays
+      header: false, // We read as raw array of arrays
       skipEmptyLines: true,
       complete: (results) => {
-        const records: TanitaRecord[] = [];
+        const records: BioMetricRecord[] = [];
 
         // Iterate over every row found in the CSV
         results.data.forEach((row: any[]) => {
           if (!Array.isArray(row) || row.length < 5) return;
 
           // Helper to find value by key in this specific row
-          // Strategy: Find the index of the KEY (e.g. 'Wk'), then take the value at index + 1
           const getValue = (key: string): string | null => {
             const idx = row.findIndex(cell => cleanStr(cell) === key);
             if (idx !== -1 && idx + 1 < row.length) {
@@ -85,7 +85,7 @@ const parseSingleFile = (file: File): Promise<TanitaRecord[]> => {
             id: `${dateVal}-${timeVal}`,
             date: dateVal,
             time: timeVal || '00:00',
-            model: getValue(KEYS.MODEL) || 'BC-601',
+            model: getValue(KEYS.MODEL) || 'Generic-Scale',
             gender: getValue(KEYS.GENDER) === '2' ? 'female' : 'male', // 1=Male, 2=Female
             age: safeInt(getValue(KEYS.AGE)),
             height: safeFloat(getValue(KEYS.HEIGHT)),
@@ -123,7 +123,8 @@ const parseSingleFile = (file: File): Promise<TanitaRecord[]> => {
   });
 };
 
-export const parseTanitaFiles = async (files: FileList | File[]): Promise<TanitaRecord[]> => {
+// Renamed function to be generic
+export const parseScaleFiles = async (files: FileList | File[]): Promise<BioMetricRecord[]> => {
   const fileArray = Array.from(files);
   const allPromises = fileArray.map(file => parseSingleFile(file));
   const results = await Promise.all(allPromises);

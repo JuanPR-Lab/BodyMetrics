@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { get } from 'svelte/store'; 
   import { locale, t, isLoading as isLocaleLoading } from 'svelte-i18n';
-  import { parseTanitaFiles, type TanitaRecord } from '$lib/utils/csvSDparser';
+  
+  import { parseScaleFiles, type BioMetricRecord } from '$lib/utils/csvSDparser';
   import { 
     STATUS_COLORS, 
     getBodyFatStatus, 
@@ -16,9 +18,9 @@
   import '$lib/i18n';
 
   // --- STATE MANAGEMENT ---
-  let allRecords: TanitaRecord[] = [];
+  let allRecords: BioMetricRecord[] = [];
   let clients: Client[] = [];
-  
+
   // UI State
   let currentTab: 'inbox' | 'clients' | 'settings' = 'inbox';
   let isProcessing = false;
@@ -35,13 +37,12 @@
   let currentFilter: FilterMode = 'all'; 
   let customDateStart = '';
   let customDateEnd = '';
-  
+
   // Chart State
-  let selectedChartMetric: keyof TanitaRecord = 'weight';
-  
-  // Visual Hover State (Index-based for reliability)
+  let selectedChartMetric: keyof BioMetricRecord = 'weight';
+
+  // Visual Hover State
   let hoveredIndex: number | null = null;
-  // Data Hover State (For Tooltip content)
   let hoveredPointData: { x: number, y: number, val: string, date: string, unitKey: string, isRightSide: boolean, isTop: boolean } | null = null;
   
   // Form State
@@ -51,13 +52,14 @@
   // --- CHART OPTIONS ---
   const chartOptions = [
     { key: 'weight', label: 'metrics.weight', color: '#1f2937', unitKey: 'kg' },
-    { key: 'bodyFat', label: 'metrics.body_fat', color: '#ef4444', unitKey: 'percent' },
+    { key: 'bmi', label: 'metrics.bmi', color: '#4b5563', unitKey: '' },
+    { key: 'dci', label: 'metrics.dci', color: '#10b981', unitKey: 'kcal' },
+    { key: 'bodyFat', label: 'metrics.body_fat', color: '#eab308', unitKey: 'percent' },
     { key: 'muscleMass', label: 'metrics.muscle_mass', color: '#3b82f6', unitKey: 'kg' },
     { key: 'waterPercentage', label: 'metrics.water', color: '#0ea5e9', unitKey: 'percent' },
-    { key: 'visceralFat', label: 'metrics.visceral_fat', color: '#eab308', unitKey: 'rating' },
     { key: 'boneMass', label: 'metrics.bone_mass', color: '#6b7280', unitKey: 'kg' },
-    { key: 'metabolicAge', label: 'metrics.metabolic_age', color: '#8b5cf6', unitKey: 'years' }, 
-    { key: 'dci', label: 'metrics.dci', color: '#10b981', unitKey: 'kcal' }
+    { key: 'visceralFat', label: 'metrics.visceral_fat', color: '#d97706', unitKey: 'rating' },
+    { key: 'metabolicAge', label: 'metrics.metabolic_age', color: '#8b5cf6', unitKey: 'years' }
   ];
 
   // --- HELPER: DATE SORTING ---
@@ -75,7 +77,6 @@
   // --- REACTIVE DERIVED STATE ---
   $: showWelcomeScreen = clients.length === 0;
   $: inboxRecords = allRecords.filter(r => !PatientManager.getClientForRecord(r.id));
-
   $: filteredClients = clients.filter(c => {
     if (!clientSearchTerm) return true;
     const term = clientSearchTerm.toLowerCase().trim();
@@ -96,12 +97,12 @@
   // Chart Data Calculation
   $: activeChartOption = chartOptions.find(o => o.key === selectedChartMetric);
   $: activeChartColor = activeChartOption?.color || '#1f2937';
-  $: activeChartUnitKey = activeChartOption?.unitKey || ''; // Key only, no translation here
+  $: activeChartUnitKey = activeChartOption?.unitKey || ''; 
   
   $: chartData = displayedHistory.length > 0 ? prepareSingleChart(displayedHistory, selectedChartMetric, activeChartUnitKey) : null;
 
-  // --- FUNCTIONS ---
-  function filterHistory(history: TanitaRecord[], mode: FilterMode, start: string, end: string) {
+  // --- DATA OPERATIONS ---
+  function filterHistory(history: BioMetricRecord[], mode: FilterMode, start: string, end: string) {
     if (history.length === 0) return [];
     if (mode === 'all') return history;
 
@@ -115,7 +116,7 @@
 
     if (mode === 'custom') {
       const s = start ? new Date(start).getTime() : 0;
-      const e = end ? new Date(end).getTime() + 86400000 : Infinity; 
+      const e = end ? new Date(end).getTime() + 86400000 : Infinity;
       return history.filter(r => {
         const t = getTimestamp(r.date, r.time);
         return t >= s && t < e;
@@ -132,7 +133,7 @@
 
   function refreshClients() {
     clients = PatientManager.getClients();
-    allRecords = [...allRecords]; 
+    allRecords = [...allRecords];
   }
 
   const handleFiles = async (files: FileList | File[] | null) => {
@@ -140,13 +141,16 @@
     isProcessing = true;
     errorMessage = '';
     try {
-      const parsedData = await parseTanitaFiles(files);
+      const parsedData = await parseScaleFiles(files);
       if (parsedData.length === 0) throw new Error('No valid records found.');
+      
       const recordMap = new Map([...allRecords, ...parsedData].map(r => [r.id, r]));
       allRecords = Array.from(recordMap.values()).sort((a, b) => b.id.localeCompare(a.id));
+      
       if (!showWelcomeScreen && inboxRecords.length > 0) currentTab = 'inbox';
     } catch (err) {
       console.error(err);
+      const $t = get(t);
       errorMessage = $t('upload.error');
     } finally {
       isProcessing = false;
@@ -169,8 +173,9 @@
   };
 
   const deleteClient = (id: string) => {
-    // This runs on client interaction, so $t is safe
-    if (!confirm(t.get('dashboard.delete_client_confirm'))) return; 
+    const $t = get(t); 
+    if (!confirm($t('dashboard.delete_client_confirm'))) return;
+    
     PatientManager.deleteClient(id);
     if (selectedClientId === id) selectedClientId = '';
     refreshClients();
@@ -184,14 +189,17 @@
 
   const unassignCurrentRecord = () => {
     if (!currentRecord) return;
-    if (!confirm(t.get('dashboard.detach_record') + '?')) return;
+    const $t = get(t);
+    if (!confirm($t('dashboard.detach_record') + '?')) return;
+    
     PatientManager.unassignRecord(currentRecord.id);
     refreshClients();
     selectedRecordId = '';
   };
 
   const deleteAllData = () => {
-    if (confirm(t.get('settings.delete_all_confirm'))) {
+    const $t = get(t);
+    if (confirm($t('settings.delete_all_confirm'))) {
       PatientManager.deleteAllData();
       clients = [];
       selectedClientId = '';
@@ -201,53 +209,68 @@
   };
 
   const exportClientData = () => {
+    const $t = get(t); 
     const client = clients.find(c => c.id === selectedClientId);
     const filename = client ? `${client.id}_${client.alias.replace(/\s/g, '_')}.csv` : 'export.csv';
+    
     const headersMap = {
-      date: t.get('csv_headers.date'), time: t.get('csv_headers.time'), model: t.get('csv_headers.model'),
-      weight: t.get('metrics.weight'), bmi: t.get('metrics.bmi'), bodyFat: t.get('metrics.body_fat'), 
-      muscleMass: t.get('metrics.muscle_mass'), visceralFat: t.get('metrics.visceral_fat'),
-      waterPercentage: t.get('metrics.water'), boneMass: t.get('metrics.bone_mass'),
-      metabolicAge: t.get('metrics.metabolic_age'), dci: t.get('metrics.dci'),
-      fatTrunk: t.get('csv_headers.fat_trunk'), fatArmR: t.get('csv_headers.fat_arm_r'),
-      fatArmL: t.get('csv_headers.fat_arm_l'), fatLegR: t.get('csv_headers.fat_leg_r'),
-      fatLegL: t.get('csv_headers.fat_leg_l'), muscleTrunk: t.get('csv_headers.mus_trunk'),
-      muscleArmR: t.get('csv_headers.mus_arm_r'), muscleArmL: t.get('csv_headers.mus_arm_l'),
-      muscleLegR: t.get('csv_headers.mus_leg_r'), muscleLegL: t.get('csv_headers.mus_leg_l')
+      date: $t('csv_headers.date'), 
+      time: $t('csv_headers.time'), 
+      model: $t('csv_headers.model'),
+      weight: $t('metrics.weight'), 
+      bmi: $t('metrics.bmi'), 
+      bodyFat: $t('metrics.body_fat'), 
+      muscleMass: $t('metrics.muscle_mass'), 
+      visceralFat: $t('metrics.visceral_fat'),
+      waterPercentage: $t('metrics.water'), 
+      boneMass: $t('metrics.bone_mass'),
+      metabolicAge: $t('metrics.metabolic_age'), 
+      dci: $t('metrics.dci'),
+      fatTrunk: $t('csv_headers.fat_trunk'), 
+      fatArmR: $t('csv_headers.fat_arm_r'),
+      fatArmL: $t('csv_headers.fat_arm_l'), 
+      fatLegR: $t('csv_headers.fat_leg_r'),
+      fatLegL: $t('csv_headers.fat_leg_l'), 
+      muscleTrunk: $t('csv_headers.mus_trunk'),
+      muscleArmR: $t('csv_headers.mus_arm_r'), 
+      muscleArmL: $t('csv_headers.mus_arm_l'),
+      muscleLegR: $t('csv_headers.mus_leg_r'), 
+      muscleLegL: $t('csv_headers.mus_leg_l')
     };
+    
     exportToCSV(clientHistory, headersMap, filename);
   };
 
   const handleImportBackup = async (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
+    
+    const $t = get(t);
     const text = await file.text();
+    
     if (PatientManager.importBackup(text)) {
-      alert(t.get('settings.import_success'));
+      alert($t('settings.import_success'));
       refreshClients();
     } else {
-      alert(t.get('settings.import_error'));
+      alert($t('settings.import_error'));
     }
   };
 
-  // --- ROBUST CHART GENERATOR ---
-  function prepareSingleChart(history: TanitaRecord[], key: keyof TanitaRecord, unitKey: string) {
+  // --- CHART GENERATOR LOGIC ---
+  function prepareSingleChart(history: BioMetricRecord[], key: keyof BioMetricRecord, unitKey: string) {
     try {
       const sorted = [...history].sort((a, b) => getTimestamp(a.date, a.time) - getTimestamp(b.date, b.time));
-      // Always use all data for chart (filtered by range previously)
       const data = sorted;
-      
       if (data.length === 0) return null;
 
       const values = data.map(d => Number(d[key]) || 0);
       const minVal = Math.min(...values);
       const maxVal = Math.max(...values);
 
-      // 2. Nice Scale Calculation
       let rawRange = maxVal - minVal;
-      if (rawRange === 0) rawRange = 1; // Prevent division by zero
+      if (rawRange === 0) rawRange = 1; 
       
-      const roughStep = rawRange / 4; 
+      const roughStep = rawRange / 4;
       const niceSteps = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100];
       let step = niceSteps.find(s => s >= roughStep) || roughStep;
       if (step > 100) step = Math.pow(10, Math.floor(Math.log10(rawRange)));
@@ -255,22 +278,18 @@
       let axisMin = Math.floor(minVal / step) * step;
       let axisMax = Math.ceil(maxVal / step) * step;
 
-      // Add padding
       if (minVal - axisMin < step * 0.1) axisMin -= step;
       if (axisMax - maxVal < step * 0.1) axisMax += step;
 
       const range = axisMax - axisMin;
-      // If only 1 point, center it (50%)
       const stepX = data.length > 1 ? 100 / (data.length - 1) : 0;
 
-      // 3. Grid Lines
       const gridLines = [];
       for (let v = axisMin; v <= axisMax + 0.0001; v += step) {
         const y = 100 - ((v - axisMin) / range * 100);
         gridLines.push({ y, label: parseFloat(v.toFixed(1)) }); 
       }
 
-      // 4. Points
       const pointsData = data.map((d, i) => {
         const val = Number(d[key]) || 0;
         const x = data.length > 1 ? i * stepX : 50;
@@ -296,7 +315,7 @@
 
   // --- UI HELPERS ---
   const switchLang = (lang: string) => locale.set(lang);
-  
+
   const getStatusColor = (type: string, val: number) => {
     if (!currentRecord) return STATUS_COLORS.unknown;
     try {
@@ -314,7 +333,6 @@
     if(e.dataTransfer?.files) handleFiles(e.dataTransfer.files); 
   };
 
-  // Mouse Handlers for Chart (Index-based)
   const onPointEnter = (i: number, point: any) => {
     hoveredIndex = i;
     hoveredPointData = point;
@@ -360,27 +378,58 @@
 
     <main class="max-w-7xl mx-auto px-4 py-6">
       {#if showWelcomeScreen}
-        <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-10 text-center mt-10">
-          <div class="text-6xl mb-6">👋</div>
-          <h2 class="text-3xl font-bold text-gray-800 mb-2">{$t('welcome.title')}</h2>
-          <p class="text-gray-500 mb-10 text-lg">{$t('welcome.subtitle')}</p>
-          <div class="grid md:grid-cols-3 gap-6 text-left mb-12">
-            <div class="p-5 bg-blue-50 rounded-xl border border-blue-100"><h3 class="font-bold text-blue-800 text-sm mb-2">{$t('welcome.step1_title')}</h3><p class="text-xs text-blue-700 leading-relaxed">{$t('welcome.step1_text')}</p></div>
-            <div class="p-5 bg-blue-50 rounded-xl border border-blue-100"><h3 class="font-bold text-blue-800 text-sm mb-2">{$t('welcome.step2_title')}</h3><p class="text-xs text-blue-700 leading-relaxed">{$t('welcome.step2_text')}</p></div>
-            <div class="p-5 bg-yellow-50 rounded-xl border border-yellow-100"><h3 class="font-bold text-yellow-800 text-sm mb-2">{$t('welcome.step3_title')}</h3><p class="text-xs text-yellow-700 leading-relaxed">{$t('welcome.step3_text')}</p></div>
-          </div>
-          <div class="max-w-sm mx-auto bg-gray-50 p-6 rounded-xl border border-gray-200">
-            <p class="text-sm font-bold text-gray-700 mb-4">{$t('welcome.cta')}</p>
-            <div class="space-y-3">
-              <input bind:value={newClientId} placeholder={$t('dashboard.client_id_placeholder')} class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
-              <input bind:value={newClientAlias} placeholder={$t('dashboard.client_alias_placeholder')} class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
-              <button on:click={createClient} disabled={!newClientId} class="w-full bg-blue-600 text-white font-bold py-3 rounded hover:bg-blue-700 disabled:opacity-50 transition shadow-sm">{$t('dashboard.create_btn')}</button>
-              <p class="text-[10px] text-red-500 italic leading-tight mt-2">{$t('welcome.privacy_hint')}</p>
+        <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-8 md:p-12 text-center mt-6">
+          <div class="text-6xl mb-6 animate-pulse">👋</div>
+          <h2 class="text-3xl font-black text-gray-800 mb-3">{$t('welcome.title')}</h2>
+          <p class="text-gray-500 mb-10 text-lg max-w-2xl mx-auto">{$t('welcome.subtitle')}</p>
+          
+          <div class="grid md:grid-cols-2 gap-6 text-left mb-12">
+            <div class="p-6 bg-blue-50 rounded-xl border border-blue-100 hover:shadow-md transition-shadow">
+              <h3 class="font-bold text-blue-900 text-sm mb-2">{$t('welcome.guide_1_title')}</h3>
+              <p class="text-xs text-blue-800 leading-relaxed">{$t('welcome.guide_1_text')}</p>
             </div>
-            <div class="mt-8 pt-6 border-t border-gray-200">
+            <div class="p-6 bg-gray-50 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+              <h3 class="font-bold text-gray-800 text-sm mb-2">{$t('welcome.guide_2_title')}</h3>
+              <p class="text-xs text-gray-600 leading-relaxed">{$t('welcome.guide_2_text')}</p>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+              <h3 class="font-bold text-gray-800 text-sm mb-2">{$t('welcome.guide_3_title')}</h3>
+              <p class="text-xs text-gray-600 leading-relaxed">{$t('welcome.guide_3_text')}</p>
+            </div>
+            <div class="p-6 bg-green-50 rounded-xl border border-green-100 hover:shadow-md transition-shadow">
+              <h3 class="font-bold text-green-900 text-sm mb-2">{$t('welcome.guide_4_title')}</h3>
+              <p class="text-xs text-green-800 leading-relaxed">{$t('welcome.guide_4_text')}</p>
+            </div>
+            <div class="p-6 bg-yellow-50 rounded-xl border border-yellow-100 hover:shadow-md transition-shadow">
+              <h3 class="font-bold text-yellow-900 text-sm mb-2">{$t('welcome.guide_5_title')}</h3>
+              <p class="text-xs text-yellow-800 leading-relaxed">{$t('welcome.guide_5_text')}</p>
+            </div>
+            <div class="p-6 bg-gray-800 rounded-xl border border-gray-700 text-gray-300 hover:shadow-md transition-shadow">
+              <h3 class="font-bold text-white text-sm mb-2">{$t('welcome.guide_6_title')}</h3>
+              <p class="text-xs leading-relaxed mb-3">{$t('welcome.guide_6_text')}</p>
+              <a href="https://github.com/JuanPR-Lab/BodyMetrics" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-[10px] font-bold bg-white text-gray-900 px-2 py-1 rounded hover:bg-gray-200 transition-colors">
+                <span class="mr-1">🔗</span> {$t('welcome.github_link')}
+              </a>
+            </div>
+          </div>
+  
+          <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto border-t border-gray-100 pt-8">
+            <div class="bg-white p-6">
+              <p class="text-sm font-bold text-gray-700 mb-4 text-left">{$t('welcome.cta')}</p>
+              <div class="space-y-3">
+                <input bind:value={newClientId} placeholder={$t('dashboard.client_id_placeholder')} class="w-full border border-gray-300 rounded px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none text-sm" />
+                <input bind:value={newClientAlias} placeholder={$t('dashboard.client_alias_placeholder')} class="w-full border border-gray-300 rounded px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none text-sm" />
+                <button on:click={createClient} disabled={!newClientId} class="w-full bg-blue-600 text-white font-bold py-3 rounded hover:bg-blue-700 disabled:opacity-50 transition shadow-sm">
+                  {$t('dashboard.create_btn')}
+                </button>
+                <p class="text-[10px] text-red-500 italic leading-tight mt-2 text-left">{$t('welcome.privacy_hint')}</p>
+              </div>
+            </div>
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 flex flex-col justify-center">
               <p class="text-sm font-bold text-gray-700 mb-4">{$t('welcome.cta_import')}</p>
-              <label class="w-full flex items-center justify-center gap-2 bg-white border-2 border-dashed border-gray-300 text-gray-600 font-bold py-4 rounded-lg hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition cursor-pointer">
-                <span>📂</span> {$t('welcome.btn_import')}
+              <label class="w-full flex flex-col items-center justify-center gap-2 bg-white border-2 border-dashed border-gray-300 text-gray-600 font-bold py-6 rounded-lg hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition cursor-pointer">
+                <span class="text-2xl">📂</span> 
+                <span>{$t('welcome.btn_import')}</span>
                 <input type="file" accept=".json" on:change={handleImportBackup} class="hidden" />
               </label>
             </div>
@@ -388,10 +437,18 @@
         </div>
       {:else}
         {#if currentTab === 'inbox'}
-          <div class="bg-white p-4 rounded-lg border border-gray-200 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm transition-all {isDragging ? 'ring-4 ring-blue-100 border-blue-400 bg-blue-50' : ''}">
-            <div class="text-sm text-gray-600 flex flex-col"><strong class="text-gray-800">{$t('upload.instruction_title')}</strong><span class="text-xs text-gray-400">{$t('upload.instruction_path')}</span></div>
-            <div><label class="cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-md text-sm font-bold transition inline-flex items-center gap-2 border border-blue-200 shadow-sm"><span>📂</span> {isProcessing ? $t('upload.processing') : $t('upload.browse')}<input type="file" multiple accept=".csv" on:change={(e)=>handleFiles((e.target as HTMLInputElement).files)} disabled={isProcessing} class="hidden" /></label></div>
-            {#if errorMessage}<div class="text-red-500 text-xs font-bold w-full text-center md:text-right">{errorMessage}</div>{/if}
+          <div class="bg-white p-8 rounded-xl border-2 border-dashed border-gray-300 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:border-blue-400 hover:bg-gray-50 {isDragging ? 'ring-4 ring-blue-100 border-blue-500 bg-blue-50' : ''}">
+            <div class="text-sm text-gray-600 flex flex-col gap-2 max-w-lg">
+              <strong class="text-gray-800 text-lg flex items-center gap-2"><span>📥</span> {$t('upload.instruction_title')}</strong>
+              <span class="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded border border-gray-200 w-fit">{$t('upload.instruction_path')}</span>
+            </div>
+            <div class="flex flex-col items-center md:items-end gap-3">
+              <span class="text-sm text-gray-400 font-medium italic hidden md:block">{$t('upload.drop_zone')}</span>
+              <label class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-bold transition inline-flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                <span>📂</span> {isProcessing ? $t('upload.processing') : $t('upload.browse')}<input type="file" multiple accept=".csv" on:change={(e)=>handleFiles((e.target as HTMLInputElement).files)} disabled={isProcessing} class="hidden" />
+              </label>
+            </div>
+            {#if errorMessage}<div class="w-full md:w-auto text-red-500 text-xs font-bold bg-red-50 px-3 py-2 rounded border border-red-100">{errorMessage}</div>{/if}
           </div>
         {/if}
         {#if currentTab === 'inbox'}
@@ -428,6 +485,7 @@
                 <div class="overflow-y-auto flex-1 p-2 space-y-1">{#each filteredClients as client}<button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 py-3 rounded-md text-sm group hover:bg-blue-50 transition flex justify-between items-center {selectedClientId === client.id ? 'bg-blue-100 text-blue-900 ring-1 ring-blue-300' : 'text-gray-700'}"><div class="truncate pr-2"><div class="font-bold truncate">{client.alias}</div><div class="text-[10px] opacity-60 font-mono">{client.id}</div></div><span class="text-[10px] bg-white border px-1.5 py-0.5 rounded text-gray-500 font-mono">{PatientManager.getClientHistory(client.id, allRecords).length}</span></button>{/each}</div>
               </div>
             </div>
+            
             <div class="lg:col-span-3 flex flex-col gap-6 h-full overflow-y-auto pr-1 pb-10">
               {#if !selectedClientId}
                 <div class="h-full flex flex-col items-center justify-center text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-200"><p class="text-4xl mb-4 opacity-50">👤</p><p>{$t('dashboard.select_client_prompt')}</p></div>
@@ -439,26 +497,101 @@
                 <div class="w-full flex-shrink-0 bg-gray-50 p-3 rounded-xl border border-gray-200 shadow-inner overflow-x-auto scrollbar-thin">
                   {#if displayedHistory.length === 0}<p class="text-sm text-gray-400 text-center py-2">{$t('dashboard.no_data_client')}</p>{:else}<div class="flex gap-3">{#each displayedHistory as rec}<button on:click={() => selectedRecordId = rec.id} class="flex-shrink-0 w-32 p-3 rounded-lg border text-left transition-all relative overflow-hidden {selectedRecordId === rec.id || (!selectedRecordId && rec === currentRecord) ? 'border-blue-600 bg-white ring-2 ring-blue-500 shadow-md z-10 transform scale-105' : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm opacity-80 hover:opacity-100'}"><div class="text-[10px] text-gray-500 uppercase font-bold mb-1 leading-tight">{rec.date} <br><span class="font-normal opacity-75 text-[9px]">{rec.time}</span></div><div class="font-black text-gray-800 text-xl">{rec.weight}<span class="text-sm font-normal text-gray-400 ml-0.5">{$t('units.kg')}</span></div><div class="text-xs font-medium mt-2 flex justify-between"><span class="text-blue-600">{rec.bodyFat}%</span><span class="text-gray-400">{rec.bmi}</span></div></button>{/each}</div>{/if}
                 </div>
+                
                 {#if currentRecord}
-                  <div class="flex justify-between items-center -mt-2 mb-1 border-b border-gray-100 pb-2"><span class="text-xs font-bold text-gray-400 uppercase tracking-wider">{$t('dashboard.latest_reading')}</span><button on:click={unassignCurrentRecord} class="text-xs text-red-500 hover:text-white border border-red-200 hover:bg-red-500 px-3 py-1 rounded transition-colors flex items-center gap-1 font-medium"><span>↩️</span> {$t('dashboard.detach_record')}</button></div>
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-gray-800"><p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{$t('metrics.weight')}</p><p class="text-3xl font-black text-gray-800 mt-1">{currentRecord.weight}<span class="text-sm font-normal text-gray-400 ml-1">{$t('units.kg')}</span></p></div><div class="bg-white p-4 rounded-lg shadow-sm border-l-4 {getStatusColor('bmi', currentRecord.bmi).replace('bg-', 'border-')}"><p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{$t('metrics.bmi')}</p><p class="text-3xl font-black text-gray-800 mt-1">{currentRecord.bmi}</p></div><div class="bg-white p-4 rounded-lg shadow-sm border-l-4 {getStatusColor('fat', currentRecord.bodyFat).replace('bg-', 'border-')}"><p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{$t('metrics.body_fat')}</p><p class="text-3xl font-black text-gray-800 mt-1">{currentRecord.bodyFat}<span class="text-sm font-normal text-gray-400 ml-1">{$t('units.percent')}</span></p></div><div class="bg-white p-4 rounded-lg shadow-sm border-l-4 {getStatusColor('water', currentRecord.waterPercentage).replace('bg-', 'border-')}"><p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{$t('metrics.water')}</p><p class="text-3xl font-black text-gray-800 mt-1">{currentRecord.waterPercentage}<span class="text-sm font-normal text-gray-400 ml-1">{$t('units.percent')}</span></p></div></div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6"><BodyMap record={currentRecord} /><div class="bg-white p-6 rounded-lg shadow-sm h-fit border border-gray-100"><h3 class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-5 border-b pb-2">{$t('dashboard.metabolic_health')}</h3><div class="space-y-3"><div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><div><p class="text-sm font-bold text-gray-700">{$t('metrics.visceral_fat')}</p><p class="text-[10px] text-gray-400">{$t('dashboard.target')}: 1-12</p></div><span class={`px-3 py-1 rounded text-sm font-bold ${getStatusColor('visceral', currentRecord.visceralFat)}`}>{currentRecord.visceralFat}</span></div><div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><div><p class="text-sm font-bold text-gray-700">{$t('metrics.metabolic_age')}</p><p class="text-[10px] text-gray-400">{$t('dashboard.actual_age')}: {currentRecord.age}</p></div><span class={`px-3 py-1 rounded text-sm font-bold ${getStatusColor('meta', currentRecord.metabolicAge)}`}>{currentRecord.metabolicAge}</span></div><div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><span class="text-sm font-bold text-gray-700">{$t('metrics.muscle_mass')}</span><span class="font-bold text-blue-600 text-lg">{currentRecord.muscleMass} <span class="text-xs">{$t('units.kg')}</span></span></div><div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><span class="text-sm font-bold text-gray-700">{$t('metrics.bone_mass')}</span><span class="font-bold text-gray-600 text-lg">{currentRecord.boneMass} <span class="text-xs">{$t('units.kg')}</span></span></div><div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><span class="text-sm font-bold text-gray-700">{$t('metrics.dci')}</span><span class="font-bold text-green-600 text-lg">{currentRecord.dci} <span class="text-xs">{$t('units.kcal')}</span></span></div></div></div></div>
+                  <div class="flex justify-between items-center -mt-2 mb-4 border-b border-gray-100 pb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">{$t('dashboard.latest_reading')}</span>
+                      <span class="text-xs font-mono text-gray-300">|</span>
+                      <span class="text-xs font-bold text-gray-600">{currentRecord.date} {currentRecord.time}</span>
+                    </div>
+                    <button on:click={unassignCurrentRecord} class="text-xs text-red-500 hover:text-white border border-red-200 hover:bg-red-500 px-3 py-1 rounded transition-colors flex items-center gap-1 font-medium">
+                      <span>↩️</span> {$t('dashboard.detach_record')}
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <div class="h-full min-h-[500px]">
+                      <BodyMap record={currentRecord} />
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                      
+                      <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between gap-2">
+                        <div class="flex flex-col items-center">
+                          <span class="text-[10px] font-bold text-gray-400 uppercase">{$t('metrics.weight')}</span>
+                          <span class="text-3xl font-black text-gray-800">{currentRecord.weight}<span class="text-sm font-medium text-gray-400 ml-1">{$t('units.kg')}</span></span>
+                        </div>
+                        <div class="w-px h-8 bg-gray-100"></div>
+                        <div class="flex flex-col items-center">
+                          <span class="text-[10px] font-bold text-gray-400 uppercase">{$t('metrics.bmi')}</span>
+                          <span class="text-2xl font-black {getStatusColor('bmi', currentRecord.bmi).replace('bg-', 'text-').replace('-100', '-600')}">
+                            {currentRecord.bmi}
+                          </span>
+                        </div>
+                        <div class="w-px h-8 bg-gray-100"></div>
+                        <div class="flex flex-col items-center">
+                          <span class="text-[10px] font-bold text-gray-400 uppercase">{$t('metrics.dci')}</span>
+                          <span class="text-2xl font-bold text-green-600">{currentRecord.dci}<span class="text-xs font-medium text-green-400 ml-1">kcal</span></span>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white p-3 rounded-xl shadow-sm border-l-4 border-yellow-500 border-gray-100">
+                          <span class="text-[10px] font-bold text-gray-500 uppercase block mb-1">{$t('metrics.body_fat')}</span>
+                          <span class="text-xl font-black text-gray-800">{currentRecord.bodyFat}<span class="text-xs text-gray-400 font-medium ml-1">{$t('units.percent')}</span></span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl shadow-sm border-l-4 border-blue-500 border-gray-100">
+                          <span class="text-[10px] font-bold text-gray-500 uppercase block mb-1">{$t('metrics.muscle_mass')}</span>
+                          <span class="text-xl font-black text-gray-800">{currentRecord.muscleMass}<span class="text-xs text-gray-400 font-medium ml-1">{$t('units.kg')}</span></span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl shadow-sm border-l-4 {getStatusColor('water', currentRecord.waterPercentage).replace('bg-', 'border-')} border-gray-100">
+                          <span class="text-[10px] font-bold text-gray-500 uppercase block mb-1">{$t('metrics.water')}</span>
+                          <span class="text-xl font-black text-gray-800">{currentRecord.waterPercentage}<span class="text-xs text-gray-400 font-medium ml-1">{$t('units.percent')}</span></span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl shadow-sm border-l-4 border-gray-400 border-gray-100">
+                          <span class="text-[10px] font-bold text-gray-500 uppercase block mb-1">{$t('metrics.bone_mass')}</span>
+                          <span class="text-xl font-black text-gray-800">{currentRecord.boneMass}<span class="text-xs text-gray-400 font-medium ml-1">{$t('units.kg')}</span></span>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 flex flex-col justify-between">
+                          <p class="text-[9px] font-bold text-gray-400 uppercase">{$t('metrics.visceral_fat')}</p>
+                          <div class="flex items-end justify-between mt-1">
+                            <span class="text-xs text-gray-400">{$t('dashboard.target')}: 1-12</span>
+                            <span class="text-lg font-black {getStatusColor('visceral', currentRecord.visceralFat).replace('bg-', 'text-').replace('-100', '-600')}">{currentRecord.visceralFat}</span>
+                          </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 flex flex-col justify-between">
+                          <p class="text-[9px] font-bold text-gray-400 uppercase">{$t('metrics.metabolic_age')}</p>
+                          <div class="flex items-end justify-between mt-1">
+                            <span class="text-xs text-gray-400">{$t('dashboard.actual_age')}: {currentRecord.age}</span>
+                            <span class="text-lg font-black {getStatusColor('meta', currentRecord.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">{currentRecord.metabolicAge}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
                   {#if chartData}
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mt-6">
-                      <div class="flex justify-between items-center mb-6"><h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{$t('dashboard.evolution_chart')} ({chartData.pointsData.length})</h3><select bind:value={selectedChartMetric} class="border border-gray-300 rounded px-3 py-1.5 text-sm font-medium bg-white hover:border-blue-400 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer shadow-sm">{#each chartOptions as option}<option value={option.key}>{$t(option.label)}</option>{/each}</select></div>
+                      <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{$t('dashboard.evolution_chart')} ({chartData.pointsData.length})</h3>
+                        <select bind:value={selectedChartMetric} class="min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-sm font-medium bg-white hover:border-blue-400 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer shadow-sm">
+                          {#each chartOptions as option}<option value={option.key}>{$t(option.label)} {option.unitKey ? `(${option.unitKey})` : ''}</option>{/each}
+                        </select>
+                      </div>
                       <div role="img" aria-label="Evolution Chart" class="h-72 w-full relative group" on:mouseleave={onChartLeave}>
                         <svg viewBox="-12 -5 115 120" preserveAspectRatio="none" class="w-full h-full overflow-visible" style="font-family: ui-sans-serif, system-ui, sans-serif;">
                           <defs><linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color={activeChartColor} stop-opacity="0.2"/><stop offset="100%" stop-color={activeChartColor} stop-opacity="0"/></linearGradient></defs>
-                          {#each chartData.gridLines as grid}<line x1="0" y1={grid.y} x2="100" y2={grid.y} stroke="#e5e7eb" stroke-width="0.5" /><text x="-3" y={grid.y + 1.5} font-size="4.5" font-weight="bold" fill="#374151" text-anchor="end" class="font-sans">{grid.label}</text>{/each}
+                          {#each chartData.gridLines as grid}<line x1="0" y1={grid.y} x2="100" y2={grid.y} stroke="#e5e7eb" stroke-width="0.5" /><text x="-3" y={grid.y + 1.5} font-size="3.0" font-weight="bold" fill="#374151" text-anchor="end" class="font-sans">{grid.label}</text>{/each}
                           <polyline points={chartData.areaPath} fill="url(#chartGradient)" />
                           <polyline fill="none" stroke={activeChartColor} stroke-width="1.5" points={chartData.polyline} vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
                           {#each chartData.pointsData as p, i}
-                            <circle 
-                              cx={p.x} cy={p.y} 
-                              r={hoveredIndex === i ? 3 : 1} 
-                              fill={activeChartColor} stroke="white" stroke-width="0.5" 
-                              class="transition-all duration-150 cursor-pointer" 
-                            />
+                            <circle cx={p.x} cy={p.y} r={hoveredIndex === i ? 3 : 1} fill={activeChartColor} stroke="white" stroke-width="0.5" class="transition-all duration-150 cursor-pointer" />
                             <rect role="presentation" x={p.x - 2} y="0" width="4" height="100" fill="transparent" on:mouseenter={() => onPointEnter(i, { ...p, unitKey: activeChartUnitKey })} />
                             {#if p.showLabel}<text x={p.x} y="112" font-size="3.2" font-weight="bold" fill="#374151" text-anchor="middle" class="font-sans">{p.date.slice(0,5)}</text>{/if}
                           {/each}

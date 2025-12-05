@@ -7,7 +7,8 @@
   "common": {
     "male_short": "H",
     "female_short": "M",
-    "year_short": "a"
+    "year_short": "a",
+    "unit": "Unidad"
   },
   "units": {
     "kg": "kg",
@@ -18,26 +19,33 @@
   },
   "welcome": {
     "title": "Te damos la bienvenida a BodyMetrics",
-    "subtitle": "Tu herramienta de gestión de bioimpedancia privada y segura.",
-    "step1_title": "1. Privacidad Total",
-    "step1_text": "Esta app NO sube datos a internet. Todo se guarda en este navegador (tu dispositivo).",
-    "step2_title": "2. Flujo de Trabajo",
-    "step2_text": "Pesa como 'Invitado' > Sube los archivos de la tarjeta SD (.csv) aquí > Asigna las mediciones a los clientes.",
-    "step3_title": "3. Seguridad",
-    "step3_text": "Haz copias de seguridad frecuentes en Ajustes. Si borras el caché, se pierden los clientes (pero no los datos de la SD).",
-    "cta": "Para empezar, crea tu primer cliente:",
-    "cta_import": "O restaura una copia de seguridad:",
-    "btn_import": "Restaurar Backup (.json)",
-    "privacy_hint": "⚠️ Por privacidad, usa CÓDIGOS (ej: CLI-001) y/o ALIAS en lugar de nombres reales. Guarda la relación real en un Excel privado."
+    "subtitle": "Análisis de Composición Corporal Segmental con total privacidad.",
+    "guide_1_title": "💾 1. Entendiendo los Datos (IMPORTANTE)",
+    "guide_1_text": "Esta app NO almacena los archivos brutos de peso. Esos viven en tu tarjeta SD. Por eso, cada vez que abras la app, deberás cargar los archivos .CSV de nuevo. Lo que sí guardamos en este navegador es tu **Lista de Clientes** y la relación de qué medición pertenece a quién.",
+    "guide_2_title": "🔄 2. El Truco de la Tarjeta SD",
+    "guide_2_text": "Usa una memoria como 'Usuario Comodín' (ej. el 4). **1. Saca la tarjeta SD.** → 2. Mantén pulsado SET para encender. → 3. Selecciona tu usuario comodín con las flechas. → 4. Modifica los datos del nuevo paciente. → 5. Vuelve a meter la SD y pésalo. \n(Al sacar la tarjeta antes, la báscula guarda el nuevo dato sin borrar los anteriores del archivo).",
+    "guide_3_title": "✏️ 3. Carga Diaria",
+    "guide_3_text": "Cada vez que abras la app, arrastra todos los archivos de la SD aquí. La app reconocerá automáticamente qué mediciones ya están asignadas a tus clientes y cuáles son nuevas.",
+    "guide_4_title": "📊 4. Hoja de Cálculo (.csv)",
+    "guide_4_text": "El botón 'Exportar' genera un archivo .csv universal y limpio. No es solo para Excel: puedes abrirlo con Google Sheets, Numbers, LibreOffice o enviárselo al cliente. Los datos son tuyos.",
+    "guide_5_title": "🌍 5. Copia de Seguridad",
+    "guide_5_text": "Aunque los datos médicos están en la SD, la lista de Clientes está en este navegador. Ve a 'Ajustes' > 'Descargar Copia de Seguridad' frecuentemente para no perder tu agenda de clientes.",
+    "guide_6_title": "💻 6. Open Source",
+    "guide_6_text": "Esta aplicación es código abierto. Si tienes conocimientos técnicos, puedes descargar el código desde GitHub y ejecutarla totalmente offline en tu servidor local.",
+    "github_link": "Ver en GitHub",
+    "cta": "Comienza creando tu primer cliente:",
+    "cta_import": "¿Tienes una copia de seguridad (.json)?",
+    "btn_import": "Restaurar Base de Datos",
+    "privacy_hint": "Consejo: Usa códigos (ej: CLI-001) para mantener el anonimato real de los datos."
   },
   "upload": {
-    "instruction_title": "Cargar datos de la tarjeta SD",
+    "instruction_title": "¿Cómo subir nuevos datos?",
     "instruction_text": "",
-    "instruction_path": "Ruta: TARJETA SD > TANITA > GRAPHV1 > DATA > Selecciona todos los archivos (.csv)",
-    "drop_zone": "Arrastra aquí todos los archivos CSV (DATA1.CSV...)",
-    "browse": "Buscar archivos",
-    "processing": "Procesando...",
-    "error": "Error. Verifica que son archivos DATA de Tanita."
+    "instruction_path": "Busca en tu tarjeta SD la carpeta: /TANITA/GRAPHV1/DATA/",
+    "drop_zone": "Arrastra aquí los archivos .CSV de esa carpeta",
+    "browse": "O pulsa para buscar en la tarjeta SD",
+    "processing": "Leyendo archivos...",
+    "error": "No hemos encontrado mediciones válidas. Revisa que sean archivos .CSV de la carpeta DATA."
   },
   "dashboard": {
     "tabs": {
@@ -46,47 +54,51 @@
       "settings": "Ajustes"
     },
     "filters": {
-      "title": "Filtros:",
+      "title": "Ver:",
       "last_month": "Último Mes",
-      "last_3_months": "Últimos 3 Meses",
-      "last_6_months": "Últimos 6 Meses",
-      "last_year": "Último Año",
-      "all": "Todo el Historial",
-      "custom": "Rango Personalizado",
-      "from": "Desde:",
-      "to": "Hasta:"
+      "last_3_months": "3 Meses",
+      "last_6_months": "6 Meses",
+      "last_year": "1 Año",
+      "all": "Todo",
+      "custom": "Personalizado",
+      "from": "Del:",
+      "to": "Al:"
     },
-    "inbox_empty": "No hay mediciones pendientes. Sube archivos de la SD.",
-    "assign_btn": "Asignar",
-    "create_btn": "Crear Cliente",
-    "filter_placeholder": "Buscar por código o alias...",
-    "select_client_prompt": "Selecciona un cliente para ver su historial y gráficas.",
-    "latest_reading": "Última Medición",
+    "inbox_empty": "¡Todo limpio! No hay mediciones pendientes de asignar.",
+    "assign_btn": "Asignar a...",
+    "create_btn": "Nuevo Cliente",
+    "filter_placeholder": "Buscar cliente...",
+    "select_client_prompt": "Selecciona un cliente de la lista para ver su progreso.",
+    "latest_reading": "Medición Seleccionada",
     "last_visit": "Última visita:",
     "record_count": "registros",
-    "client_id_placeholder": "Código (Ej: cli001)",
-    "client_alias_placeholder": "Alias (Ej: Deportista A)",
+    "client_id_placeholder": "Código Único (Ej: CLI-001)",
+    "client_alias_placeholder": "Nombre o Alias (Ej: Juan P.)",
     "metabolic_health": "Salud Metabólica",
     "target": "Objetivo",
     "actual_age": "Edad Real",
-    "evolution_chart": "Gráfica de Evolución",
-    "detach_record": "Desvincular medición seleccionada",
-    "delete_client_confirm": "¿Estás seguro de borrar este cliente y desvincular sus datos?",
-    "no_data_client": "Sin datos."
+    "evolution_chart": "Progreso",
+    "detach_record": "Quitar esta medición del cliente",
+    "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones volverán a la bandeja de entrada.",
+    "no_data_client": "Este cliente aún no tiene mediciones asignadas."
   },
   "analysis": {
     "date": "Fecha"
   },
   "metrics": {
-    "weight": "Peso",
+    "weight": "Peso Total",
     "bmi": "IMC",
-    "body_fat": "Grasa",
+    "body_fat": "Grasa Corporal",
     "muscle_mass": "Masa Muscular",
     "visceral_fat": "Grasa Visceral",
-    "water": "Agua",
+    "water": "Agua Corporal",
     "bone_mass": "Masa Ósea",
     "metabolic_age": "Edad Metabólica",
-    "dci": "Ingesta Calórica (DCI)"
+    "dci": "Ingesta Diaria (DCI)"
+  },
+  "sections": {
+    "composition": "Composición de Tejidos",
+    "health_risk": "Indicadores de Salud"
   },
   "csv_headers": {
     "date": "Fecha",
@@ -104,12 +116,12 @@
     "mus_leg_l": "Músculo Pierna Izq."
   },
   "segments": {
-    "title": "Composición Segmental",
-    "right_arm": "Brazo Derecho",
-    "left_arm": "Brazo Izquierdo",
+    "title": "Análisis Segmental",
+    "right_arm": "Brazo Der.",
+    "left_arm": "Brazo Izq.",
     "trunk": "Tronco",
-    "right_leg": "Pierna Derecha",
-    "left_leg": "Pierna Izquierda",
+    "right_leg": "Pierna Der.",
+    "left_leg": "Pierna Izq.",
     "fat": "Grasa",
     "muscle": "Músculo",
     "visceral": "Visceral"
@@ -118,32 +130,32 @@
     "under": "Bajo",
     "healthy": "Saludable",
     "over": "Alto",
-    "obese": "Obesidad",
+    "obese": "Muy Alto",
     "unknown": "--"
   },
   "settings": {
-    "title": "Gestión de Datos",
-    "backup_section": "Copia de Seguridad",
-    "backup_desc": "Guarda tu lista de clientes y asignaciones en un archivo .json para usarlo en otro dispositivo o por si borras el navegador.",
-    "btn_export": "Exportar Base de Datos",
-    "btn_import": "Restaurar Base de Datos",
-    "import_success": "Base de datos restaurada correctamente.",
-    "import_error": "El archivo está dañado o no es válido.",
-    "privacy_warning_title": "⚠️ IMPORTANTE",
-    "privacy_warning_text": "La relación Cliente-Datos se guarda en este navegador.",
+    "title": "Ajustes y Seguridad",
+    "backup_section": "Tus Copias de Seguridad",
+    "backup_desc": "La base de datos de Clientes se guarda únicamente en este navegador. Crea copias de seguridad .json regularmente para evitar pérdidas si limpias el caché o cambias de PC.",
+    "btn_export": "Descargar Copia de Seguridad",
+    "btn_import": "Cargar Copia de Seguridad",
+    "import_success": "¡Datos recuperados con éxito!",
+    "import_error": "El archivo no parece una copia válida.",
+    "privacy_warning_title": "⚠️ NOTA SOBRE PRIVACIDAD",
+    "privacy_warning_text": "Para máxima seguridad, BodyMetrics no envía ningún dato a internet.",
     "privacy_points": {
-      "1": "Si borras el caché, perderás los nombres (no los datos médicos).",
-      "2": "Haz copias de seguridad frecuentes exportando aquí.",
-      "3": "Tú eres responsable de la privacidad de los nombres reales."
+      "1": "Toda la información reside en la Memoria Local de tu navegador.",
+      "2": "Las mediciones originales están siempre seguras en tu tarjeta SD.",
+      "3": "Tú eres el único responsable de custodiar el archivo de Copia de Seguridad."
     },
     "delete_all_btn": "Restablecer de fábrica (Borrar todo)",
-    "delete_all_confirm": "ATENCIÓN: Esto borrará TODOS los clientes y asignaciones de este navegador. ¿Estás seguro?"
+    "delete_all_confirm": "¿Estás seguro? Esto borrará TODA la lista de clientes y asignaciones de este navegador."
   },
   "actions": {
     "save": "Guardar",
     "cancel": "Cancelar",
-    "delete": "¿Borrar Cliente?",
-    "export_csv": "Excel (CSV)",
+    "delete": "Eliminar",
+    "export_csv": "Hoja de Cálculo (CSV)",
     "print": "Imprimir"
   }
 }

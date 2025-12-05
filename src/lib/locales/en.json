@@ -7,7 +7,8 @@
   "common": {
     "male_short": "M",
     "female_short": "F",
-    "year_short": "y"
+    "year_short": "y",
+    "unit": "Unit"
   },
   "units": {
     "kg": "kg",
@@ -18,26 +19,33 @@
   },
   "welcome": {
     "title": "Welcome to BodyMetrics",
-    "subtitle": "Your private and secure bioimpedance management tool.",
-    "step1_title": "1. Total Privacy",
-    "step1_text": "This app does NOT upload data to the cloud. Everything is saved in this browser (your device).",
-    "step2_title": "2. Workflow",
-    "step2_text": "Weigh as 'Guest' > Upload SD card files (.csv) here > Assign measurements to clients.",
-    "step3_title": "3. Security",
-    "step3_text": "Make frequent backups in Settings. If you clear cache, clients are lost (but not SD data).",
-    "cta": "To start, create your first client:",
-    "cta_import": "Or restore a backup:",
-    "btn_import": "Restore Backup (.json)",
-    "privacy_hint": "⚠️ For privacy, use CODES (e.g., CLI-001) and/or ALIASES instead of real names. Keep the real link in a private Excel."
+    "subtitle": "Segmental Body Composition Analysis with total privacy.",
+    "guide_1_title": "💾 1. Understanding Data (IMPORTANT)",
+    "guide_1_text": "This app does NOT store raw weight files permanently. Those live on your SD card. You must reload .CSV files each time you open the app. What we DO save in this browser is your **Client List** and the links between measurements and clients.",
+    "guide_2_title": "🔄 2. The SD Card Trick",
+    "guide_2_text": "To prevent the scale from wiping history when switching patients: **1. Remove SD Card.** → 2. Press and hold SET to turn on. → 3. Select your wildcard user with arrows. → 4. Update patient data. → 5. Re-insert SD & Weigh. \n(Removing the card prevents the scale from wiping previous history on the file).",
+    "guide_3_title": "✏️ 3. Daily Load",
+    "guide_3_text": "Every time you open the app, drag all files from the SD card here. The app will automatically recognize which measurements are already assigned to your clients and which are new.",
+    "guide_4_title": "📊 4. Spreadsheet Export (.csv)",
+    "guide_4_text": "The 'Export' button generates a clean, universal .csv file. It works with Excel, Google Sheets, Numbers, or LibreOffice. It's a clean format ready for you to use anywhere.",
+    "guide_5_title": "🌍 5. Backups",
+    "guide_5_text": "Although medical data is on the SD, your Client List is in this browser. Go to 'Settings' > 'Download Backup' frequently so you don't lose your client roster.",
+    "guide_6_title": "💻 6. Open Source",
+    "guide_6_text": "This app is open source. If you have technical skills, you can download the code from GitHub and run it completely offline on your local server.",
+    "github_link": "View on GitHub",
+    "cta": "Start by creating your first client:",
+    "cta_import": "Do you have a backup file (.json)?",
+    "btn_import": "Restore Database",
+    "privacy_hint": "Tip: Use codes (e.g., CLI-001) to keep real identities anonymous."
   },
   "upload": {
-    "instruction_title": "Load SD Card Data",
+    "instruction_title": "How to upload new data?",
     "instruction_text": "",
-    "instruction_path": "Path: SD CARD > TANITA > GRAPHV1 > DATA > Select all files (.csv)",
-    "drop_zone": "Drag & Drop all CSV files here (DATA1.CSV...)",
-    "browse": "Browse Files",
-    "processing": "Processing...",
-    "error": "Error. Verify Tanita DATA files."
+    "instruction_path": "Look on your SD card for folder: /TANITA/GRAPHV1/DATA/",
+    "drop_zone": "Drag & Drop the .CSV files from that folder here",
+    "browse": "Or click to browse the SD card",
+    "processing": "Reading files...",
+    "error": "No valid measurements found. Please check for .CSV files in the DATA folder."
   },
   "dashboard": {
     "tabs": {
@@ -46,38 +54,39 @@
       "settings": "Settings"
     },
     "filters": {
-      "title": "Filters:",
+      "title": "View:",
       "last_month": "Last Month",
-      "last_3_months": "Last 3 Months",
-      "last_6_months": "Last 6 Months",
-      "last_year": "Last Year",
-      "all": "All History",
+      "last_3_months": "3 Months",
+      "last_6_months": "6 Months",
+      "last_year": "1 Year",
+      "all": "All",
+      "custom": "Custom",
       "from": "From:",
       "to": "To:"
     },
-    "inbox_empty": "No pending measurements. Upload SD files.",
-    "assign_btn": "Assign",
-    "create_btn": "Create Client",
-    "filter_placeholder": "Search by code or alias...",
-    "select_client_prompt": "Select a client to view history and charts.",
-    "latest_reading": "Latest Measurement",
+    "inbox_empty": "All clean! No pending measurements to assign.",
+    "assign_btn": "Assign to...",
+    "create_btn": "New Client",
+    "filter_placeholder": "Search client...",
+    "select_client_prompt": "Select a client from the list to view their progress.",
+    "latest_reading": "Selected Measurement",
     "last_visit": "Last visit:",
     "record_count": "records",
-    "client_id_placeholder": "Code (Ex: cli001)",
-    "client_alias_placeholder": "Alias (Ex: Athlete A)",
+    "client_id_placeholder": "Unique Code (Ex: CLI-001)",
+    "client_alias_placeholder": "Name or Alias (Ex: John D.)",
     "metabolic_health": "Metabolic Health",
-    "target": "Target",
-    "actual_age": "Actual Age",
-    "evolution_chart": "Evolution Chart",
-    "detach_record": "Unlink selected measurement",
-    "delete_client_confirm": "Are you sure you want to delete this client and unlink their data?",
-    "no_data_client": "No data."
+    "target": "Goal",
+    "actual_age": "Real Age",
+    "evolution_chart": "Progress",
+    "detach_record": "Remove this measurement from client",
+    "delete_client_confirm": "Are you sure? This client will be deleted and measurements sent back to Inbox.",
+    "no_data_client": "This client has no assigned measurements yet."
   },
   "analysis": {
     "date": "Date"
   },
   "metrics": {
-    "weight": "Weight",
+    "weight": "Total Weight",
     "bmi": "BMI",
     "body_fat": "Body Fat",
     "muscle_mass": "Muscle Mass",
@@ -85,7 +94,11 @@
     "water": "Body Water",
     "bone_mass": "Bone Mass",
     "metabolic_age": "Metabolic Age",
-    "dci": "Daily Calorie Intake (DCI)"
+    "dci": "Daily Intake (DCI)"
+  },
+  "sections": {
+    "composition": "Tissue Composition",
+    "health_risk": "Health Indicators"
   },
   "csv_headers": {
     "date": "Date",
@@ -117,33 +130,32 @@
     "under": "Low",
     "healthy": "Healthy",
     "over": "High",
-    "obese": "Obese",
+    "obese": "Very High",
     "unknown": "--"
   },
   "settings": {
-    "title": "Data Management",
-    "backup_section": "Backup & Restore",
-    "backup_desc": "Save your client list and assignments to a .json file. Save app data to use on another device or in case browser data is cleared.",
-    "backup_help": "",
-    "btn_export": "Export Database",
-    "btn_import": "Restore Database",
-    "import_success": "Database restored.",
-    "import_error": "Invalid file.",
-    "privacy_warning_title": "⚠️ IMPORTANT",
-    "privacy_warning_text": "Client-Data relationships are saved in this browser.",
+    "title": "Settings & Security",
+    "backup_section": "Your Backups",
+    "backup_desc": "The Client Database is saved locally in this browser. Download a .json backup regularly to prevent data loss if you clear cache or switch PCs.",
+    "btn_export": "Download Backup",
+    "btn_import": "Load Backup",
+    "import_success": "Data restored successfully!",
+    "import_error": "File does not look like a valid backup.",
+    "privacy_warning_title": "⚠️ PRIVACY NOTE",
+    "privacy_warning_text": "For maximum security, BodyMetrics does not send any data to the cloud.",
     "privacy_points": {
-      "1": "Clearing cache deletes names (not medical data).",
-      "2": "Export backups frequently here.",
-      "3": "You are responsible for real name privacy."
+      "1": "All information resides in your browser's Local Storage.",
+      "2": "Original measurements are always safe on your SD card.",
+      "3": "You are solely responsible for keeping the Backup file safe."
     },
-    "delete_all_btn": "Factory Reset (Delete All)",
-    "delete_all_confirm": "WARNING: This will delete ALL clients and assignments from this browser. Are you sure?"
+    "delete_all_btn": "Factory Reset (Wipe All)",
+    "delete_all_confirm": "Are you sure? This will delete ALL client lists and assignments from this browser."
   },
   "actions": {
     "save": "Save",
     "cancel": "Cancel",
-    "delete": "Delete Client?",
-    "export_csv": "Excel (CSV)",
+    "delete": "Delete",
+    "export_csv": "Spreadsheet (CSV)",
     "print": "Print"
   }
 }
