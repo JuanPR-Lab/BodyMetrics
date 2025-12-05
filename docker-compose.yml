@@ -1,0 +1,15 @@
+services:
+  bodymetrics:
+    build: .
+    container_name: bodymetrics
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - npm_public
+
+# Network configuration to connect with Nginx Proxy Manager
+networks:
+  npm_public:
+    external: true
+    name: nginx-proxy-manager_default
