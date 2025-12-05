@@ -368,22 +368,22 @@
         </div>
       </div>
       {#if !showWelcomeScreen}
-        <div class="max-w-7xl mx-auto px-4 flex gap-8 mt-1">
-          <button class="py-3 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors {currentTab === 'inbox' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'inbox'}>📥 {$t('dashboard.tabs.inbox')} {#if inboxRecords.length > 0}<span class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow-sm">{inboxRecords.length}</span>{/if}</button>
-          <button class="py-3 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors {currentTab === 'clients' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'clients'}>👥 {$t('dashboard.tabs.clients')}</button>
-          <button class="py-3 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors {currentTab === 'settings' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'settings'}>⚙️ {$t('dashboard.tabs.settings')}</button>
+        <div class="max-w-7xl mx-auto px-4 flex gap-2 sm:gap-8 mt-1 overflow-x-auto">
+          <button class="whitespace-nowrap py-3 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors {currentTab === 'inbox' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'inbox'}>📥 {$t('dashboard.tabs.inbox')} {#if inboxRecords.length > 0}<span class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow-sm">{inboxRecords.length}</span>{/if}</button>
+          <button class="whitespace-nowrap py-3 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors {currentTab === 'clients' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'clients'}>👥 {$t('dashboard.tabs.clients')}</button>
+          <button class="whitespace-nowrap py-3 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors {currentTab === 'settings' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'settings'}>⚙️ {$t('dashboard.tabs.settings')}</button>
         </div>
       {/if}
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-6">
       {#if showWelcomeScreen}
-        <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-8 md:p-12 text-center mt-6">
+        <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-12 text-center mt-2 md:mt-6">
           <div class="text-6xl mb-6 animate-pulse">👋</div>
           <h2 class="text-3xl font-black text-gray-800 mb-3">{$t('welcome.title')}</h2>
           <p class="text-gray-500 mb-10 text-lg max-w-2xl mx-auto">{$t('welcome.subtitle')}</p>
           
-          <div class="grid md:grid-cols-2 gap-6 text-left mb-12">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-left mb-12">
             <div class="p-6 bg-blue-50 rounded-xl border border-blue-100 hover:shadow-md transition-shadow">
               <h3 class="font-bold text-blue-900 text-sm mb-2">{$t('welcome.guide_1_title')}</h3>
               <p class="text-xs text-blue-800 leading-relaxed">{$t('welcome.guide_1_text')}</p>
@@ -407,13 +407,13 @@
             <div class="p-6 bg-gray-800 rounded-xl border border-gray-700 text-gray-300 hover:shadow-md transition-shadow">
               <h3 class="font-bold text-white text-sm mb-2">{$t('welcome.guide_6_title')}</h3>
               <p class="text-xs leading-relaxed mb-3">{$t('welcome.guide_6_text')}</p>
-              <a href="https://github.com/JuanPR-Lab/BodyMetrics" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-[10px] font-bold bg-white text-gray-900 px-2 py-1 rounded hover:bg-gray-200 transition-colors">
+              <a href="https://github.com/juanpr24/BodyMetrics" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-[10px] font-bold bg-white text-gray-900 px-2 py-1 rounded hover:bg-gray-200 transition-colors">
                 <span class="mr-1">🔗</span> {$t('welcome.github_link')}
               </a>
             </div>
           </div>
   
-          <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto border-t border-gray-100 pt-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto border-t border-gray-100 pt-8">
             <div class="bg-white p-6">
               <p class="text-sm font-bold text-gray-700 mb-4 text-left">{$t('welcome.cta')}</p>
               <div class="space-y-3">
@@ -437,7 +437,7 @@
         </div>
       {:else}
         {#if currentTab === 'inbox'}
-          <div class="bg-white p-8 rounded-xl border-2 border-dashed border-gray-300 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:border-blue-400 hover:bg-gray-50 {isDragging ? 'ring-4 ring-blue-100 border-blue-500 bg-blue-50' : ''}">
+          <div class="bg-white p-4 md:p-8 rounded-xl border-2 border-dashed border-gray-300 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:border-blue-400 hover:bg-gray-50 {isDragging ? 'ring-4 ring-blue-100 border-blue-500 bg-blue-50' : ''}">
             <div class="text-sm text-gray-600 flex flex-col gap-2 max-w-lg">
               <strong class="text-gray-800 text-lg flex items-center gap-2"><span>📥</span> {$t('upload.instruction_title')}</strong>
               <span class="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded border border-gray-200 w-fit">{$t('upload.instruction_path')}</span>
@@ -445,7 +445,15 @@
             <div class="flex flex-col items-center md:items-end gap-3">
               <span class="text-sm text-gray-400 font-medium italic hidden md:block">{$t('upload.drop_zone')}</span>
               <label class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-bold transition inline-flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                <span>📂</span> {isProcessing ? $t('upload.processing') : $t('upload.browse')}<input type="file" multiple accept=".csv" on:change={(e)=>handleFiles((e.target as HTMLInputElement).files)} disabled={isProcessing} class="hidden" />
+                <span>📂</span> {isProcessing ? $t('upload.processing') : $t('upload.browse')}
+                <input 
+                  type="file" 
+                  multiple 
+                  accept=".csv, text/csv, application/vnd.ms-excel, application/csv, text/x-csv, text/plain" 
+                  on:change={(e)=>handleFiles((e.target as HTMLInputElement).files)} 
+                  disabled={isProcessing} 
+                  class="hidden" 
+                />
               </label>
             </div>
             {#if errorMessage}<div class="w-full md:w-auto text-red-500 text-xs font-bold bg-red-50 px-3 py-2 rounded border border-red-100">{errorMessage}</div>{/if}
@@ -456,7 +464,32 @@
             {#if inboxRecords.length === 0}
               <div class="p-12 text-center text-gray-400 bg-gray-50"><div class="text-4xl mb-2 opacity-50">✓</div><p>{$t('dashboard.inbox_empty')}</p></div>
             {:else}
-              <div class="overflow-x-auto">
+              <div class="block md:hidden bg-gray-50 p-2 space-y-3">
+                {#each inboxRecords as rec}
+                  <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-start mb-3">
+                      <div>
+                        <div class="text-xs font-bold text-gray-500">{rec.date} {rec.time}</div>
+                        <div class="text-xl font-black text-gray-800">
+                            {rec.weight} <span class="text-sm font-normal text-gray-400">kg</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">Height: {rec.height}cm</div>
+                      </div>
+                      <div class="text-right">
+                         <div class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded font-bold">{rec.bodyFat}% Fat</div>
+                      </div>
+                    </div>
+                    <div class="mt-2 pt-2 border-t border-gray-100">
+                      <select class="w-full bg-blue-600 text-white font-bold text-sm py-3 px-4 rounded-lg focus:outline-none" value="" on:change={(e) => { assignRecord(rec.id, e.currentTarget.value); e.currentTarget.value = ""; }}>
+                        <option value="" disabled selected class="bg-white text-gray-600">{$t('dashboard.assign_btn')}</option>
+                        {#each clients as c}<option value={c.id} class="bg-white text-gray-800">{c.alias}</option>{/each}
+                      </select>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+
+              <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-sm text-left">
                   <thead class="bg-gray-50 text-gray-500 font-medium border-b"><tr><th class="px-6 py-3 w-32">{$t('analysis.date')}</th><th class="px-6 py-3 w-40">{$t('metrics.weight')}</th><th class="px-6 py-3">Info</th><th class="px-6 py-3 text-right w-64">{$t('dashboard.assign_btn')}</th></tr></thead>
                   <tbody class="divide-y divide-gray-100">
@@ -464,8 +497,14 @@
                       <tr class="hover:bg-blue-50 transition">
                         <td class="px-6 py-4 font-medium text-gray-800 whitespace-nowrap">{rec.date} <br><span class="text-xs text-gray-400 font-mono">{rec.time}</span></td>
                         <td class="px-6 py-4 font-bold text-lg whitespace-nowrap">{rec.weight} <span class="text-xs text-gray-400 font-normal">{$t('units.kg')}</span></td>
-                        <td class="px-6 py-4"><div class="flex gap-2 text-xs"><span class="bg-gray-100 px-2 py-1 rounded text-gray-600 font-bold">{rec.bodyFat} {$t('units.percent')} {$t('metrics.body_fat')}</span><span class="bg-gray-100 px-2 py-1 rounded text-gray-600">{rec.gender === 'male' ? $t('common.male_short') : $t('common.female_short')} / {rec.age}{$t('common.year_short')}</span></div></td>
-                        <td class="px-6 py-4 text-right"><select class="w-48 border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer hover:border-blue-400 transition-colors" value="" on:change={(e) => { assignRecord(rec.id, e.currentTarget.value); e.currentTarget.value = ""; }}><option value="" disabled selected>{$t('dashboard.assign_btn')}...</option>{#each clients as c}<option value={c.id}>{c.alias}</option>{/each}</select></td>
+                        <td class="px-6 py-4">
+                          <div class="flex gap-2 text-xs">
+                             <span class="bg-gray-100 px-2 py-1 rounded text-gray-600 font-bold">{rec.bodyFat} {$t('units.percent')} {$t('metrics.body_fat')}</span>
+                             <span class="bg-gray-100 px-2 py-1 rounded text-gray-600">{rec.gender === 'male' ? $t('common.male_short') : $t('common.female_short')} / {rec.age}{$t('common.year_short')}</span>
+                             <span class="bg-gray-100 px-2 py-1 rounded text-gray-600 border border-gray-200">{rec.height}cm</span>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 text-right"><select class="w-48 border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer hover:border-blue-400 transition-colors" value="" on:change={(e) => { assignRecord(rec.id, e.currentTarget.value); e.currentTarget.value = ""; }}><option value="" disabled selected>{$t('dashboard.assign_btn')}</option>{#each clients as c}<option value={c.id}>{c.alias}</option>{/each}</select></td>
                       </tr>
                     {/each}
                   </tbody>
@@ -476,19 +515,19 @@
         {/if}
         {#if currentTab === 'clients'}
           <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[800px]">
-            <div class="lg:col-span-1 flex flex-col gap-4 h-full">
+            <div class="lg:col-span-1 flex flex-col gap-4 h-auto lg:h-full">
               <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
                 <h3 class="font-bold text-gray-700 text-xs uppercase mb-3 tracking-wide">{$t('dashboard.create_btn')}</h3>
                 <div class="space-y-2"><input bind:value={newClientId} placeholder={$t('dashboard.client_id_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-gray-50 focus:bg-white transition-colors" /><input bind:value={newClientAlias} placeholder={$t('dashboard.client_alias_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-gray-50 focus:bg-white transition-colors" /><button on:click={createClient} disabled={!newClientId} class="w-full bg-gray-800 text-white text-sm font-bold py-2 rounded hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm">{$t('actions.save')}</button><p class="text-[9px] text-red-400 italic mt-1">{$t('welcome.privacy_hint')}</p></div>
               </div>
-              <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex-1 overflow-hidden flex flex-col min-h-0"><div class="p-2 border-b bg-gray-50"><input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-1.5 bg-white focus:ring-1 focus:ring-blue-500 outline-none" /></div>
+              <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex-1 overflow-hidden flex flex-col min-h-[200px] lg:min-h-0"><div class="p-2 border-b bg-gray-50"><input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-1.5 bg-white focus:ring-1 focus:ring-blue-500 outline-none" /></div>
                 <div class="overflow-y-auto flex-1 p-2 space-y-1">{#each filteredClients as client}<button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 py-3 rounded-md text-sm group hover:bg-blue-50 transition flex justify-between items-center {selectedClientId === client.id ? 'bg-blue-100 text-blue-900 ring-1 ring-blue-300' : 'text-gray-700'}"><div class="truncate pr-2"><div class="font-bold truncate">{client.alias}</div><div class="text-[10px] opacity-60 font-mono">{client.id}</div></div><span class="text-[10px] bg-white border px-1.5 py-0.5 rounded text-gray-500 font-mono">{PatientManager.getClientHistory(client.id, allRecords).length}</span></button>{/each}</div>
               </div>
             </div>
             
             <div class="lg:col-span-3 flex flex-col gap-6 h-full overflow-y-auto pr-1 pb-10">
               {#if !selectedClientId}
-                <div class="h-full flex flex-col items-center justify-center text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-200"><p class="text-4xl mb-4 opacity-50">👤</p><p>{$t('dashboard.select_client_prompt')}</p></div>
+                <div class="h-full flex flex-col items-center justify-center text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-200 py-12"><p class="text-4xl mb-4 opacity-50">👤</p><p>{$t('dashboard.select_client_prompt')}</p></div>
               {:else}
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4 flex-shrink-0">
                   <div class="flex justify-between items-start"><div><h2 class="text-2xl font-bold text-gray-800">{clients.find(c => c.id === selectedClientId)?.alias}</h2><p class="text-sm text-gray-400 font-mono mt-1">ID: {selectedClientId}</p></div><div class="flex gap-2"><button on:click={() => deleteClient(selectedClientId)} class="text-red-600 text-xs font-bold hover:bg-red-50 px-3 py-2 rounded border border-transparent hover:border-red-100 transition">🗑 {$t('actions.delete')}</button><button on:click={exportClientData} class="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded hover:bg-green-700 shadow-sm transition">📊 {$t('actions.export_csv')}</button></div></div>
@@ -511,13 +550,10 @@
                   </div>
 
                   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    <div class="h-full min-h-[500px]">
+                    <div class="h-full min-h-[350px] lg:min-h-[500px]">
                       <BodyMap record={currentRecord} />
                     </div>
-
                     <div class="flex flex-col gap-4">
-                      
                       <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between gap-2">
                         <div class="flex flex-col items-center">
                           <span class="text-[10px] font-bold text-gray-400 uppercase">{$t('metrics.weight')}</span>
@@ -578,13 +614,13 @@
 
                   {#if chartData}
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mt-6">
-                      <div class="flex justify-between items-center mb-6">
+                      <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-2">
                         <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{$t('dashboard.evolution_chart')} ({chartData.pointsData.length})</h3>
-                        <select bind:value={selectedChartMetric} class="min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-sm font-medium bg-white hover:border-blue-400 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer shadow-sm">
-                          {#each chartOptions as option}<option value={option.key}>{$t(option.label)} {option.unitKey ? `(${option.unitKey})` : ''}</option>{/each}
+                        <select bind:value={selectedChartMetric} class="w-full sm:w-auto min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-sm font-medium bg-white hover:border-blue-400 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer shadow-sm">
+                          {#each chartOptions as option}<option value={option.key}>{$t(option.label)}</option>{/each}
                         </select>
                       </div>
-                      <div role="img" aria-label="Evolution Chart" class="h-72 w-full relative group" on:mouseleave={onChartLeave}>
+                      <div role="img" aria-label="Evolution Chart" class="h-64 sm:h-72 w-full relative group" on:mouseleave={onChartLeave}>
                         <svg viewBox="-12 -5 115 120" preserveAspectRatio="none" class="w-full h-full overflow-visible" style="font-family: ui-sans-serif, system-ui, sans-serif;">
                           <defs><linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color={activeChartColor} stop-opacity="0.2"/><stop offset="100%" stop-color={activeChartColor} stop-opacity="0"/></linearGradient></defs>
                           {#each chartData.gridLines as grid}<line x1="0" y1={grid.y} x2="100" y2={grid.y} stroke="#e5e7eb" stroke-width="0.5" /><text x="-3" y={grid.y + 1.5} font-size="3.0" font-weight="bold" fill="#374151" text-anchor="end" class="font-sans">{grid.label}</text>{/each}
@@ -630,6 +666,6 @@
   @media print {
     header, input[type="file"], button, .bg-blue-50, .border-dashed { display: none !important; }
     .shadow-sm { box-shadow: none !important; border: 1px solid #eee; }
-    body { background: white; }
+    :global(body) { background: white; }
   }
 </style>
