@@ -8,7 +8,8 @@
     "male_short": "M",
     "female_short": "F",
     "year_short": "y",
-    "unit": "Unit"
+    "unit": "Unit",
+    "language": "Language"
   },
   "units": {
     "kg": "kg",
@@ -17,41 +18,12 @@
     "rating": "Rating",
     "years": "years"
   },
-  "welcome": {
-    "title": "Welcome to BodyMetrics",
-    "subtitle": "Segmental Body Composition Analysis with total privacy.",
-    "guide_1_title": "🧠 1. How it Works",
-    "guide_1_text": "This app does NOT store raw measurement data. It only saves the **association** (link) between a measurement ID and a Client you create. The actual data lives on your SD card.",
-    "guide_2_title": "🚀 2. Daily Flow",
-    "guide_2_text": "Every time you enter or refresh the app: 1. **Drag or load the SD files** into the Inbox. 2. **Assign** each measurement to the corresponding client. (If this is your first time using the app, you can create your first client below to get started).",
-    "guide_3_title": "∞ 3. Trick: Infinite Users",
-    "guide_3_text": "The scale has only 4 slots, but you can measure unlimited people without deleting data using this trick: \n1. **REMOVE SD CARD** (Very important). \n2. Press and hold **SET**, select your 'wildcard' user (e.g. #4), and update Age/Height. \n3. At the end, it asks 'CLr?'. Select **YES** (Don't worry, since the SD card is out, nothing important is deleted). \n4. **INSERT SD CARD** and weigh. \n(The scale will append the new data to the file without erasing previous history).",
-    "guide_4_title": "📊 4. Manage & Export",
-    "guide_4_text": "You have full control: create/delete clients, unassign measurements if you make a mistake, and use the **Spreadsheet** button inside each client to get a clean .CSV file ready for use in any spreadsheet program or to email.",
-    "guide_5_title": "🛡️ 5. Data Safety",
-    "guide_5_text": "Your Client List is saved in this browser's memory. If you switch computers or clear cache, you might lose the names (though not the SD measurements). Go to **Settings > Download Backup** regularly. You can use this backup on another browser or device to restore the associations you created.",
-    "guide_6_title": "💻 6. Open Source",
-    "guide_6_text": "Transparent open-source project. You can review the code, contribute, or install it on your own offline local server.",
-    "github_link": "View on GitHub",
-    "cta": "Start by creating your first client:",
-    "cta_import": "Do you have a backup file (.json)?",
-    "btn_import": "Load Backup",
-    "privacy_hint": "Tip: Use codes (e.g., CLI-001) or aliases for maximum privacy. Keep the link between these codes/aliases and real names in a private data sheet for extra security."
-  },
-  "upload": {
-    "instruction_title": "How to upload new data?",
-    "instruction_text": "",
-    "instruction_path": "Look on your SD card for folder: /TANITA/GRAPHV1/DATA/",
-    "drop_zone": "Drag & Drop the .CSV files from that folder here",
-    "browse": "Or click to browse the SD card",
-    "processing": "Reading files...",
-    "error": "No valid measurements found. Please check for .CSV files in the DATA folder."
-  },
   "dashboard": {
     "tabs": {
       "inbox": "Inbox",
       "clients": "Clients",
-      "settings": "Settings"
+      "settings": "Settings",
+      "help": "Help & Info"
     },
     "filters": {
       "title": "View:",
@@ -64,7 +36,7 @@
       "from": "From:",
       "to": "To:"
     },
-    "inbox_empty": "All clean! No pending measurements to assign.",
+    "inbox_empty": "All clean! No pending measurements.",
     "assign_btn": "Assign to...",
     "create_btn": "New Client",
     "filter_placeholder": "Search client...",
@@ -81,6 +53,51 @@
     "detach_record": "Remove this measurement from client",
     "delete_client_confirm": "Are you sure? This client will be deleted and measurements sent back to Inbox.",
     "no_data_client": "This client has no assigned measurements yet."
+  },
+  "help": {
+    "pwa_title": "📲 Install App",
+    "pwa_text": "BodyMetrics is a Progressive Web App. Install it on your mobile/tablet ('Add to Home Screen') or PC ('+' icon in address bar) to use it full screen.",
+    "first_time_title": "🆕 First Time?",
+    "first_time_text": "Before loading SD data, you need at least one client to associate measurements with. Go to the **Clients** tab and create your first profile. Then, load files into the **Inbox** and assign them to that or another client."
+  },
+  "welcome": {
+    "title": "Welcome to BodyMetrics",
+    "subtitle": "Segmental Body Composition Analysis with total privacy.",
+    "guide_1_title": "🧠 1. How it Works",
+    "guide_1_text": "This app does NOT store measurement data from the scale. It only saves the **association** (link) between a measurement and a Client you have created. The actual data lives on your SD card.",
+    "guide_2_title": "🚀 2. Daily Flow",
+    "guide_2_text": "Every time you enter the application: 1. **Drag or load all SD files** into the Inbox. 2. **Assign** each measurement to the corresponding client. (If you refresh the page, you must reload the files).",
+    "guide_3_title": "∞ 3. Trick: Infinite Users",
+    "guide_3_text": "The scale has only 4 slots. How to see data for more people? The SD Card Trick. Use a slot as a wildcard (e.g. #4). \n1. **REMOVE SD CARD** before modifying. \n2. Hold **SET**, select wildcard user with arrows and accept with SET. \n3. Modify data and when it asks 'CLr?', select **YES** (Don't worry, SD is out). \n4. **INSERT SD**, press the wildcard user button and weigh. \n(The scale will append the new data to the file without erasing previous history).",
+    "guide_4_title": "📊 4. Manage & Export",
+    "guide_4_text": "You can delete clients or undo associations if you make a mistake. Use the **Spreadsheet** button inside each client to get a clean .CSV file, ready to use in any spreadsheet program (LibreOffice, Excel, Google Sheets, etc.) or to email.",
+    "guide_5_title": "🛡️ 5. Data Safety",
+    "guide_5_text": "Your clients and associations with scale measurements are saved in this browser. If you clear browser cache, uninstall the browser, or format the PC/device, you lose the list. Go to **Settings > Download Backup** regularly to avoid losing this data. This data can be downloaded and sent to other devices; go to **Settings > Load Backup** to restore your data.",
+    "guide_6_title": "💻 6. Open Source",
+    "guide_6_text": "Transparent open-source project. You can review the code, contribute, or install it on your own offline local server.",
+    "github_link": "Github Repository",
+    "cta": "Start by creating your first client:",
+    "cta_import": "Do you have a backup file (.json)?",
+    "btn_import": "Restore Database",
+    "privacy_hint": "Tip: Use codes (e.g., CLI-001) or aliases for maximum privacy. Keep the link between these codes/aliases and real names in a private spreadsheet for extra security."
+  },
+  "about": {
+    "title": "About BodyMetrics",
+    "description": "FOSS (Free and Open Source Software) application for secure and private segmental body composition analysis.",
+    "version": "Version",
+    "license": "MIT License",
+    "developer": "Developed by",
+    "github_btn": "Github Repository",
+    "disclaimer": "Independent project. Not affiliated with Tanita Corp."
+  },
+  "upload": {
+    "instruction_title": "How to upload new data?",
+    "instruction_text": "",
+    "instruction_path": "Look on your SD card for folder: /TANITA/GRAPHV1/DATA/",
+    "drop_zone": "Drag here all .CSV files from that folder",
+    "browse": "Or click to browse the SD card",
+    "processing": "Reading files...",
+    "error": "No valid measurements found. Please check for .CSV files in the DATA folder."
   },
   "analysis": {
     "date": "Date"

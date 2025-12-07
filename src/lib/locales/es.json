@@ -8,7 +8,8 @@
     "male_short": "H",
     "female_short": "M",
     "year_short": "a",
-    "unit": "Unidad"
+    "unit": "Unidad",
+    "language": "Idioma"
   },
   "units": {
     "kg": "kg",
@@ -17,41 +18,12 @@
     "rating": "Nivel",
     "years": "años"
   },
-  "welcome": {
-    "title": "Te damos la bienvenida a BodyMetrics",
-    "subtitle": "Análisis de Composición Corporal Segmental con total privacidad.",
-    "guide_1_title": "🧠 1. ¿Cómo funciona la App?",
-    "guide_1_text": "Esta app NO almacena los datos médicos de la báscula. Solamente guarda la **asociación** (el vínculo) entre una medición y un Cliente que hayas creado. Los datos reales viven en tu tarjeta SD.",
-    "guide_2_title": "🚀 2. Flujo Diario",
-    "guide_2_text": "Cada vez que entres o refresques la app: 1. **Arrastra o carga los archivos** de la SD en la bandeja de entrada. 2. **Asigna** cada medición al cliente correspondiente. (Si es la primera vez que usas la app, puedes crear tu primer cliente más abajo para empezar).",
-    "guide_3_title": "∞ 3. Truco: Usuarios Infinitos",
-    "guide_3_text": "La báscula solo tiene 4 memorias, pero puedes medir a cientos de personas usando este truco sin borrar datos: \n1. **SACA LA TARJETA SD** (Muy importante). \n2. Mantén pulsado **SET**, selecciona tu usuario 'comodín' (ej. el 4) y modifica los datos (Edad/Altura). \n3. Al final preguntará 'CLr?' (¿Borrar?). Di que **YES** (No te preocupes, al no estar la SD, no se borra nada importante). \n4. **INSERTA LA SD** y pésate. \n(La báscula guardará el dato nuevo en el archivo sin borrar el historial).",
-    "guide_4_title": "📊 4. Gestión y Exportación",
-    "guide_4_text": "Tienes control total: puedes borrar clientes, deshacer asociaciones si te equivocas y, lo más importante, usar el botón **Hoja de cálculo** dentro de cada cliente para obtener un archivo .CSV limpio y ordenado, listo para usar en cualquier programa de hoja de cálculo o enviar por email.",
-    "guide_5_title": "🛡️ 5. Seguridad de Datos",
-    "guide_5_text": "Tus Clientes se guardan en la memoria de este navegador. Si cambias de ordenador o borras el caché, podrías perder la lista de nombres (aunque no las mediciones de la SD). Ve a **Ajustes > Descargar Copia de Seguridad** regularmente. Esta copia la puedes usar en otro navegador o dispositivo para tener las mismas asociaciones que ya habías creado.",
-    "guide_6_title": "💻 6. Open Source",
-    "guide_6_text": "Proyecto de código abierto y transparente. Puedes revisar el código, contribuir o instalarlo en tu propio servidor local sin internet.",
-    "github_link": "Ver en GitHub",
-    "cta": "Para empezar, crea tu primer cliente:",
-    "cta_import": "¿Tienes una copia de seguridad (.json)?",
-    "btn_import": "Cargar Copia de Seguridad",
-    "privacy_hint": "Consejo: Usa códigos (ej: CLI-001) o alias si quieres máxima privacidad. Guarda la relación de estos códigos o alias con sus verdaderos nombres en una hoja de datos privada para más seguridad."
-  },
-  "upload": {
-    "instruction_title": "¿Cómo subir nuevos datos?",
-    "instruction_text": "",
-    "instruction_path": "Busca en tu tarjeta SD la carpeta: /TANITA/GRAPHV1/DATA/",
-    "drop_zone": "Arrastra aquí los archivos .CSV de esa carpeta",
-    "browse": "O pulsa para buscar en la tarjeta SD",
-    "processing": "Leyendo archivos...",
-    "error": "No hemos encontrado mediciones válidas. Revisa que sean archivos .CSV de la carpeta DATA."
-  },
   "dashboard": {
     "tabs": {
       "inbox": "Bandeja de Entrada",
       "clients": "Clientes",
-      "settings": "Ajustes"
+      "settings": "Ajustes",
+      "help": "Ayuda & Info"
     },
     "filters": {
       "title": "Ver:",
@@ -81,6 +53,51 @@
     "detach_record": "Quitar esta medición del cliente",
     "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones volverán a la bandeja de entrada.",
     "no_data_client": "Este cliente aún no tiene mediciones asignadas."
+  },
+  "help": {
+    "pwa_title": "📲 Instalar App",
+    "pwa_text": "BodyMetrics es una Aplicación Web Progresiva. Puedes instalarla en tu móvil/tablet ('Añadir a pantalla de inicio') o en tu PC (Icono '+' en la barra de dirección) para usarla a pantalla completa.",
+    "first_time_title": "🆕 ¿Primera vez?",
+    "first_time_text": "Antes de cargar datos de la SD, necesitas tener al menos un cliente al que asociar mediciones. Ve a la pestaña **Clientes** y crea tu primer perfil. Luego, carga los archivos en la **Bandeja de Entrada** y asígnalo a ese u otro cliente."
+  },
+  "welcome": {
+    "title": "Te damos la bienvenida a BodyMetrics",
+    "subtitle": "Análisis de Composición Corporal Segmental con total privacidad.",
+    "guide_1_title": "🧠 1. ¿Cómo funciona la App?",
+    "guide_1_text": "Esta app NO almacena los datos de mediciones de la báscula. Solamente guarda la **asociación** (el vínculo) entre una medición y un Cliente que hayas creado. Los datos reales viven en tu tarjeta SD.",
+    "guide_2_title": "🚀 2. Flujo Diario",
+    "guide_2_text": "Cada vez que entres en la aplicación: 1. **Arrastra o carga los archivos** de la SD en la bandeja de entrada. 2. **Asigna** cada medición al cliente correspondiente. (Si recargas la página, tendrás que volver a cargar los archivos).",
+    "guide_3_title": "∞ 3. Truco: Usuarios Infinitos",
+    "guide_3_text": "La báscula solo tiene 4 memorias, pero puedes medir a cientos de personas usando este truco sin borrar datos: \n1. **SACA LA TARJETA SD** (Muy importante). \n2. Mantén pulsado **SET**, selecciona tu usuario 'comodín' (ej. el 4) y modifica los datos. \n3. Al final preguntará 'CLr?' (¿Borrar?). Di que **YES** (No te preocupes, al no estar la SD, no se borra nada importante). \n4. **INSERTA LA SD** , pulsa el botón del usuario comodín y haz la medicón. \n(La báscula guardará el dato nuevo en el archivo sin borrar el historial).",
+    "guide_4_title": "📊 4. Gestión y Exportación",
+    "guide_4_text": "Tienes control total: puedes borrar clientes, deshacer asociaciones si te equivocas y, lo más importante, usar el botón **Hoja de cálculo** dentro de cada cliente para obtener un archivo .CSV limpio y ordenado, listo para usar en cualquier programa de hoja de cálculo (libreoffice, excel, google sheet, etc.) o enviar por email.",
+    "guide_5_title": "🛡️ 5. Seguridad de Datos",
+    "guide_5_text": "Tus clientes y las asociaciones con las mediciones se guardan en este navegador. Si borras el caché, desinstalas el navegador o formateas el dispositivo, perderás la lista. Para evitarlo, ve a **Ajustes > Descargar Copia de Seguridad** regularmente. Este archivo te permite restaurar tus datos en cualquier dispositivo mediante la opción **Cargar Copia de Seguridad**.",
+    "guide_6_title": "💻 6. Open Source",
+    "guide_6_text": "Proyecto de código abierto y transparente. Puedes revisar el código, contribuir o instalarlo en tu propio servidor local sin internet.",
+    "github_link": "Ver en GitHub",
+    "cta": "Para empezar, crea tu primer cliente:",
+    "cta_import": "¿Tienes una copia de seguridad (.json)?",
+    "btn_import": "Restaurar Base de Datos",
+    "privacy_hint": "Consejo: Usa códigos (ej: CLI-001) o alias si quieres máxima privacidad. Guarda la relación de estos códigos o alias con sus verdaderos nombres en una hoja de datos privada para más seguridad."
+  },
+  "about": {
+    "title": "Acerca de BodyMetrics",
+    "description": "Aplicación FOSS (gratuita y de código abierto) de análisis de composición corporal segmental segura y privada.",
+    "version": "Versión 1.0.0",
+    "license": "Licencia MIT",
+    "developer": "Desarrollado por JuanPR-Lab",
+    "github_btn": "Repositorio GitHub",
+    "disclaimer": "Proyecto independiente. No afiliado a Tanita Corp."
+  },
+  "upload": {
+    "instruction_title": "¿Cómo subir nuevos datos?",
+    "instruction_text": "",
+    "instruction_path": "Busca en tu tarjeta SD la carpeta: /TANITA/GRAPHV1/DATA/",
+    "drop_zone": "Arrastra aquí todos los archivos .CSV de esa carpeta",
+    "browse": "O pulsa para buscar en la tarjeta SD",
+    "processing": "Leyendo archivos...",
+    "error": "No hemos encontrado mediciones válidas. Revisa que sean archivos .CSV de la carpeta DATA."
   },
   "analysis": {
     "date": "Fecha"
