@@ -58,36 +58,36 @@
   };
 </script>
 
-<div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col h-full relative">
+<div class="bg-white p-3 sm:p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col h-full relative">
   
   <div class="flex flex-col sm:flex-row justify-between items-center mb-2 z-10 border-b border-gray-100 pb-2">
     <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 sm:mb-0">
       {$t('segments.title')}
     </h3>
     <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shadow-inner">
-      <button 
+      <button
         on:click={() => viewMode = 'fat'}
-        class="text-[10px] font-bold px-4 py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'fat' ? 'bg-yellow-500 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
+        class="text-[10px] font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'fat' ? 'bg-yellow-500 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
       >
         {$t('segments.fat')}
       </button>
-      <button 
+      <button
         on:click={() => viewMode = 'muscle'}
-        class="text-[10px] font-bold px-4 py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'muscle' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
+        class="text-[10px] font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'muscle' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
       >
         {$t('segments.muscle')}
       </button>
     </div>
   </div>
 
-  <div class="flex-1 flex flex-col items-center justify-center relative min-h-[400px] w-full">
-    {#if !record}
-      <div class="text-center opacity-50">
-        <p class="text-4xl mb-2">👤</p>
-        <p class="text-xs font-medium text-gray-400">{$t('dashboard.no_data_client')}</p>
-      </div>
-    {:else}
-      <svg viewBox="-50 0 380 520" class="h-full w-full max-h-[600px] drop-shadow-xl overflow-visible">
+  <div class="flex-1 flex flex-col items-center justify-center relative min-h-[300px] sm:min-h-[400px] w-full">
+{#if !record}
+  <div class="text-center opacity-50">
+    <p class="text-4xl mb-2">👤</p>
+    <p class="text-xs font-medium text-gray-400">{$t('dashboard.no_data_client')}</p>
+  </div>
+{:else}
+  <svg viewBox="-50 0 380 520" class="h-full w-full max-h-[400px] sm:max-h-[600px] drop-shadow-xl overflow-visible">
         <defs>
           <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="3" result="blur" />

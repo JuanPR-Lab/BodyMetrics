@@ -7,7 +7,8 @@
   "common": {
     "male_short": "H",
     "female_short": "M",
-    "year_short": "a",
+    "year_short": " años",
+    "height": "Altura",
     "unit": "Unidad",
     "language": "Idioma"
   },
@@ -20,10 +21,10 @@
   },
   "dashboard": {
     "tabs": {
-      "inbox": "Bandeja de Entrada",
+      "inbox": "Entrada",
       "clients": "Clientes",
-      "settings": "Ajustes",
-      "help": "Ayuda & Info"
+    "settings": "Ajustes",
+    "help": "Ayuda"
     },
     "filters": {
       "title": "Ver:",
@@ -44,8 +45,8 @@
     "latest_reading": "Medición Seleccionada",
     "last_visit": "Última visita:",
     "record_count": "registros",
-    "client_id_placeholder": "Código Único (Ej: CLI-001)",
-    "client_alias_placeholder": "Nombre o Alias (Ej: Juan PR)",
+    "client_id_placeholder": "Código o Alias",
+    "client_alias_placeholder": "Nombre o Alias",
     "metabolic_health": "Salud Metabólica",
     "target": "Objetivo",
     "actual_age": "Edad Real",
@@ -58,28 +59,28 @@
     "pwa_title": "📲 Instalar App",
     "pwa_text": "BodyMetrics es una Aplicación Web Progresiva. Puedes instalarla en tu móvil/tablet ('Añadir a pantalla de inicio') o en tu PC (Icono '+' en la barra de dirección) para usarla a pantalla completa.",
     "first_time_title": "🆕 ¿Primera vez?",
-    "first_time_text": "Antes de cargar datos de la SD, necesitas tener al menos un cliente al que asociar mediciones. Ve a la pestaña **Clientes** y crea tu primer perfil. Luego, carga los archivos en la **Bandeja de Entrada** y asígnalo a ese u otro cliente."
+    "first_time_text": "Antes de cargar datos de la SD, necesitas tener al menos un cliente al que asociar mediciones. Ve a la pestaña **Clientes** y crea tu primer perfil. Luego, carga los archivos en la **Entrada** y asígnalo a ese u otro cliente."
   },
   "welcome": {
-    "title": "Te damos la bienvenida a BodyMetrics",
+    "title": "Bienvenido a BodyMetrics",
     "subtitle": "Análisis de Composición Corporal Segmental con total privacidad.",
-    "guide_1_title": "🧠 1. ¿Cómo funciona la App?",
-    "guide_1_text": "Esta app NO almacena los datos de mediciones de la báscula. Solamente guarda la **asociación** (el vínculo) entre una medición y un Cliente que hayas creado. Los datos reales viven en tu tarjeta SD.",
+    "guide_1_title": "🧠 1. Cómo Funciona",
+    "guide_1_text": "Esta aplicación NO almacena los datos de mediciones de la báscula. Solo guarda la **asociación** (vínculo) entre una medición y un Cliente que hayas creado. Los datos reales permanecen en tu tarjeta SD.",
     "guide_2_title": "🚀 2. Flujo Diario",
-    "guide_2_text": "Cada vez que entres en la aplicación: 1. **Arrastra o carga los archivos** de la SD en la bandeja de entrada. 2. **Asigna** cada medición al cliente correspondiente. (Si recargas la página, tendrás que volver a cargar los archivos).",
+    "guide_2_text": "Cada vez que entres en la aplicación: 1. **Arrastra o carga todos los archivos SD** en la Entrada. 2. **Asigna** cada nueva medición al cliente correspondiente. (Si recargas o cierras la app, tendrás que volver a cargar los archivos).",
     "guide_3_title": "∞ 3. Truco: Usuarios Infinitos",
-    "guide_3_text": "La báscula solo tiene 4 memorias, pero puedes medir a cientos de personas usando este truco sin borrar datos: \n1. **SACA LA TARJETA SD** (Muy importante). \n2. Mantén pulsado **SET**, selecciona tu usuario 'comodín' (ej. el 4) y modifica los datos. \n3. Al final preguntará 'CLr?' (¿Borrar?). Di que **YES** (No te preocupes, al no estar la SD, no se borra nada importante). \n4. **INSERTA LA SD** , pulsa el botón del usuario comodín y haz la medicón. \n(La báscula guardará el dato nuevo en el archivo sin borrar el historial).",
-    "guide_4_title": "📊 4. Gestión y Exportación",
-    "guide_4_text": "Tienes control total: puedes borrar clientes, deshacer asociaciones si te equivocas y, lo más importante, usar el botón **Hoja de cálculo** dentro de cada cliente para obtener un archivo .CSV limpio y ordenado, listo para usar en cualquier programa de hoja de cálculo (libreoffice, excel, google sheet, etc.) o enviar por email.",
+    "guide_3_text": "La báscula solo tiene 4 memorias, pero puedes medir a cientos de personas usando este truco sin borrar datos:\n1. **SACA LA TARJETA SD** (Muy importante).\n2. Mantén pulsado **SET**, selecciona tu usuario 'comodín' (ej. el 4) y modifica los datos.\n3. Al final preguntará 'CLr?' (¿Borrar?). Di que **YES** (No te preocupes, al no estar la SD, no se borra nada importante).\n4. **INSERTA LA SD** , pulsa el botón del usuario comodín y haz la medición.\n(La báscula guardará el dato nuevo en el archivo sin borrar el historial).",
+    "guide_4_title": "📊 4. Gestionar y Exportar",
+    "guide_4_text": "Puedes eliminar clientes o deshacer asociaciones si cometes un error. Usa el botón **Hoja de Cálculo** dentro de cada cliente para obtener un archivo .CSV limpio, listo para usar en cualquier programa de hoja de cálculo (LibreOffice, Excel, Google Sheets, etc.) o para enviar por correo.",
     "guide_5_title": "🛡️ 5. Seguridad de Datos",
-    "guide_5_text": "Tus clientes y las asociaciones con las mediciones se guardan en este navegador. Si borras el caché, desinstalas el navegador o formateas el dispositivo, perderás la lista. Para evitarlo, ve a **Ajustes > Descargar Copia de Seguridad** regularmente. Este archivo te permite restaurar tus datos en cualquier dispositivo mediante la opción **Cargar Copia de Seguridad**.",
-    "guide_6_title": "💻 6. Open Source",
-    "guide_6_text": "Proyecto de código abierto y transparente. Puedes revisar el código, contribuir o instalarlo en tu propio servidor local sin internet.",
-    "github_link": "Ver en GitHub",
+    "guide_5_text": "Tus clientes y asociaciones con mediciones de la báscula no se guardan en internet, solamente en el navegador de tu dispositivo. Si borras el caché del navegador, desinstalas el navegador o formateas el PC/dispositivo, perderás la lista. Ve a **Ajustes > Descargar Copia de Seguridad** regularmente para evitar perder estos datos. Estos datos se pueden descargar y enviar a otros dispositivos; ve a **Ajustes > Cargar Copia de Seguridad** para restaurar tus datos.",
+    "guide_6_title": "💻 6. Código Abierto",
+    "guide_6_text": "Proyecto de código abierto transparente. Puedes revisar el código, contribuir o instalarlo en tu propio servidor local sin conexión.",
+    "github_link": "Repositorio GitHub",
     "cta": "Para empezar, crea tu primer cliente:",
     "cta_import": "¿Tienes una copia de seguridad (.json)?",
     "btn_import": "Restaurar Base de Datos",
-    "privacy_hint": "Consejo: Usa códigos (ej: CLI-001) o alias si quieres máxima privacidad. Guarda la relación de estos códigos o alias con sus verdaderos nombres en una hoja de datos privada para más seguridad."
+    "privacy_hint": "Consejo: Usa códigos (ej: CLI-001) o alias (ej: Juan PR) si quieres máxima privacidad. Mantén la relación entre estos códigos o alias y sus nombres reales en una hoja de datos privada para mayor seguridad."
   },
   "about": {
     "title": "Acerca de BodyMetrics",
@@ -158,13 +159,6 @@
     "btn_import": "Cargar Copia de Seguridad",
     "import_success": "¡Datos recuperados con éxito!",
     "import_error": "El archivo no parece una copia válida.",
-    "privacy_warning_title": "⚠️ NOTA SOBRE PRIVACIDAD",
-    "privacy_warning_text": "Para máxima seguridad, BodyMetrics no envía ningún dato a internet.",
-    "privacy_points": {
-      "1": "Toda la información reside en la Memoria Local de tu navegador.",
-      "2": "Las mediciones originales están siempre seguras en tu tarjeta SD.",
-      "3": "Tú eres el único responsable de custodiar el archivo de Copia de Seguridad."
-    },
     "delete_all_btn": "Restablecer de fábrica (Borrar todo)",
     "delete_all_confirm": "¿Estás seguro? Esto borrará TODA la lista de clientes y asignaciones de este navegador."
   },

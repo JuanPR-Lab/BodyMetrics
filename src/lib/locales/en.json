@@ -8,6 +8,7 @@
     "male_short": "M",
     "female_short": "F",
     "year_short": "y",
+    "height": "Height",
     "unit": "Unit",
     "language": "Language"
   },
@@ -22,8 +23,8 @@
     "tabs": {
       "inbox": "Inbox",
       "clients": "Clients",
-      "settings": "Settings",
-      "help": "Help & Info"
+    "settings": "Settings",
+    "help": "Help"
     },
     "filters": {
       "title": "View:",
@@ -44,8 +45,8 @@
     "latest_reading": "Selected Measurement",
     "last_visit": "Last visit:",
     "record_count": "records",
-    "client_id_placeholder": "Unique Code (Ex: CLI-001)",
-    "client_alias_placeholder": "Name or Alias (Ex: Juan PR)",
+    "client_id_placeholder": "Code or Alias",
+    "client_alias_placeholder": "Name or Alias",
     "metabolic_health": "Metabolic Health",
     "target": "Goal",
     "actual_age": "Real Age",
@@ -66,27 +67,27 @@
     "guide_1_title": "🧠 1. How it Works",
     "guide_1_text": "This app does NOT store measurement data from the scale. It only saves the **association** (link) between a measurement and a Client you have created. The actual data lives on your SD card.",
     "guide_2_title": "🚀 2. Daily Flow",
-    "guide_2_text": "Every time you enter the application: 1. **Drag or load all SD files** into the Inbox. 2. **Assign** each measurement to the corresponding client. (If you refresh the page, you must reload the files).",
+    "guide_2_text": "Every time you enter the application: 1. **Drag or load all SD files** into the Inbox. 2. **Assign** each new measurement to the corresponding client. (If you refresh or close the app, you will have to reload the files).",
     "guide_3_title": "∞ 3. Trick: Infinite Users",
-    "guide_3_text": "The scale has only 4 slots. How to see data for more people? The SD Card Trick. Use a slot as a wildcard (e.g. #4). \n1. **REMOVE SD CARD** before modifying. \n2. Hold **SET**, select wildcard user with arrows and accept with SET. \n3. Modify data and when it asks 'CLr?', select **YES** (Don't worry, SD is out). \n4. **INSERT SD**, press the wildcard user button and weigh. \n(The scale will append the new data to the file without erasing previous history).",
+    "guide_3_text": "The scale only has 4 memory slots, but you can measure hundreds of people using this trick without deleting data:\n1. **REMOVE THE SD CARD** (Very important).\n2. Hold down **SET**, select your 'wildcard' user (e.g., slot 4) and modify the data.\n3. At the end it will ask 'CLr?' (Clear?). Say **YES** (Don't worry, since the SD card is not inserted, nothing important gets deleted).\n4. **INSERT THE SD CARD**, press the wildcard user button and take the measurement.\n(The scale will save the new data to the file without deleting the history).",
     "guide_4_title": "📊 4. Manage & Export",
     "guide_4_text": "You can delete clients or undo associations if you make a mistake. Use the **Spreadsheet** button inside each client to get a clean .CSV file, ready to use in any spreadsheet program (LibreOffice, Excel, Google Sheets, etc.) or to email.",
     "guide_5_title": "🛡️ 5. Data Safety",
-    "guide_5_text": "Your clients and associations with scale measurements are saved in this browser. If you clear browser cache, uninstall the browser, or format the PC/device, you lose the list. Go to **Settings > Download Backup** regularly to avoid losing this data. This data can be downloaded and sent to other devices; go to **Settings > Load Backup** to restore your data.",
+    "guide_5_text": "Your clients and associations with scale measurements are not saved on the internet, only in your device's browser. If you clear browser cache, uninstall the browser, or format the PC/device, you lose the list. Go to **Settings > Download Backup** regularly to avoid losing this data. This data can be downloaded and sent to other devices; go to **Settings > Load Backup** to restore your data.",
     "guide_6_title": "💻 6. Open Source",
     "guide_6_text": "Transparent open-source project. You can review the code, contribute, or install it on your own offline local server.",
     "github_link": "Github Repository",
     "cta": "Start by creating your first client:",
     "cta_import": "Do you have a backup file (.json)?",
     "btn_import": "Restore Database",
-    "privacy_hint": "Tip: Use codes (e.g., CLI-001) or aliases for maximum privacy. Keep the link between these codes/aliases and real names in a private spreadsheet for extra security."
+    "privacy_hint": "Tip: Use codes (e.g., CLI-001) or aliases (e.g., Juan PR) if you want maximum privacy. Keep the relationship between these codes or aliases and their real names in a private data sheet for more security."
   },
   "about": {
     "title": "About BodyMetrics",
     "description": "FOSS (Free and Open Source Software) application for secure and private segmental body composition analysis.",
-    "version": "Version",
+    "version": "Version 1.0.0",
     "license": "MIT License",
-    "developer": "Developed by",
+    "developer": "Developed by JuanPR-Lab",
     "github_btn": "Github Repository",
     "disclaimer": "Independent project. Not affiliated with Tanita Corp."
   },
@@ -158,13 +159,6 @@
     "btn_import": "Load Backup",
     "import_success": "Data restored successfully!",
     "import_error": "File does not look like a valid backup.",
-    "privacy_warning_title": "⚠️ PRIVACY NOTE",
-    "privacy_warning_text": "For maximum security, BodyMetrics does not send any data to the cloud.",
-    "privacy_points": {
-      "1": "All information resides in your browser's Local Storage.",
-      "2": "Original measurements are always safe on your SD card.",
-      "3": "You are solely responsible for keeping the Backup file safe."
-    },
     "delete_all_btn": "Factory Reset (Wipe All)",
     "delete_all_confirm": "Are you sure? This will delete ALL client lists and assignments from this browser."
   },
