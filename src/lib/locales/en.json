@@ -53,13 +53,75 @@
     "evolution_chart": "Progress",
     "detach_record": "Remove this measurement from client",
     "delete_client_confirm": "Are you sure? This client will be deleted and measurements sent back to Inbox.",
-    "no_data_client": "This client has no assigned measurements yet."
+    "no_data_client": "This client has no assigned measurements yet.",
+    "no_clients_created": "You haven't created any clients yet",
+    "records_selected": "measurements selected",
+    "detach_selected": "Remove selected",
+    "assign_selected": "Assign selected",
+    "select_all": "Select all",
+    "multi_assignment": "Multiple assignment",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page_of": "Page {current} of {total}",
+      "clients_per_page": "Clients per page"
+    }
   },
   "help": {
     "pwa_title": "📲 Install App",
     "pwa_text": "BodyMetrics is a Progressive Web App. Install it on your mobile/tablet ('Add to Home Screen') or PC ('+' icon in address bar) to use it full screen.",
     "first_time_title": "🆕 First Time?",
-    "first_time_text": "Before loading SD data, you need at least one client to associate measurements with. Go to the **Clients** tab and create your first profile. Then, load files into the **Inbox** and assign them to that or another client."
+    "first_time_text": "Before loading SD data, you need at least one client to associate measurements with. Go to the **Clients** tab and create your first profile. Then, load files into the **Inbox** and assign them to that or another client.",
+    
+    "section_starting": "🚀 Getting Started",
+    "starting_requirements": "System Requirements",
+    "starting_requirements_text": "• Modern browser (Chrome 80+, Firefox 75+, Safari 14+, Edge 80+)\n• SD card with Tanita BC-601/602 CSV files\n• Local storage space for database\n• Internet connection only for initial installation",
+    "starting_installation": "PWA Installation",
+    "starting_installation_text": "1. Open BodyMetrics in your browser\n2. Look for the install icon in the address bar\n3. On mobile: tap 'Add to Home Screen'\n4. The app will behave like a native application",
+    "starting_first_steps": "First Steps",
+    "starting_first_steps_text": "1. Create your first client in the **Clients** tab\n2. Insert the SD card into your computer\n3. Load CSV files from the /TANITA/GRAPHV1/DATA/ folder\n4. Assign measurements to corresponding clients",
+    
+    "section_files": "📁 File Format",
+    "files_where": "Where to find CSV files",
+    "files_where_text": "Files must be in the folder: `/TANITA/GRAPHV1/DATA/` on the SD card.\n\nValid filename examples:\n• `20241209_0830.csv` (format: YYYYMMDD_HHMM)\n• `20241210_1530.csv`\n• `20241211_0900.csv`\n\nAccepted extensions: `.csv` (plain text, comma delimited)",
+    "files_structure": "File structure",
+    "files_structure_text": "Each CSV file contains a single measurement with the following fields:\n\n• **Date and time** in DD/MM/YYYY HH:MM:SS format\n• **Gender** (1=Male, 2=Female)\n• **Age** in years\n• **Height** in cm\n• **Weight** in kg\n• **Body fat** in %\n• **Muscle mass** in kg\n• **Visceral fat** (level 1-59)\n• **Body water** in %\n• **Bone mass** in kg\n• **Metabolic age** in years\n• **DCI** (Daily Calorie Intake) in kcal\n• **Segmental data** (fat and muscle per limb)",
+    "files_troubleshooting": "Troubleshooting",
+    "files_troubleshooting_text": "**Common error:** 'No valid measurements found'\n• Verify files are in the DATA/ folder\n• Ensure they are Tanita CSV files (not modified)\n• Check date format is DD/MM/YYYY\n\n**Error:** 'Corrupt file or wrong format'\n• Do not manually modify CSV files\n• Always use the original scale SD card\n• Avoid opening and saving with Excel (changes format)",
+    
+    "section_clients": "👥 Client Management",
+    "clients_creation": "Profile creation",
+    "clients_creation_text": "1. Go to the **Clients** tab\n2. Enter a code or alias (e.g., CLI-001, John PR)\n3. Click **Save**\n\n**Privacy tip:** Use codes instead of real names. Keep a private data sheet with real correspondences.",
+    "clients_assignment": "Measurement assignment",
+    "clients_assignment_text": "1. Load CSV files into the **Inbox**\n2. Search for the client in the search field\n3. Assign each measurement to the corresponding client\n4. Assigned measurements will appear in the client's history",
+    "clients_infinite_trick": "Infinite users trick",
+    "clients_infinite_trick_text": "The scale only has 4 memory slots, but you can measure hundreds of people:\n\n1. **REMOVE THE SD CARD** (Very important)\n2. Hold down **SET**, select your 'wildcard' user (e.g., slot 4) and modify the data\n3. At the end it will ask 'CLr?' (Clear?). Say **YES** (Don't worry, since the SD card is not inserted, nothing important gets deleted)\n4. **INSERT THE SD CARD**, press the wildcard user button and take the measurement\n\nThe scale will save the new data to the file without deleting history.",
+    
+    "section_interpretation": "📊 Data Interpretation",
+    "interpretation_main_metrics": "Main metrics",
+    "interpretation_main_metrics_text": "**Body Fat (%):**\n• **Blue:** Low (Men <8%, Women <21%)\n• **Green:** Healthy (Men 8-20%, Women 21-33%)\n• **Yellow:** High (Men 21-25%, Women 34-39%)\n• **Red:** Very high (Men >25%, Women >39%)\n\n**Visceral Fat (Level 1-59):**\n• **Green:** 1-12 (Healthy)\n• **Red:** 13+ (Excess)\n\n**Metabolic Age:**\n• **Green:** ≤ Real age\n• **Yellow:** > Real age",
+    "interpretation_segmental": "Segmental analysis",
+    "interpretation_segmental_text": "The body map shows fat and muscle distribution by segments:\n\n• **Right/left arm:** Strength and symmetry\n• **Trunk:** Abdominal fat and core muscle mass\n• **Right/left leg:** Strength and balance\n\n**Difference interpretation:**\n• Differences >2% between sides may indicate imbalances\n• Higher trunk fat suggests metabolic risk\n• Higher leg muscle indicates good athletic base",
+    "interpretation_health_states": "Health states",
+    "interpretation_health_states_text": "**Color traffic light:**\n• **Blue:** Values below healthy range\n• **Green:** Values within optimal range\n• **Yellow:** Values in attention zone\n• **Red:** Values in risk zone\n\nRanges vary by gender and age (see specific tables).",
+    "interpretation_export": "CSV Export",
+    "interpretation_export_text": "1. Select a client\n2. Click the **Spreadsheet (CSV)** button\n3. A file with European format will download:\n   • Delimiter: semicolon (;)\n   • Decimals: comma (,)\n   • Encoding: UTF-8 with BOM\n   • Compatible with Excel, LibreOffice, Google Sheets",
+    
+    "section_security": "🔒 Security & Backups",
+    "security_local_data": "Local data",
+    "security_local_data_text": "**What is stored:**\n• Client list (codes/aliases)\n• Client-measurement associations\n• Language and display preferences\n\n**What is NOT stored:**\n• Measurement data (remains on SD card)\n• Personally identifiable information\n• Data on external servers",
+    "security_backups": "Backups",
+    "security_backups_text": "1. Go to **Settings > Download Backup**\n2. Save the .json file in a safe place\n3. Make backups regularly (weekly)\n4. You can send the file to other devices",
+    "security_restoration": "Restoration",
+    "security_restoration_text": "1. Go to **Settings > Load Backup**\n2. Select the .json backup file\n3. Confirm restoration\n4. All clients and associations will be recovered",
+    
+    "section_troubleshooting": "❓ Troubleshooting",
+    "troubleshooting_common": "Common errors",
+    "troubleshooting_common_text": "**'Cannot load CSV files'**\n• Verify browser permissions\n• Try with another browser\n• Restart the application\n\n**'Data not saving'**\n• Check local storage\n• Disable private/incognito mode\n• Update browser",
+    "troubleshooting_compatibility": "Compatibility",
+    "troubleshooting_compatibility_text": "**Compatible browsers:**\n• Chrome 80+ (recommended)\n• Firefox 75+\n• Safari 14+\n• Edge 80+\n\n**Devices:**\n• Windows 10/11, macOS 10.15+, Linux\n• iOS 14+, Android 8+\n• Tablets and desktop computers",
+    "troubleshooting_support": "Technical support",
+    "troubleshooting_support_text": "**Help resources:**\n• Complete documentation on GitHub\n• Issues and questions in the repository\n• Developer community\n\n**Known issues:**\n• Excel modifies CSV format (use LibreOffice)\n• Some antivirus blocks file access\n• Old browsers don't support PWA"
   },
   "welcome": {
     "title": "Welcome to BodyMetrics",
@@ -167,6 +229,32 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "export_csv": "Spreadsheet (CSV)",
-    "print": "Print"
+    "print": "Print",
+    "select_multiple": "Multiple selection"
+  },
+  "tooltips": {
+    "traffic_light_title": "Body Fat Traffic Light",
+    "traffic_light_description": "This traffic light shows body fat status according to standard ranges:\n\n• Blue: Low fat\n• Green: Healthy fat\n• Yellow: High fat\n• Red: Very high fat\n\nRanges vary by gender and age.",
+    "measurement_card_title": "Measurement Card Colors",
+    "measurement_card_description": "Cards change color based on health status:\n\n• Green: Healthy values\n• Yellow: High values\n• Red: Very high values\n• Blue: Low values\n\nBased on standard bioimpedance ranges.",
+    "visceral_fat_title": "Visceral Fat",
+    "visceral_fat_description": "Visceral fat is located inside the abdomen and surrounds internal organs.\n\nHealthy range: 1-12\nHigh values: 13+\n\nElevated levels increase health risk.",
+    "metabolic_age_title": "Metabolic Age",
+    "metabolic_age_description": "Compares your metabolism to average chronological age.\n\n• Green: Metabolic age ≤ real age\n• Yellow: Metabolic age > real age\n\nA younger metabolism is more efficient."
+  },
+  "first_use": {
+    "title": "First Use Guide",
+    "skip": "Skip Tutorial",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Get Started",
+    "step_inbox_title": "📥 Inbox - Load Data",
+    "step_inbox_description": "Here you load CSV files from the Tanita scale SD card. Look in the /TANITA/GRAPHV1/DATA/ folder and drag all .CSV files here.",
+    "step_clients_title": "👥 Clients - Manage Profiles",
+    "step_clients_description": "Create and manage client profiles. You can use codes or aliases to maintain privacy. Assign measurements from the inbox to each client.",
+    "step_settings_title": "⚙️ Settings - Security & Backups",
+    "step_settings_description": "Create backups of your local database and restore them when changing devices. You can also delete all data if needed.",
+    "step_help_title": "ℹ️ Help - Information & Support",
+    "step_help_description": "Find detailed information about the application, usage instructions and links to the project source code."
   }
 }

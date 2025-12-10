@@ -53,13 +53,75 @@
     "evolution_chart": "Progreso",
     "detach_record": "Quitar esta medición del cliente",
     "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones volverán a la bandeja de entrada.",
-    "no_data_client": "Este cliente aún no tiene mediciones asignadas."
+    "no_data_client": "Este cliente aún no tiene mediciones asignadas.",
+    "no_clients_created": "Aún no has creado ningún cliente",
+    "records_selected": "mediciones seleccionadas",
+    "detach_selected": "Quitar seleccionadas",
+    "assign_selected": "Asignar seleccionadas",
+    "select_all": "Seleccionar todas",
+    "multi_assignment": "Asignación múltiple",
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "page_of": "Página {current} de {total}",
+      "clients_per_page": "Clientes por página"
+    }
   },
   "help": {
     "pwa_title": "📲 Instalar App",
     "pwa_text": "BodyMetrics es una Aplicación Web Progresiva. Puedes instalarla en tu móvil/tablet ('Añadir a pantalla de inicio') o en tu PC (Icono '+' en la barra de dirección) para usarla a pantalla completa.",
     "first_time_title": "🆕 ¿Primera vez?",
-    "first_time_text": "Antes de cargar datos de la SD, necesitas tener al menos un cliente al que asociar mediciones. Ve a la pestaña **Clientes** y crea tu primer perfil. Luego, carga los archivos en la **Entrada** y asígnalo a ese u otro cliente."
+    "first_time_text": "Antes de cargar datos de la SD, necesitas tener al menos un cliente al que asociar mediciones. Ve a la pestaña **Clientes** y crea tu primer perfil. Luego, carga los archivos en la **Entrada** y asígnalo a ese u otro cliente.",
+    
+    "section_starting": "🚀 Empezando",
+    "starting_requirements": "Requisitos del sistema",
+    "starting_requirements_text": "• Navegador moderno (Chrome 80+, Firefox 75+, Safari 14+, Edge 80+)\n• Tarjeta SD con archivos CSV de Tanita BC-601/602\n• Espacio de almacenamiento local para la base de datos\n• Conexión a internet solo para la instalación inicial",
+    "starting_installation": "Instalación como PWA",
+    "starting_installation_text": "1. Abre BodyMetrics en tu navegador\n2. Busca el icono de instalación en la barra de direcciones\n3. En móviles: toca 'Añadir a pantalla de inicio'\n4. La app se comportará como una aplicación nativa",
+    "starting_first_steps": "Primeros pasos",
+    "starting_first_steps_text": "1. Crea tu primer cliente en la pestaña **Clientes**\n2. Inserta la tarjeta SD en tu ordenador\n3. Carga los archivos CSV desde la carpeta /TANITA/GRAPHV1/DATA/\n4. Asigna las mediciones a los clientes correspondientes",
+    
+    "section_files": "📁 Formato de Archivos",
+    "files_where": "Dónde encontrar los CSV",
+    "files_where_text": "Los archivos deben estar en la carpeta: `/TANITA/GRAPHV1/DATA/` de la tarjeta SD.\n\nEjemplos de nombres de archivo válidos:\n• `20241209_0830.csv` (formato: AAAAMMDD_HHMM)\n• `20241210_1530.csv`\n• `20241211_0900.csv`\n\nExtensiones aceptadas: `.csv` (texto plano, delimitado por comas)",
+    "files_structure": "Estructura de archivos",
+    "files_structure_text": "Cada archivo CSV contiene una sola medición con los siguientes campos:\n\n• **Fecha y hora** en formato DD/MM/AAAA HH:MM:SS\n• **Género** (1=Hombre, 2=Mujer)\n• **Edad** en años\n• **Altura** en cm\n• **Peso** en kg\n• **Grasa corporal** en %\n• **Masa muscular** en kg\n• **Grasa visceral** (nivel 1-59)\n• **Agua corporal** en %\n• **Masa ósea** en kg\n• **Edad metabólica** en años\n• **DCI** (Ingesta diaria) en kcal\n• **Datos segmentales** (grasa y músculo por extremidad)",
+    "files_troubleshooting": "Resolución de problemas",
+    "files_troubleshooting_text": "**Error común:** 'No se encontraron mediciones válidas'\n• Verifica que los archivos estén en la carpeta DATA/\n• Asegúrate de que sean archivos CSV de Tanita (no modificados)\n• Comprueba que el formato de fecha sea DD/MM/AAAA\n\n**Error:** 'Archivo corrupto o formato incorrecto'\n• No modifiques manualmente los archivos CSV\n• Usa siempre la tarjeta SD original de la báscula\n• Evita abrir y guardar con Excel (cambia el formato)",
+    
+    "section_clients": "👥 Gestión de Clientes",
+    "clients_creation": "Creación de perfiles",
+    "clients_creation_text": "1. Ve a la pestaña **Clientes**\n2. Introduce un código o alias (ej: CLI-001, Juan PR)\n3. Pulsa **Guardar**\n\n**Consejo de privacidad:** Usa códigos en lugar de nombres reales. Mantén una hoja de datos privada con la correspondencia real.",
+    "clients_assignment": "Asignación de mediciones",
+    "clients_assignment_text": "1. Carga los archivos CSV en la **Entrada**\n2. Busca el cliente en el campo de búsqueda\n3. Asigna cada medición al cliente correspondiente\n4. Las mediciones asignadas aparecerán en el historial del cliente",
+    "clients_infinite_trick": "Truco usuarios infinitos",
+    "clients_infinite_trick_text": "La báscula solo tiene 4 memorias, pero puedes medir a cientos de personas:\n\n1. **SACA LA TARJETA SD** (Muy importante)\n2. Mantén pulsado **SET**, selecciona tu usuario 'comodín' (ej. el 4) y modifica los datos\n3. Al final preguntará 'CLr?' (¿Borrar?). Di que **YES** (No te preocupes, al no estar la SD, no se borra nada importante)\n4. **INSERTA LA SD**, pulsa el botón del usuario comodín y haz la medición\n\nLa báscula guardará el dato nuevo en el archivo sin borrar el historial.",
+    
+    "section_interpretation": "📊 Interpretación de Datos",
+    "interpretation_main_metrics": "Métricas principales",
+    "interpretation_main_metrics_text": "**Grasa Corporal (%):**\n• **Azul:** Bajo (Hombres <8%, Mujeres <21%)\n• **Verde:** Saludable (Hombres 8-20%, Mujeres 21-33%)\n• **Amarillo:** Alto (Hombres 21-25%, Mujeres 34-39%)\n• **Rojo:** Muy alto (Hombres >25%, Mujeres >39%)\n\n**Grasa Visceral (Nivel 1-59):**\n• **Verde:** 1-12 (Saludable)\n• **Rojo:** 13+ (Exceso)\n\n**Edad Metabólica:**\n• **Verde:** ≤ Edad real\n• **Amarillo:** > Edad real",
+    "interpretation_segmental": "Análisis segmental",
+    "interpretation_segmental_text": "El mapa corporal muestra la distribución de grasa y músculo por segmentos:\n\n• **Brazo derecho/izquierdo:** Fuerza y simetría\n• **Tronco:** Grasa abdominal y masa muscular central\n• **Pierna derecha/izquierda:** Fuerza y equilibrio\n\n**Interpretación de diferencias:**\n• Diferencias >2% entre lados pueden indicar desequilibrios\n• Mayor grasa en tronco sugiere riesgo metabólico\n• Mayor músculo en piernas indica buena base atlética",
+    "interpretation_health_states": "Estados de salud",
+    "interpretation_health_states_text": "**Semáforo de colores:**\n• **Azul:** Valores por debajo del rango saludable\n• **Verde:** Valores dentro del rango óptimo\n• **Amarillo:** Valores en zona de atención\n• **Rojo:** Valores en zona de riesgo\n\nLos rangos varían según género y edad (consulta las tablas específicas).",
+    "interpretation_export": "Exportación CSV",
+    "interpretation_export_text": "1. Selecciona un cliente\n2. Pulsa el botón **Hoja de Cálculo (CSV)**\n3. Se descargará un archivo con formato europeo:\n   • Delimitador: punto y coma (;)\n   • Decimales: coma (,)\n   • Codificación: UTF-8 con BOM\n   • Compatible con Excel, LibreOffice, Google Sheets",
+    
+    "section_security": "🔒 Seguridad y Copias",
+    "security_local_data": "Datos locales",
+    "security_local_data_text": "**Qué se almacena:**\n• Lista de clientes (códigos/alias)\n• Asociaciones cliente-medición\n• Preferencias de idioma y visualización\n\n**Qué NO se almacena:**\n• Datos de mediciones (permanecen en la SD)\n• Información personal identificable\n• Datos en servidores externos",
+    "security_backups": "Copias de seguridad",
+    "security_backups_text": "1. Ve a **Ajustes > Descargar Copia de Seguridad**\n2. Guarda el archivo .json en un lugar seguro\n3. Realiza copias regularmente (semanalmente)\n4. Puedes enviar el archivo a otros dispositivos",
+    "security_restoration": "Restauración",
+    "security_restoration_text": "1. Ve a **Ajustes > Cargar Copia de Seguridad**\n2. Selecciona el archivo .json de respaldo\n3. Confirma la restauración\n4. Todos los clientes y asociaciones se recuperarán",
+    
+    "section_troubleshooting": "❓ Resolución de Problemas",
+    "troubleshooting_common": "Errores comunes",
+    "troubleshooting_common_text": "**'No se pueden cargar archivos CSV'**\n• Verifica permisos del navegador\n• Intenta con otro navegador\n• Reinicia la aplicación\n\n**'Los datos no se guardan'**\n• Comprueba el almacenamiento local\n• Desactiva el modo privado/incógnito\n• Actualiza el navegador",
+    "troubleshooting_compatibility": "Compatibilidad",
+    "troubleshooting_compatibility_text": "**Navegadores compatibles:**\n• Chrome 80+ (recomendado)\n• Firefox 75+\n• Safari 14+\n• Edge 80+\n\n**Dispositivos:**\n• Windows 10/11, macOS 10.15+, Linux\n• iOS 14+, Android 8+\n• Tablets y ordenadores de escritorio",
+    "troubleshooting_support": "Soporte técnico",
+    "troubleshooting_support_text": "**Recursos de ayuda:**\n• Documentación completa en GitHub\n• Issues y preguntas en el repositorio\n• Comunidad de desarrolladores\n\n**Problemas conocidos:**\n• Excel modifica formato CSV (usar LibreOffice)\n• Algunos antivirus bloquean acceso a archivos\n• Navegadores antiguos no soportan PWA"
   },
   "welcome": {
     "title": "Bienvenido a BodyMetrics",
@@ -167,6 +229,32 @@
     "cancel": "Cancelar",
     "delete": "Eliminar",
     "export_csv": "Hoja de Cálculo (CSV)",
-    "print": "Imprimir"
+    "print": "Imprimir",
+    "select_multiple": "Selección múltiple"
+  },
+  "tooltips": {
+    "traffic_light_title": "Semáforo de Grasa Corporal",
+    "traffic_light_description": "Este semáforo muestra el estado de la grasa corporal según los rangos estándar:\n\n• Azul: Grasa baja\n• Verde: Grasa saludable\n• Amarillo: Grasa alta\n• Rojo: Grasa muy alta\n\nLos rangos varían según género y edad.",
+    "measurement_card_title": "Colores de las Mediciones",
+    "measurement_card_description": "Las tarjetas cambian de color según el estado de salud:\n\n• Verde: Valores saludables\n• Amarillo: Valores altos\n• Rojo: Valores muy altos\n• Azul: Valores bajos\n\nBasado en rangos estándar de bioimpedancia.",
+    "visceral_fat_title": "Grasa Visceral",
+    "visceral_fat_description": "La grasa visceral se encuentra dentro del abdomen y rodea los órganos internos.\n\nRango saludable: 1-12\nValores altos: 13+\n\nNiveles elevados aumentan el riesgo de problemas de salud.",
+    "metabolic_age_title": "Edad Metabólica",
+    "metabolic_age_description": "Compara tu metabolismo con la edad cronológica promedio.\n\n• Verde: Edad metabólica ≤ edad real\n• Amarillo: Edad metabólica > edad real\n\nUn metabolismo más joven es más eficiente."
+  },
+  "first_use": {
+    "title": "Guía de Primer Uso",
+    "skip": "Saltar Tutorial",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "finish": "Comenzar",
+    "step_inbox_title": "📥 Entrada - Cargar Datos",
+    "step_inbox_description": "Aquí cargas los archivos CSV desde la tarjeta SD de la báscula Tanita. Busca en la carpeta /TANITA/GRAPHV1/DATA/ y arrastra todos los archivos .CSV aquí.",
+    "step_clients_title": "👥 Clientes - Gestionar Perfiles",
+    "step_clients_description": "Crea y gestiona perfiles de clientes. Puedes usar códigos o alias para mantener la privacidad. Asigna las mediciones desde la entrada a cada cliente.",
+    "step_settings_title": "⚙️ Ajustes - Seguridad y Copias",
+    "step_settings_description": "Realiza copias de seguridad de tu base de datos local y restáuralas cuando cambies de dispositivo. También puedes borrar todos los datos si es necesario.",
+    "step_help_title": "ℹ️ Ayuda - Información y Soporte",
+    "step_help_description": "Encuentra información detallada sobre la aplicación, instrucciones de uso y enlaces al código fuente del proyecto."
   }
 }
