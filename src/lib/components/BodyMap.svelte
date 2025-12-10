@@ -1,16 +1,15 @@
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import type { BioMetricRecord } from '$lib/utils/csvSDparser';
-  import { getBodyFatStatus, type HealthStatus } from '$lib/utils/ranges';
+  import { getBodyFatStatus, getVisceralFatStatus, type HealthStatus } from '$lib/utils/ranges';
 
   export let record: BioMetricRecord | null = null;
 
   let viewMode: 'fat' | 'muscle' = 'fat';
   let hoveredSegment: string | null = null;
-  let showTrafficLightTooltip = false;
 
   // --- HELPERS ---
-  const formatVal = (val: number | undefined, unit: string) => {
+  const formatVal = (val: number | undefined) => {
     if (val === undefined || val === null || isNaN(val) || val === 0) return '--';
     return `${val}`;
   };
@@ -28,24 +27,27 @@
   } : null;
 
   $: currentData = data ? data[viewMode] : null;
+
+  // --- LÓGICA GRASA VISCERAL ---
+  $: visceralFat = record ? Number(record.visceralFat) : 0;
+  // Forzamos la lógica visual aquí para asegurar que 3 sea verde (<= 12 Sano)
+  $: isVisceralHealthy = visceralFat <= 12;
   
-  // Colores: Amarillo/Naranja para Grasa, Azul para Músculo
-  $: activeFill = viewMode === 'fat' ? '#eab308' : '#3b82f6'; // Base
-  $: hoverFill = viewMode === 'fat' ? '#f97316' : '#1d4ed8';  // Hover
+  // Colores SVG
+  $: activeFill = viewMode === 'fat' ? '#eab308' : '#6366f1'; 
+  $: hoverFill = viewMode === 'fat' ? '#f97316' : '#4338ca'; 
   
-  // --- LÓGICA DEL SEMÁFORO ---
+  // --- LÓGICA DEL SEMÁFORO (Inferior) ---
   $: currentStatus = (() => {
     if (!record || viewMode !== 'fat') return 'unknown';
 
     let valToCheck = 0;
-    
     if (hoveredSegment && currentData) {
       // @ts-ignore
       valToCheck = currentData[hoveredSegment] || 0;
     } else {
       valToCheck = record.bodyFat;
     }
-
     return getBodyFatStatus(valToCheck, record.gender, record.age);
   })();
 
@@ -70,13 +72,13 @@
         on:click={() => viewMode = 'fat'}
         class="text-[10px] font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'fat' ? 'bg-yellow-500 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
       >
-        {$t('segments.fat')}
+        {$t('metrics.body_fat')}
       </button>
       <button
         on:click={() => viewMode = 'muscle'}
-        class="text-[10px] font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'muscle' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
+        class="text-[10px] font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'muscle' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
       >
-        {$t('segments.muscle')}
+        {$t('metrics.muscle_mass')}
       </button>
     </div>
   </div>
@@ -85,7 +87,7 @@
 {#if !record}
   <div class="text-center opacity-50">
     <p class="text-4xl mb-2">👤</p>
-    <p class="text-xs font-medium text-gray-400">{$t('dashboard.no_data_client')}</p>
+    <p class="text-xs font-medium text-gray-400">{$t('client_view.no_data_client')}</p>
   </div>
 {:else}
   <svg viewBox="-50 0 380 520" class="h-full w-full max-h-[400px] sm:max-h-[600px] drop-shadow-xl overflow-visible">
@@ -117,7 +119,10 @@
              <line x1="85" y1="25" x2="105" y2="40" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
              <rect x="0" y="0" width="85" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
              <text x="42" y="18" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.right_arm')}</text>
-             <text x="42" y="40" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">{formatVal(currentData?.armR, '')}</text>
+             <text x="42" y="40" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">
+               {formatVal(currentData?.armR)}
+               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="-5">{currentData?.unit}</tspan>
+             </text>
           </g>
         </g>
 
@@ -137,7 +142,10 @@
              <line x1="0" y1="25" x2="-25" y2="40" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
              <rect x="0" y="0" width="85" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
              <text x="42" y="18" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.left_arm')}</text>
-             <text x="42" y="40" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">{formatVal(currentData?.armL, '')}</text>
+             <text x="42" y="40" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">
+               {formatVal(currentData?.armL)}
+               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="-5">{currentData?.unit}</tspan>
+             </text>
           </g>
         </g>
 
@@ -153,10 +161,27 @@
             style="fill: {hoveredSegment === 'trunk' ? hoverFill : activeFill}; stroke: white; stroke-width: 3px;"
             class="transition-colors duration-300"
           />
+           
+           {#if visceralFat > 0}
+             <ellipse 
+               cx="140" cy="195" rx="35" ry="12" 
+               fill={isVisceralHealthy ? '#ecfdf5' : '#fff1f2'} 
+               stroke={isVisceralHealthy ? '#10b981' : '#f43f5e'} 
+               stroke-width="2" 
+               filter="url(#soft-glow)" 
+               fill-opacity="0.9"
+             />
+             <text x="140" y="192" font-size="6" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase">VISCERAL</text>
+             <text x="140" y="202" font-size="10" font-weight="900" fill={isVisceralHealthy ? '#047857' : '#be123c'} text-anchor="middle">{visceralFat}</text>
+           {/if}
+
            <g transform="translate(100, 115)">
              <rect x="0" y="0" width="80" height="45" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
              <text x="40" y="16" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.trunk')}</text>
-             <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">{formatVal(currentData?.trunk, '')}</text>
+             <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">
+               {formatVal(currentData?.trunk)}
+               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="-5">{currentData?.unit}</tspan>
+             </text>
           </g>
         </g>
 
@@ -176,7 +201,10 @@
              <line x1="80" y1="20" x2="95" y2="20" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
              <rect x="0" y="0" width="80" height="45" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
              <text x="40" y="16" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.right_leg')}</text>
-             <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">{formatVal(currentData?.legR, '')}</text>
+             <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">
+               {formatVal(currentData?.legR)}
+               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="-5">{currentData?.unit}</tspan>
+             </text>
           </g>
         </g>
 
@@ -196,16 +224,15 @@
              <line x1="0" y1="20" x2="-15" y2="20" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
              <rect x="0" y="0" width="80" height="45" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
              <text x="40" y="16" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.left_leg')}</text>
-             <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">{formatVal(currentData?.legL, '')}</text>
+             <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">
+               {formatVal(currentData?.legL)}
+               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="-5">{currentData?.unit}</tspan>
+             </text>
           </g>
         </g>
 
       </svg>
       
-      <div class="absolute bottom-2 right-2 bg-gray-50 px-3 py-1.5 rounded text-[11px] font-bold text-gray-500 border border-gray-200 shadow-sm">
-        {$t('common.unit')}: {currentData?.unit}
-      </div>
-
       {#if viewMode === 'fat'}
         <div
           class="absolute bottom-2 left-4 flex flex-col gap-1 w-36 bg-white/80 p-2 rounded-lg backdrop-blur-sm border border-gray-100 shadow-sm"
