@@ -8,11 +8,11 @@ export type HealthStatus = 'under' | 'healthy' | 'over' | 'obese' | 'unknown';
 
 // Color Mapping for Tailwind CSS
 export const STATUS_COLORS: Record<HealthStatus, string> = {
-  under: 'text-blue-500 bg-blue-100',      // Underfat / Low
-  healthy: 'text-green-500 bg-green-100',  // Healthy / Standard
-  over: 'text-yellow-500 bg-yellow-100',   // Overfat / High
-  obese: 'text-red-500 bg-red-100',        // Obese / Very High
-  unknown: 'text-gray-400 bg-gray-100'
+  under: 'text-teal-500 bg-teal-50',       // Underfat / Low
+  healthy: 'text-emerald-500 bg-emerald-50', // Healthy / Standard
+  over: 'text-amber-500 bg-amber-50',      // Overfat / High
+  obese: 'text-rose-500 bg-rose-50',       // Obese / Very High
+  unknown: 'text-slate-400 bg-slate-100'
 };
 
 /**

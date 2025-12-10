@@ -30,27 +30,25 @@
     { key: 'metabolicAge', label: 'metrics.metabolic_age', color: '#8b5cf6', unitKey: 'years' }
   ] as const;
 
-  // --- STYLE CONSTANTS (Tailwind v4 Safe) ---
+  // --- STYLE CONSTANTS (Clinical Slate & Teal Design System) ---
   const STYLES = {
-    // CORRECCIÓN 1: Filtros legibles (Texto oscuro siempre)
-    // Inactivo: Fondo blanco, texto gris
-    filterBtn: "px-3 py-1 text-[11px] font-bold rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 uppercase tracking-wide cursor-pointer",
-    // Activo: Fondo gris claro, texto negro intenso, borde gris oscuro (NO TEXTO BLANCO)
-    filterBtnActive: "bg-gray-200 text-gray-900 border-gray-400 font-black shadow-inner ring-1 ring-gray-300",
+    // Filter buttons
+    filterBtn: "px-3 py-1 text-[11px] font-semibold rounded-lg border border-slate-200 transition-all bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300 uppercase tracking-wide cursor-pointer shadow-sm",
+    filterBtnActive: "bg-teal-600 text-white border-teal-600 font-bold shadow-md",
     
-    // Tarjetas métricas (Layout Flex Vertical)
-    cardMetric: "bg-white p-3 rounded-xl shadow-sm border-l-4 border-gray-100 flex flex-col justify-between min-h-[80px]",
+    // Metric cards
+    cardMetric: "bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-100 flex flex-col justify-between min-h-[80px] transition-all hover:shadow-md",
     
-    // CORRECCIÓN 3: Estilos para alinear a la derecha
-    metricLabel: "text-[10px] font-bold text-gray-400 uppercase tracking-wider self-start", 
-    metricValueCard: "text-2xl font-black text-gray-800 leading-none self-end mt-1", // Valor alineado a la derecha
+    // Metric labels and values
+    metricLabel: "text-[10px] font-bold text-slate-500 uppercase tracking-wider self-start",
+    metricValueCard: "text-2xl font-black text-slate-800 leading-none self-end mt-1",
     
-    // Estilos para la tarjeta principal (Peso/BMI)
-    metricColMain: "flex flex-col items-center justify-center px-2",
-    metricValueLg: "text-3xl font-black text-gray-800 leading-none",
+    // Main metric display
+    metricColMain: "flex flex-col items-center justify-center px-3",
+    metricValueLg: "text-3xl font-black text-slate-800 leading-none",
     metricValueMd: "text-2xl font-black leading-none",
-    metricUnit: "text-sm font-medium text-gray-400 ml-1",
-    divider: "w-px h-10 bg-gray-100 mx-1"
+    metricUnit: "text-sm font-medium text-slate-500 ml-1",
+    divider: "w-px h-10 bg-slate-200 mx-2"
   };
 
   // --- STATE ---
@@ -107,14 +105,21 @@
   let showMetabolicAgeTooltip = false;
   let showMeasurementCardTooltip = false;
 
+  // Modal state
+  let showModal = false;
+  let modalTitle = '';
+  let modalMessage = '';
+  let modalType: 'confirm' | 'alert' | 'error' | 'success' = 'alert';
+  let modalConfirmCallback: (() => void) | null = null;
+  let modalCancelCallback: (() => void) | null = null;
+
   // First-use guide
   let showFirstUseGuide = false;
   let currentGuideStep = 0;
   const guideSteps = [
     { tab: 'inbox', title: 'first_use.step_inbox_title', description: 'first_use.step_inbox_description' },
     { tab: 'clients', title: 'first_use.step_clients_title', description: 'first_use.step_clients_description' },
-    { tab: 'settings', title: 'first_use.step_settings_title', description: 'first_use.step_settings_description' },
-    { tab: 'help', title: 'first_use.step_help_title', description: 'first_use.step_help_description' }
+    { tab: 'settings', title: 'first_use.step_settings_title', description: 'first_use.step_help_description' }
   ];
 
   // --- HELPER: DATE SORTING ---
@@ -298,16 +303,21 @@
         clientSearchTerm = '';
         currentTab = 'clients';
       } else {
-        alert('Error: Client ID exists.');
+        showAlert('Error', 'Client ID already exists.', 'error');
       }
     };
 
   const deleteClient = (id: string) => {
-    const $t = get(t); 
-    if (!confirm($t('dashboard.delete_client_confirm'))) return;
-    PatientManager.deleteClient(id);
-    if (selectedClientId === id) selectedClientId = '';
-    refreshClients();
+    const $t = get(t);
+    showConfirm(
+      $t('dashboard.delete_client_confirm_title'),
+      $t('dashboard.delete_client_confirm'),
+      () => {
+        PatientManager.deleteClient(id);
+        if (selectedClientId === id) selectedClientId = '';
+        refreshClients();
+      }
+    );
   };
 
   const assignRecord = (recordId: string, clientId: string) => {
@@ -319,10 +329,15 @@
   const unassignCurrentRecord = () => {
       if (!currentRecord) return;
       const $t = get(t);
-      if (!confirm($t('dashboard.detach_record') + '?')) return;
-      PatientManager.unassignRecord(currentRecord.id);
-      refreshClients();
-      selectedRecordId = '';
+      showConfirm(
+        $t('dashboard.detach_record_title'),
+        $t('dashboard.detach_record') + '?',
+        () => {
+          PatientManager.unassignRecord(currentRecord.id);
+          refreshClients();
+          selectedRecordId = '';
+        }
+      );
     };
   
     const toggleMultiSelectMode = () => {
@@ -348,14 +363,18 @@
       if (selectedRecordIds.length === 0) return;
       
       const $t = get(t);
-      if (!confirm($t('dashboard.detach_record') + '? (' + selectedRecordIds.length + ')')) return;
-      
-      selectedRecordIds.forEach(recordId => {
-        PatientManager.unassignRecord(recordId);
-      });
-      
-      refreshClients();
-      selectedRecordIds = [];
+      showConfirm(
+        $t('dashboard.detach_record_title'),
+        $t('dashboard.detach_record') + '? (' + selectedRecordIds.length + ')',
+        () => {
+          selectedRecordIds.forEach(recordId => {
+            PatientManager.unassignRecord(recordId);
+          });
+          
+          refreshClients();
+          selectedRecordIds = [];
+        }
+      );
     };
 
     const assignSelectedRecords = (clientId: string) => {
@@ -396,20 +415,24 @@
 
   const deleteAllData = () => {
     const $t = get(t);
-    if (confirm($t('settings.delete_all_confirm'))) {
-      PatientManager.deleteAllData();
-      clients = [];
-      selectedClientId = '';
-      selectedRecordId = '';
-      refreshClients();
-    }
+    showConfirm(
+      $t('settings.delete_all_title'),
+      $t('settings.delete_all_confirm'),
+      () => {
+        PatientManager.deleteAllData();
+        clients = [];
+        selectedClientId = '';
+        selectedRecordId = '';
+        refreshClients();
+      }
+    );
   };
 
   const exportClientData = () => {
     const $t = get(t);
     // Verificación de datos vacíos
     if (!clientHistory || clientHistory.length === 0) {
-      alert($t('dashboard.no_data_client') || "No hay mediciones para exportar.");
+      showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client') || "No hay mediciones para exportar.", 'error');
       return;
     }
 
@@ -438,13 +461,13 @@
     try {
         const text = await file.text();
         if (PatientManager.importBackup(text)) {
-          alert($t('settings.import_success'));
+          showAlert($t('settings.import_success_title'), $t('settings.import_success'), 'success');
           refreshClients();
         } else {
-          alert($t('settings.import_error'));
+          showAlert($t('settings.import_error_title'), $t('settings.import_error'), 'error');
         }
     } catch (error) {
-        alert($t('settings.import_error'));
+        showAlert($t('settings.import_error_title'), $t('settings.import_error'), 'error');
     }
   };
 
@@ -519,9 +542,38 @@
     return STATUS_COLORS.unknown;
   };
 
-  const handleDrop = (e: DragEvent) => { 
-    isDragging = false; 
-    if(e.dataTransfer?.files) handleFiles(e.dataTransfer.files); 
+  const handleDrop = (e: DragEvent) => {
+    isDragging = false;
+    if(e.dataTransfer?.files) handleFiles(e.dataTransfer.files);
+  };
+
+  // Modal functions
+  const showAlert = (title: string, message: string, type: 'alert' | 'error' | 'success' = 'alert') => {
+    modalTitle = title;
+    modalMessage = message;
+    modalType = type;
+    modalConfirmCallback = null;
+    modalCancelCallback = null;
+    showModal = true;
+  };
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, onCancel?: () => void) => {
+    modalTitle = title;
+    modalMessage = message;
+    modalType = 'confirm';
+    modalConfirmCallback = onConfirm;
+    modalCancelCallback = onCancel || null;
+    showModal = true;
+  };
+
+  const handleModalConfirm = () => {
+    if (modalConfirmCallback) modalConfirmCallback();
+    showModal = false;
+  };
+
+  const handleModalCancel = () => {
+    if (modalCancelCallback) modalCancelCallback();
+    showModal = false;
   };
 </script>
 
@@ -580,27 +632,27 @@
 
   <div
     role="application"
-    class="min-h-screen bg-gray-100 font-sans text-gray-800 pb-20 select-none {showFirstUseGuide ? 'blur-sm pointer-events-none' : ''}"
+    class="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20 select-none {showFirstUseGuide ? 'blur-sm pointer-events-none' : ''}"
     on:dragover|preventDefault={() => isDragging = true}
     on:dragleave|preventDefault={() => isDragging = false}
     on:drop|preventDefault={handleDrop}
   >
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm transition-all">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm transition-all backdrop-blur-sm bg-white/95">
       <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
         <div class="flex items-center gap-2 sm:gap-3">
-          <div class="bg-blue-600 text-white px-2 sm:px-3 py-1 rounded-lg font-black text-lg sm:text-xl tracking-tighter shadow-sm">BM</div>
-          <div><h1 class="text-base sm:text-lg font-bold text-gray-800 leading-none">{$t('app.title')}</h1></div>
+          <div class="bg-teal-600 text-white px-3 py-2 rounded-xl font-black text-xl tracking-tighter shadow-md">BM</div>
+          <div><h1 class="text-lg sm:text-xl font-bold text-slate-800 leading-none">{$t('app.title')}</h1></div>
         </div>
         <div class="flex items-center gap-2 sm:gap-3">
-          <span class="px-2 py-0.5 bg-green-50 text-green-700 text-[10px] uppercase tracking-wider rounded font-bold border border-green-100">🔒 {$t('app.privacy_badge')}</span>
-          <div class="flex items-center text-xs font-bold border rounded overflow-hidden bg-white">
-            <button on:click={() => switchLang('es')} class="px-2 py-1 hover:bg-gray-100 border-r transition-colors">ES</button>
-            <button on:click={() => switchLang('en')} class="px-2 py-1 hover:bg-gray-100 transition-colors">EN</button>
+          <span class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs uppercase tracking-wider rounded-full font-semibold border border-emerald-200 shadow-sm">🔒 {$t('app.privacy_badge')}</span>
+          <div class="flex items-center text-sm font-semibold border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
+            <button on:click={() => switchLang('es')} class="px-3 py-2 hover:bg-slate-50 border-r border-slate-200 transition-colors {get(locale) === 'es' ? 'bg-slate-100 text-slate-800' : 'text-slate-600'}">ES</button>
+            <button on:click={() => switchLang('en')} class="px-3 py-2 hover:bg-slate-50 transition-colors {get(locale) === 'en' ? 'bg-slate-100 text-slate-800' : 'text-slate-600'}">EN</button>
           </div>
         </div>
       </div>
       
-      <div class="max-w-7xl mx-auto px-3 sm:px-4 flex gap-0 sm:gap-8 mt-1 overflow-x-auto no-scrollbar">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 flex gap-0 sm:gap-8 overflow-x-auto no-scrollbar border-t border-slate-100">
         <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'inbox' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'inbox'}>
           📥 {$t('dashboard.tabs.inbox')}
           {#if inboxRecords.length > 0}
@@ -780,15 +832,26 @@
       {/if}
 
       {#if currentTab === 'inbox'}
-          <div class="bg-white p-4 sm:p-6 md:p-8 rounded-xl border-2 border-dashed border-gray-300 mb-6 sm:mb-8 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 transition-all hover:border-blue-400 hover:bg-gray-50 {isDragging ? 'ring-4 ring-blue-100 border-blue-500 bg-blue-50' : ''}">
-            <div class="text-xs sm:text-sm text-gray-600 flex flex-col gap-2 max-w-lg">
-              <strong class="text-gray-800 text-base sm:text-lg flex items-center gap-2"><span>📥</span> {$t('upload.instruction_title')}</strong>
-              <span class="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded border border-gray-200 w-fit">{$t('upload.instruction_path')}</span>
+          <!-- Hero Dropzone Component -->
+          <div class="bg-white p-6 sm:p-8 md:p-10 rounded-2xl border-2 border-dashed border-slate-300 mb-6 sm:mb-8 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 transition-all hover:border-teal-400 hover:bg-slate-50 {isDragging ? 'ring-4 ring-teal-100 border-teal-500 bg-teal-50' : ''}">
+            <div class="text-sm sm:text-base text-slate-600 flex flex-col gap-3 max-w-lg">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="bg-teal-100 text-teal-600 p-2 rounded-lg">
+                  <span class="text-xl">📥</span>
+                </div>
+                <div>
+                  <strong class="text-slate-800 text-lg sm:text-xl font-bold">{$t('upload.instruction_title')}</strong>
+                  <p class="text-slate-500 text-sm mt-1">{$t('upload.drop_zone')}</p>
+                </div>
+              </div>
+              <div class="bg-slate-100 text-slate-600 px-3 py-2 rounded-lg border border-slate-200 font-mono text-xs">
+                {$t('upload.instruction_path')}
+              </div>
             </div>
-            <div class="flex flex-col items-center md:items-end gap-2 sm:gap-3 w-full md:w-auto">
-              <span class="text-xs sm:text-sm text-gray-400 font-medium italic">{$t('upload.drop_zone')}</span>
-              <label class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-bold transition inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:scale-95 w-full md:w-auto touch-manipulation">
-                <span>📂</span> {isProcessing ? $t('upload.processing') : $t('upload.browse')}
+            <div class="flex flex-col items-center md:items-end gap-3 sm:gap-4 w-full md:w-auto">
+              <label class="cursor-pointer bg-teal-600 hover:bg-teal-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold transition-all inline-flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95 w-full md:w-auto touch-manipulation">
+                <span class="text-lg">📂</span>
+                {isProcessing ? $t('upload.processing') : $t('upload.browse')}
                 <input
                   bind:this={fileInput}
                   type="file"
@@ -801,23 +864,26 @@
                 />
               </label>
             </div>
-            {#if errorMessage}<div class="w-full md:w-auto text-red-500 text-xs font-bold bg-red-50 px-2 sm:px-3 py-1 sm:py-2 rounded border border-red-100 animate-pulse">{errorMessage}</div>{/if}
+            {#if errorMessage}<div class="w-full md:w-auto text-rose-600 text-sm font-bold bg-rose-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-rose-200 animate-pulse">{errorMessage}</div>{/if}
           </div>
         
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[200px] sm:min-h-[300px]">
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[200px] sm:min-h-[300px]">
             {#if inboxRecords.length === 0}
-              <div class="p-8 sm:p-12 text-center text-gray-400 bg-gray-50 h-full flex flex-col justify-center items-center"><div class="text-3xl sm:text-4xl mb-2 opacity-50">✓</div><p class="text-sm">{$t('dashboard.inbox_empty')}</p></div>
+              <div class="p-8 sm:p-12 text-center text-slate-400 bg-slate-50 h-full flex flex-col justify-center items-center">
+                <div class="text-3xl sm:text-4xl mb-2 opacity-50">✓</div>
+                <p class="text-sm">{$t('dashboard.inbox_empty')}</p>
+              </div>
             {:else}
               <!-- Bulk assignment toolbar -->
               {#if selectedInboxMeasurements.length > 0}
-                <div class="bg-gray-50 p-2 border-b border-gray-200 flex justify-between items-center">
-                  <div class="text-sm font-medium text-gray-700">
-                    <span class="text-blue-600 font-bold">{selectedInboxMeasurements.length}</span> {$t('dashboard.records_selected')}
+                <div class="bg-slate-50 p-3 border-b border-slate-200 flex justify-between items-center">
+                  <div class="text-sm font-medium text-slate-700">
+                    <span class="text-teal-600 font-bold">{selectedInboxMeasurements.length}</span> {$t('dashboard.records_selected')}
                   </div>
                   <div class="flex gap-2">
                     <button
                       on:click={() => selectedInboxMeasurements = []}
-                      class="text-xs text-gray-600 hover:text-gray-800 border border-gray-300 hover:border-gray-400 px-3 py-1 rounded transition-colors"
+                      class="text-xs text-slate-600 hover:text-slate-800 border border-slate-300 hover:border-slate-400 px-3 py-1.5 rounded-lg transition-colors"
                     >
                       {$t('actions.cancel')}
                     </button>
@@ -825,18 +891,18 @@
                       <input
                         type="text"
                         placeholder="{$t('dashboard.assign_btn')}"
-                        class="text-xs border border-gray-300 rounded px-3 py-1 bg-white focus:ring-2 focus:ring-blue-500 outline-none w-48"
+                        class="text-xs border border-slate-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-teal-500 outline-none w-48"
                         bind:value={bulkAssignSearch}
                       />
                       <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                        <span class="text-gray-400">🔍</span>
+                        <span class="text-slate-400">🔍</span>
                       </div>
                       {#if bulkAssignSearch}
-                        <div class="absolute top-full left-0 right-0 mt-1 max-h-32 overflow-y-auto bg-white border border-gray-200 rounded shadow-sm z-10">
+                        <div class="absolute top-full left-0 right-0 mt-1 max-h-32 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-sm z-10">
                           {#each filteredBulkClients as c}
                             <button
                               on:click={() => assignBulkMeasurements(c.id)}
-                              class="w-full text-left px-3 py-2 text-xs hover:bg-blue-50 transition-colors"
+                              class="w-full text-left px-3 py-2 text-xs hover:bg-teal-50 transition-colors"
                             >
                               {c.alias}
                             </button>
@@ -847,58 +913,61 @@
                   </div>
                 </div>
               {:else}
-                <div class="bg-gray-50 p-2 border-b border-gray-200 flex items-center gap-3">
+                <div class="bg-slate-50 p-3 border-b border-slate-200 flex items-center gap-3">
                   <input
                     type="checkbox"
                     checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
                     on:change={selectAllInboxMeasurements}
-                    class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    class="h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-2 focus:ring-teal-500 focus:ring-offset-1"
                   />
-                  <div class="text-xs font-medium text-gray-600">
+                  <div class="text-xs font-medium text-slate-600">
                     📋 {$t('dashboard.multi_assignment')}
                   </div>
                 </div>
               {/if}
-              <div class="block lg:hidden bg-gray-50 p-2 space-y-2 sm:space-y-3">
+              <!-- Mobile-first measurement cards -->
+              <div class="block lg:hidden bg-slate-50 p-3 space-y-3 sm:space-y-4">
                 {#each inboxRecords as rec (rec.id)}
-                  <div class="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 {selectedInboxMeasurements.includes(rec.id) ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-500' : ''}">
-                    <div class="flex justify-between items-start mb-2 sm:mb-3">
-                      <div class="flex items-start gap-3">
+                  <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 transition-all {selectedInboxMeasurements.includes(rec.id) ? 'border-teal-600 bg-teal-50 ring-2 ring-teal-500' : 'hover:shadow-md hover:border-slate-300'}">
+                    <div class="flex justify-between items-start mb-3 sm:mb-4">
+                      <div class="flex items-start gap-3 flex-1">
                         <input
                           type="checkbox"
                           checked={selectedInboxMeasurements.includes(rec.id)}
                           on:change={() => toggleInboxSelection(rec.id)}
-                          class="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                          class="mt-1 h-5 w-5 text-teal-600 rounded border-slate-300 focus:ring-2 focus:ring-teal-500 focus:ring-offset-1"
                         />
-                        <div>
-                          <div class="text-sm font-bold text-gray-500">{rec.date} {rec.time}</div>
-                          <div class="text-xl sm:text-xl font-black text-gray-800">{rec.weight} <span class="text-sm sm:text-sm font-normal text-gray-400">kg</span></div>
-                          <div class="text-sm text-gray-500 mt-1">{$t('common.height')}: {rec.height}cm</div>
-                          <div class="text-sm text-gray-500">{rec.bodyFat}% {$t('metrics.body_fat')}</div>
-                          <div class="text-sm text-gray-500">{rec.gender === 'male' ? $t('common.male_short') : $t('common.female_short')} / {rec.age} {$t('units.years')}</div>
+                        <div class="flex-1">
+                          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">{rec.date} {rec.time}</div>
+                          <div class="text-2xl sm:text-2xl font-black text-slate-800 mt-1">{rec.weight}<span class="text-sm sm:text-sm font-normal text-slate-500 ml-1">kg</span></div>
+                          <div class="flex flex-wrap gap-1 mt-2">
+                            <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg text-xs font-medium border border-slate-200">{rec.bodyFat}% {$t('metrics.body_fat')}</span>
+                            <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg text-xs font-medium border border-slate-200">{$t('common.height')}: {rec.height}cm</span>
+                            <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg text-xs font-medium border border-slate-200">{rec.gender === 'male' ? $t('common.male_short') : $t('common.female_short')} / {rec.age} {$t('units.years')}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div class="mt-2 pt-2 border-t border-gray-100">
+                    <div class="mt-3 pt-3 border-t border-slate-100">
                       {#if clients.length === 0}
-                        <div class="w-full bg-gray-100 text-gray-500 text-xs font-medium py-2 sm:py-3 px-3 sm:px-4 rounded-lg text-center">{$t('dashboard.no_clients_created')}</div>
+                        <div class="w-full bg-slate-100 text-slate-500 text-xs font-medium py-3 px-4 rounded-lg text-center">{$t('dashboard.no_clients_created')}</div>
                       {:else}
                         <div class="relative">
                           <input
                             type="text"
                             placeholder="{$t('dashboard.assign_btn')}"
-                            class="w-full text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                            class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-teal-500 outline-none"
                             bind:value={assignmentSearchTerms[rec.id]}
                           />
-                          <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                            <span class="text-gray-400">🔍</span>
+                          <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <span class="text-slate-400">🔍</span>
                           </div>
                           {#if assignmentSearchTerms[rec.id]}
-                            <div class="mt-2 space-y-1 max-h-32 overflow-y-auto bg-white border border-gray-200 rounded shadow-sm">
+                            <div class="mt-2 space-y-1 max-h-32 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-sm">
                               {#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
                                 <button
                                   on:click={() => { assignRecord(rec.id, c.id); assignmentSearchTerms[rec.id] = ''; }}
-                                  class="w-full text-left px-3 py-2 text-xs hover:bg-blue-50 rounded transition-colors"
+                                  class="w-full text-left px-3 py-2 text-xs hover:bg-teal-50 rounded transition-colors"
                                 >
                                   {c.alias}
                                 </button>
@@ -912,64 +981,65 @@
                  {/each}
               </div>
 
+              <!-- Desktop table view -->
               <div class="hidden lg:block overflow-x-auto">
                 <table class="w-full text-sm text-left">
-                  <thead class="bg-gray-50 text-gray-500 font-medium border-b">
+                  <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
                     <tr>
-                      <th class="px-4 sm:px-6 py-2 sm:py-3 w-12">
+                      <th class="px-4 sm:px-6 py-3 w-12">
                         <input
                           type="checkbox"
                           checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
                           on:change={selectAllInboxMeasurements}
-                          class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                          class="h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-2 focus:ring-teal-500 focus:ring-offset-1"
                         />
                       </th>
-                      <th class="px-4 sm:px-6 py-2 sm:py-3 w-32">{$t('analysis.date')}</th>
-                      <th class="px-4 sm:px-6 py-2 sm:py-3 w-40">{$t('metrics.weight')}</th>
-                      <th class="px-4 sm:px-6 py-2 sm:py-3">Info</th>
-                      <th class="px-4 sm:px-6 py-2 sm:py-3 text-right w-64">{$t('dashboard.assign_btn')}</th>
+                      <th class="px-4 sm:px-6 py-3 w-32">{$t('analysis.date')}</th>
+                      <th class="px-4 sm:px-6 py-3 w-40">{$t('metrics.weight')}</th>
+                      <th class="px-4 sm:px-6 py-3">Info</th>
+                      <th class="px-4 sm:px-6 py-3 text-right w-64">{$t('dashboard.assign_btn')}</th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-gray-100">
+                  <tbody class="divide-y divide-slate-100">
                     {#each inboxRecords as rec (rec.id)}
-                      <tr class="hover:bg-blue-50 transition {selectedInboxMeasurements.includes(rec.id) ? 'bg-blue-50' : ''}">
+                      <tr class="hover:bg-slate-50 transition-all {selectedInboxMeasurements.includes(rec.id) ? 'bg-teal-50' : ''}">
                         <td class="px-4 sm:px-6 py-3 sm:py-4">
                           <input
                             type="checkbox"
                             checked={selectedInboxMeasurements.includes(rec.id)}
                             on:change={() => toggleInboxSelection(rec.id)}
-                            class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                            class="h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-2 focus:ring-teal-500 focus:ring-offset-1"
                           />
                         </td>
-                        <td class="px-4 sm:px-6 py-3 sm:py-4 font-medium text-gray-800 whitespace-nowrap">{rec.date} <br><span class="text-xs text-gray-400 font-mono">{rec.time}</span></td>
-                        <td class="px-4 sm:px-6 py-3 sm:py-4 font-bold text-lg whitespace-nowrap">{rec.weight} <span class="text-xs text-gray-400 font-normal">{$t('units.kg')}</span></td>
+                        <td class="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-800 whitespace-nowrap">{rec.date} <br><span class="text-xs text-slate-500 font-mono">{rec.time}</span></td>
+                        <td class="px-4 sm:px-6 py-3 sm:py-4 font-bold text-lg whitespace-nowrap">{rec.weight} <span class="text-xs text-slate-500 font-normal">{$t('units.kg')}</span></td>
                         <td class="px-4 sm:px-6 py-3 sm:py-4">
                            <div class="flex gap-1 sm:gap-2 text-xs">
-                             <span class="bg-gray-100 px-2 py-1 rounded text-gray-600 font-bold">{rec.bodyFat} {$t('units.percent')} {$t('metrics.body_fat')}</span>
-                             <span class="bg-gray-100 px-2 py-1 rounded text-gray-600">{rec.gender === 'male' ? $t('common.male_short') : $t('common.female_short')} / {rec.age} {$t('units.years')}</span>
-                             <span class="bg-gray-100 px-2 py-1 rounded text-gray-600 border border-gray-200">{rec.height}cm</span>
+                             <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg font-semibold border border-slate-200">{rec.bodyFat} {$t('units.percent')} {$t('metrics.body_fat')}</span>
+                             <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg border border-slate-200">{rec.gender === 'male' ? $t('common.male_short') : $t('common.female_short')} / {rec.age} {$t('units.years')}</span>
+                             <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg border border-slate-200">{rec.height}cm</span>
                            </div>
                         </td>
                         <td class="px-4 sm:px-6 py-3 sm:py-4 text-right">
                           {#if clients.length === 0}
-                            <div class="w-40 sm:w-48 bg-gray-100 text-gray-500 text-xs font-medium py-1 sm:py-2 px-2 sm:px-3 rounded text-center">{$t('dashboard.no_clients_created')}</div>
+                            <div class="w-40 sm:w-48 bg-slate-100 text-slate-500 text-xs font-medium py-2 px-3 rounded-lg text-center">{$t('dashboard.no_clients_created')}</div>
                           {:else}
                             <div class="relative w-40 sm:w-48">
                               <input
                                 type="text"
                                 placeholder="{$t('dashboard.assign_btn')}"
-                                class="w-full text-xs sm:text-sm border border-gray-300 rounded px-2 sm:px-3 py-1 sm:py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                class="w-full text-xs sm:text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-teal-500 outline-none"
                                 bind:value={assignmentSearchTerms[rec.id]}
                               />
                               <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                <span class="text-gray-400 text-xs">🔍</span>
+                                <span class="text-slate-400 text-xs">🔍</span>
                               </div>
                               {#if assignmentSearchTerms[rec.id]}
-                                <div class="absolute top-full left-0 right-0 mt-1 max-h-32 overflow-y-auto bg-white border border-gray-200 rounded shadow-sm z-10">
+                                <div class="absolute top-full left-0 right-0 mt-1 max-h-32 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-sm z-10">
                                   {#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
                                     <button
                                       on:click={() => { assignRecord(rec.id, c.id); assignmentSearchTerms[rec.id] = ''; }}
-                                      class="w-full text-left px-3 py-2 text-xs hover:bg-blue-50 transition-colors"
+                                      class="w-full text-left px-3 py-2 text-xs hover:bg-teal-50 transition-colors"
                                     >
                                       {c.alias}
                                     </button>
@@ -1287,6 +1357,64 @@
                               <div class="text-gray-200 leading-relaxed whitespace-pre-line">{$t('tooltips.metabolic_age_description')}</div>
                               <div class="hidden sm:block absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1 w-3 h-3 bg-gray-900 rotate-45"></div>
                             </div>
+                          
+                            <!-- Modern Modal Component -->
+                            {#if showModal}
+                              <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
+                                <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto animate-slide-up">
+                                  <div class="p-6">
+                                    <div class="flex items-center gap-3 mb-4">
+                                      {#if modalType === 'error'}
+                                        <div class="bg-rose-100 text-rose-600 p-2 rounded-lg">
+                                          <span class="text-xl">⚠️</span>
+                                        </div>
+                                      {:else if modalType === 'success'}
+                                        <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg">
+                                          <span class="text-xl">✅</span>
+                                        </div>
+                                      {:else if modalType === 'confirm'}
+                                        <div class="bg-amber-100 text-amber-600 p-2 rounded-lg">
+                                          <span class="text-xl">❓</span>
+                                        </div>
+                                      {:else}
+                                        <div class="bg-slate-100 text-slate-600 p-2 rounded-lg">
+                                          <span class="text-xl">ℹ️</span>
+                                        </div>
+                                      {/if}
+                                      <h3 class="text-lg font-bold text-slate-800">{modalTitle}</h3>
+                                    </div>
+                                    
+                                    <div class="mb-6">
+                                      <p class="text-slate-600 text-sm leading-relaxed">{modalMessage}</p>
+                                    </div>
+                                    
+                                    <div class="flex justify-end gap-3">
+                                      {#if modalType === 'confirm'}
+                                        <button
+                                          on:click={handleModalCancel}
+                                          class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          on:click={handleModalConfirm}
+                                          class="px-4 py-2 text-sm font-medium bg-teal-600 text-white hover:bg-teal-700 rounded-lg transition-colors shadow-sm"
+                                        >
+                                          Confirm
+                                        </button>
+                                      {:else}
+                                        <button
+                                          on:click={() => showModal = false}
+                                          class="px-4 py-2 text-sm font-medium bg-teal-600 text-white hover:bg-teal-700 rounded-lg transition-colors shadow-sm"
+                                        >
+                                          OK
+                                        </button>
+                                      {/if}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            {/if}
                           {/if}
                         </div>
                       </div>
@@ -1365,6 +1493,31 @@
   .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 20px; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Animations */
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.2s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
 
   @media print {
     header, input[type="file"], button, .bg-blue-50, .border-dashed { display: none !important; }
