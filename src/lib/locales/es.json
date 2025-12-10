@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "BodyMetrics",
-    "subtitle": "",
+    "subtitle": "Análisis de Composición Corporal Segmental con total privacidad.",
     "privacy_badge": "Datos Locales"
   },
   "common": {
@@ -15,9 +15,9 @@
   "units": {
     "kg": "kg",
     "percent": "%",
+    "years": "años",
     "kcal": "kcal",
-    "rating": "Nivel",
-    "years": "años"
+    "rating": "nivel"
   },
   "dashboard": {
     "tabs": {
@@ -37,29 +37,27 @@
       "from": "Del:",
       "to": "Al:"
     },
-    "inbox_empty": "¡Todo limpio! No hay mediciones pendientes de asignar.",
-    "assign_btn": "Asignar a...",
+    "client_exists_title": "Error al crear",
+    "client_exists_message": "El ID o Alias del cliente ya existe. Prueba con otro nombre.",
+    "inbox_empty": "¡Todo limpio! No hay mediciones pendientes de vincular, o no se han cargado los archivos de la SD.",
+    "assign_btn": "Vincular a...",
     "create_btn": "Nuevo Cliente",
     "filter_placeholder": "Buscar cliente...",
     "select_client_prompt": "Selecciona un cliente de la lista para ver su progreso.",
     "latest_reading": "Medición Seleccionada",
-    "last_visit": "Última visita:",
-    "record_count": "registros",
     "client_id_placeholder": "Código o Alias",
-    "client_alias_placeholder": "Nombre o Alias",
-    "metabolic_health": "Salud Metabólica",
     "target": "Objetivo",
     "actual_age": "Edad Real",
     "evolution_chart": "Progreso",
     "detach_record": "Quitar esta medición del cliente",
-    "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones volverán a la bandeja de entrada.",
-    "no_data_client": "Este cliente aún no tiene mediciones asignadas.",
+    "detach_record_title": "Desvincular Medición",
+    "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones volverán a la Entrada.",
+    "delete_client_confirm_title": "Eliminar Cliente",
+    "no_data_client": "Este cliente aún no tiene mediciones vinculadas o no se han cargado los archivos de la SD.",
+    "no_data_title": "Sin Datos",
     "no_clients_created": "Aún no has creado ningún cliente",
     "records_selected": "mediciones seleccionadas",
-    "detach_selected": "Quitar seleccionadas",
-    "assign_selected": "Asignar seleccionadas",
-    "select_all": "Seleccionar todas",
-    "multi_assignment": "Asignación múltiple",
+    "multi_assignment": "Vinculación múltiple",
     "pagination": {
       "previous": "Anterior",
       "next": "Siguiente",
@@ -68,82 +66,53 @@
     }
   },
   "help": {
-    "page_title": "📚 Guía de Ayuda",
-    "pwa_title": "📲 Instalar App",
-    "pwa_text": "BodyMetrics es una Aplicación Web Progresiva. Puedes instalarla en tu móvil/tablet ('Añadir a pantalla de inicio') o en tu PC (Icono '+' en la barra de dirección) para usarla a pantalla completa.",
-    "first_time_title": "🆕 ¿Primera vez?",
-    "first_time_text": "Antes de cargar datos de la SD, necesitas tener al menos un cliente al que asociar mediciones. Ve a la pestaña **Clientes** y crea tu primer perfil. Luego, carga los archivos en la **Entrada** y asígnalo a ese u otro cliente.",
-    
-    "section_starting": "🚀 Empezando",
+    "page_title": "📚 Manual de Usuario",
+    "section_starting": "🚀 Primeros Pasos",
     "starting_requirements": "Requisitos",
-    "starting_requirements_text": "• Cualquier navegador moderno (Chrome, Safari, Firefox)\n• Tarjeta SD con archivos de tu báscula Tanita\n• No requiere internet tras la carga inicial",
-    "starting_installation": "Instalación PWA",
-    "starting_installation_text": "Esta web se comporta como una app nativa. Busca la opción 'Instalar' o 'Añadir a inicio' en el menú de tu navegador para tener acceso directo y pantalla completa.",
-    "starting_first_steps": "Primeros pasos",
-    "starting_first_steps_text": "1. Crea tu primer cliente en la pestaña **Clientes**\n2. Carga los archivos CSV de la SD\n3. Asigna las mediciones a los clientes",
-    
-    "section_files": "📁 Archivos de la Báscula",
-    "files_where": "Ubicación en la SD",
-    "files_where_text": "Los archivos están en la carpeta: `/TANITA/GRAPHV1/DATA/`.\n\nSon archivos `.CSV` que contienen la fecha, hora y todos los parámetros de composición corporal.",
-    "files_structure": "Contenido del archivo",
-    "files_structure_text": "La app lee automáticamente: Peso, Grasa (Total y Segmental), Músculo (Total y Segmental), Agua, Visceral, Ósea y Edad Metabólica.",
-    "files_troubleshooting": "Solución de problemas",
-    "files_troubleshooting_text": "Si un archivo da error:\n• Asegúrate de no haberlo abierto y guardado con Excel (Excel rompe el formato CSV).\n• Usa siempre los archivos originales de la tarjeta.",
-    
-    "section_clients": "👥 Gestión",
-    "clients_creation": "Perfiles",
-    "clients_creation_text": "Ve a la pestaña **Clientes** para crear nuevos perfiles. Recomendamos usar Códigos o Alias para mantener la privacidad de los datos reales.",
-    "clients_assignment": "Asignación",
-    "clients_assignment_text": "Desde la **Entrada**, puedes asignar mediciones sueltas o usar la selección múltiple para asignar muchas mediciones a un cliente de golpe.",
-    "clients_infinite_trick": "Truco SD",
-    "clients_infinite_trick_text": "Para superar el límite de 4 usuarios de la báscula:\n1. Saca la SD.\n2. Modifica el usuario 'comodín' en la báscula.\n3. Inserta la SD y pésate.\nAsí no se borra el historial de la tarjeta.",
-    
+    "starting_requirements_text": "• Navegador moderno (Chrome, Brave, Safari, Edge, etc).\n• Tarjeta SD con archivos de tu Tanita BC-601/602/613.\n• **No requiere internet** tras la instalación (Funciona 100% Offline).",
+    "starting_installation": "Instalar como App",
+    "starting_installation_text": "Para usarla a pantalla completa y sin conexión, busca la opción **'Instalar aplicación'** o **'Añadir a pantalla de inicio'** en el menú (móviles) o barra de navegación (PC) de tu navegador.",
+    "starting_first_steps": "Flujo de trabajo",
+    "starting_first_steps_text": "1. Ve a la pestaña **Entrada**.\n2. Arrastra los archivos `DATA.CSV` desde la tarjeta SD.\n3. Si es la primera vez, ve a **Clientes** y crea un perfil.\n4. Vuelve a **Entrada** y pulsa **Vincular** para asignar esa medición a tu cliente.",
+    "section_clients_buttons": "👥 Clientes y Botones Físicos",
+    "clients_creation": "Privacidad y Alias",
+    "clients_creation_text": "Recomendamos usar **Códigos** (ej: `CLI-001`) o **Alias** (ej: `JUAN PR`) en lugar de nombres reales. Mantén una hoja de cálculo privada fuera de la app que relacione `CLI-001` o `JUAN PR` con el nombre real de la persona para máxima seguridad.",
+    "clients_buttons_logic": "Asignación de Botones",
+    "clients_buttons_logic_text": "La báscula solo tiene 4 ranuras de memoria. Recomendamos esta estrategia:\n\n• **Botones 1, 2 y 3:** Úsalos para ti o familiares fijos.\n• **Botón 4 (Comodín):** Úsalo para medir a múltiples clientes usando el truco de abajo.",
+    "clients_infinite_trick": "Truco: Clientes Infinitos ∞",
+    "clients_infinite_trick_text": "Para usar el **Botón 4** con cientos de personas sin borrar el historial:\n\n1. ⚠️ **SACA LA TARJETA SD** de la báscula.\n2. Mantén **SET** y elige Botón 4 (Comodín).\n3. Edita edad, altura, género y actividad física (con **Flechas**) y confirma (con **SET**).\n4. Cuando pregunte **CLr?** (Borrar), di que **SÍ**.\n5. 💾 **INSERTA LA SD** ahora y pésate.\n\n**Resultado:** Se guarda el nuevo dato en `DATA4.CSV` sin sobrescribir los anteriores.",
+    "section_files": "📁 Archivos y Primera Carga",
+    "files_where": "Estructura en la SD",
+    "files_where_text": "La báscula guarda los datos en carpetas fijas según el botón físico que pulses:\n• **Botón 1:** `DATA1.CSV` (y `DATA5.CSV` si se llena).\n• **Botón 2:** `DATA2.CSV` (y `DATA6.CSV`).\n• **Botón 3:** `DATA3.CSV` (y `DATA7.CSV`).\n• **Botón 4:** `DATA4.CSV` (y `DATA8.CSV`).",
+    "files_structure": "Cómo funciona",
+    "files_structure_text": "La app lee el archivo `DATA.CSV` pero **no modifica la SD**. Crea un **'vínculo virtual'** en el navegador entre la fecha de la medición y el Cliente que tú elijas.",
+    "files_troubleshooting": "💡 Importante: Primera Carga",
+    "files_troubleshooting_text": "Si tu tarjeta SD ya tiene datos de años anteriores, **NO cargues todos los archivos a la vez** o será difícil organizarlos.\n\n**Hazlo por partes:**\n1. Carga solo los archivos del botón 1 (`DATA1.CSV` y `DATA5.CSV`) en la **Entrada**.\n2. Usa el botón **Vinculación Múltiple** para asignar todas las mediciones al Cliente que quieras (ej: Mi Madre).\n3. Arrastra o carga ahora los archivos `DATA2.CSV`y `DATA6.CSV` del botón 2 y vincula las mediciones a otro cliente (ej: Mi hija).\n4. Repite para todos los botones.\n\nUna vez organizados los datos antiguos, ya podrás usar el botón 4 para nuevas mediciones y cargar todos los archivos juntos.",
     "section_interpretation": "📊 Interpretación",
-    "interpretation_main_metrics": "Métricas Clave",
-    "interpretation_main_metrics_text": "La app colorea los valores según rangos saludables estándar:\n• **Grasa %:** Azul (Bajo), Verde (Sano), Amarillo (Alto), Rojo (Muy Alto).\n• **Visceral:** Verde (1-12), Rojo (13+).",
+    "interpretation_main_metrics": "Semáforos de Salud",
+    "interpretation_main_metrics_text": "• **% Grasa e IMC:** Azul (Bajo), Verde (Sano), Amarillo (Sobrepeso), Rojo (Obesidad).\n• **% Agua:** Lo ideal es **45-60%** (Mujeres) y **50-65%** (Hombres).\n• **Grasa Visceral:** **1-12** (Sano), **13+** (Riesgo).\n• **Edad Metabólica:** Verde si es **≤ edad real** (Metabolismo eficiente). Amarillo si es mayor.",
     "interpretation_segmental": "Segmental",
-    "interpretation_segmental_text": "Permite ver desequilibrios musculares o de grasa entre brazo izquierdo/derecho y pierna izquierda/derecha.",
-    "interpretation_health_states": "Colores",
-    "interpretation_health_states_text": "Los colores (Azul, Verde, Amarillo, Rojo) se calculan dinámicamente basándose en la edad y género del cliente para cada medición.",
-    "interpretation_export": "Exportar",
-    "interpretation_export_text": "Puedes descargar el historial completo de un cliente en formato CSV compatible con Excel pulsando el botón 'Hoja de Cálculo'.",
-    
-    "section_security": "🔒 Privacidad Total",
-    "security_local_data": "Datos Locales",
-    "security_local_data_text": "BodyMetrics **NO tiene servidor**. Todos los datos (clientes y uniones) se guardan en el almacenamiento de TU navegador.",
+    "interpretation_segmental_text": "Permite detectar asimetrías y prevenir lesiones. Por ejemplo, si la **Pierna Der.** tiene menos masa muscular que la **Izq.** tras una recuperación, o desequilibrios en tenistas (Brazo hábil más desarrollado).",
+    "interpretation_health_states": "Rangos Dinámicos",
+    "interpretation_health_states_text": "Los rangos de 'Saludable' no son fijos: la app los calcula automáticamente siguiendo las tablas del **manual oficial de Tanita**, adaptándose a la edad y género exactos del cliente en cada medición.",
+    "interpretation_export": "Exportar Datos",
+    "interpretation_export_text": "En la ficha de cada cliente puedes pulsar **Hoja de Cálculo** para descargar un `.csv` limpio con todo el historial. Es compatible con **Excel**, **LibreOffice** o **Google Sheets**.",
+    "section_security": "🔒 Seguridad",
+    "security_local_data": "Privacidad Local",
+    "security_local_data_text": "BodyMetrics no tiene servidor ni base de datos en la nube. **Tus datos nunca salen de tu dispositivo**.",
+    "security_link": "El Vínculo (Caché)",
+    "security_link_text": "Recuerda: La app vive en tu navegador. Si borras el caché (\"datos de navegación\"), se pierden los vínculos clientes-mediciones, pero **los datos de la SD siguen seguros** en la tarjeta.",
     "security_backups": "Copias de Seguridad",
-    "security_backups_text": "Como los datos están en tu navegador, si borras el caché se pierden. \n\n**IMPORTANTE:** Ve a Ajustes > **Descargar Copia de Seguridad** regularmente.",
+    "security_backups_text": "Como los datos viven en el navegador, **es vital** que vayas a Ajustes > **Descargar Copia de Seguridad** regularmente. Esto genera un archivo con fecha tipo `bm_backup_2025...json`.",
     "security_restoration": "Restaurar",
-    "security_restoration_text": "Si cambias de ordenador o móvil, usa el archivo de Copia de Seguridad (.json) para restaurar todos tus clientes y asociaciones.",
-    
-    "section_troubleshooting": "❓ Dudas",
-    "troubleshooting_common": "Carga de archivos",
-    "troubleshooting_common_text": "Si no puedes seleccionar los archivos en el móvil, asegúrate de que estás seleccionando archivos con extensión `.CSV`.",
-    "troubleshooting_compatibility": "Navegadores",
-    "troubleshooting_compatibility_text": "Funciona en Chrome, Safari, Edge y Firefox. Recomendamos mantener el navegador actualizado.",
-    "troubleshooting_support": "Ayuda técnica",
-    "troubleshooting_support_text": "Si encuentras un fallo, puedes reportarlo en el repositorio de GitHub del proyecto."
-  },
-  "welcome": {
-    "title": "Bienvenido a BodyMetrics",
-    "subtitle": "Análisis de Composición Corporal Segmental con total privacidad.",
-    "guide_1_title": "🧠 1. Cómo Funciona",
-    "guide_1_text": "Esta aplicación NO almacena los datos de mediciones de la báscula. Solamente guarda la **asociación** (vínculo) entre una medición y un Cliente que hayas creado. Los datos reales permanecen en tu tarjeta SD.",
-    "guide_2_title": "🚀 2. Flujo Diario",
-    "guide_2_text": "Cada vez que entres en la aplicación: 1. **Arrastra o carga todos los archivos SD** en la Entrada. 2. **Asigna** cada nueva medición al cliente correspondiente. (Si recargas o cierras la app, tendrás que volver a cargar los archivos).",
-    "guide_3_title": "∞ 3. Truco: Usuarios Infinitos",
-    "guide_3_text": "La báscula solo tiene 4 memorias, pero puedes medir a cientos de personas usando este truco sin borrar datos:\n1. **SACA LA TARJETA SD** (Muy importante).\n2. Mantén pulsado **SET**, selecciona tu usuario 'comodín' (ej. el 4) y modifica los datos.\n3. Al final preguntará 'CLr?' (¿Borrar?). Di que **YES** (No te preocupes, al no estar la SD, no se borra nada importante).\n4. **INSERTA LA SD** , pulsa el botón del usuario comodín y haz la medición.\n(La báscula guardará el dato nuevo en el archivo sin borrar el historial).",
-    "guide_4_title": "📊 4. Gestionar y Exportar",
-    "guide_4_text": "Puedes eliminar clientes o deshacer asociaciones si cometes un error. Usa el botón **Hoja de Cálculo** dentro de cada cliente para obtener un archivo .CSV limpio, listo para usar en cualquier programa de hoja de cálculo (LibreOffice, Excel, Google Sheets, etc.) o para enviar por correo.",
-    "guide_5_title": "🛡️ 5. Seguridad de Datos",
-    "guide_5_text": "Tus clientes y asociaciones con mediciones de la báscula no se guardan en internet, solamente en el navegador de tu dispositivo. Si borras el caché del navegador, desinstalas el navegador o formateas el PC/dispositivo, perderás la lista. Ve a **Ajustes > Descargar Copia de Seguridad** regularmente para evitar perder estos datos. Estos datos se pueden descargar y enviar a otros dispositivos; ve a **Ajustes > Cargar Copia de Seguridad** para restaurar tus datos.",
-    "guide_6_title": "💻 6. Código Abierto",
-    "guide_6_text": "Proyecto de código abierto transparente. Puedes revisar el código, contribuir o instalarlo en tu propio servidor local sin conexión.",
-    "github_link": "Repositorio GitHub",
-    "cta": "Para empezar, crea tu primer cliente:",
-    "cta_import": "¿Tienes una copia de seguridad (.json)?",
-    "btn_import": "Restaurar Base de Datos",
-    "privacy_hint": "Consejo: Usa códigos (ej: CLI-001) o alias (ej: Juan PR) si quieres máxima privacidad. Mantén la relación entre estos códigos o alias y sus nombres reales en una hoja de datos privada para mayor seguridad."
+    "security_restoration_text": "Ve a Ajustes > **Cargar Copia de Seguridad** para recuperar tus datos tras borrar caché o cambiar de equipo.\n\n**Sincronización Manual:** Puedes pasarte el archivo `bm_backup...json` entre PC y Móvil. Si vinculas una nueva medición en un dispositivo, recuerda **guardar copia y cargarla en el otro** para mantener ambos actualizados a la última versión.",
+    "section_troubleshooting": "❓ Dudas Frecuentes",
+    "troubleshooting_common": "¿Qué archivo subo?",
+    "troubleshooting_common_text": "• Para nuevas mediciones: Los archivos `DATA.CSV` de la tarjeta SD.\n• Para restaurar la app: El archivo `bm_backup...json` que creaste en Ajustes.",
+    "troubleshooting_missing_data": "¿No aparecen mediciones?",
+    "troubleshooting_missing_data_text": "• Cada vez que cierras o recargas la app **tienes que volver a cargar los archivos de la SD**.\n• Asegúrate de cargar siempre **todos** los archivos `DATA.CSV` de la carpeta DATA para que se reactiven los vínculos.",
+    "troubleshooting_date": "¿Fecha incorrecta?",
+    "troubleshooting_date_text": "Si tus mediciones aparecen en el año 2010 o con horas extrañas, es porque el **reloj interno de la báscula** se ha reiniciado (ej: al cambiar pilas). Debes configurar la fecha correcta usando los botones físicos de la báscula."
   },
   "about": {
     "title": "Acerca de BodyMetrics",
@@ -161,7 +130,7 @@
     "drop_zone": "Arrastra aquí todos los archivos .CSV de esa carpeta",
     "browse": "O pulsa para buscar en la tarjeta SD",
     "processing": "Leyendo archivos...",
-    "error": "No hemos encontrado mediciones válidas. Revisa que sean archivos .CSV de la carpeta DATA."
+    "error": "No hemos encontrado mediciones válidas. Asegúrate de que los archivos sean DATA.CSV y provengan de la carpeta DATA de la tarjeta SD."
   },
   "analysis": {
     "date": "Fecha"
@@ -176,10 +145,6 @@
     "bone_mass": "Masa Ósea",
     "metabolic_age": "Edad Metabólica",
     "dci": "Ingesta Diaria (DCI)"
-  },
-  "sections": {
-    "composition": "Composición de Tejidos",
-    "health_risk": "Indicadores de Salud"
   },
   "csv_headers": {
     "date": "Fecha",
@@ -204,44 +169,52 @@
     "right_leg": "Pierna Der.",
     "left_leg": "Pierna Izq.",
     "fat": "Grasa",
-    "muscle": "Músculo",
-    "visceral": "Visceral"
+    "muscle": "Músculo"
   },
   "status": {
     "under": "Bajo",
-    "healthy": "Saludable",
-    "over": "Alto",
-    "obese": "Muy Alto",
-    "unknown": "--"
+    "over": "Alto"
   },
   "settings": {
     "title": "Ajustes y Seguridad",
     "backup_section": "Tus Copias de Seguridad",
-    "backup_desc": "La base de datos de Clientes se guarda únicamente en este navegador. Crea copias de seguridad .json regularmente para evitar pérdidas si limpias el caché o cambias de PC.",
+    "backup_desc": "La base de datos se guarda en este navegador. Crea copias .json regularmente.",
     "btn_export": "Descargar Copia de Seguridad",
     "btn_import": "Cargar Copia de Seguridad",
     "import_success": "¡Datos recuperados con éxito!",
+    "import_success_title": "Importación Exitosa",
     "import_error": "El archivo no parece una copia válida.",
+    "import_error_title": "Error de Importación",
     "delete_all_btn": "Restablecer de fábrica (Borrar todo)",
-    "delete_all_confirm": "¿Estás seguro? Esto borrará TODA la lista de clientes y asignaciones de este navegador."
+    "delete_all_confirm": "¿Estás seguro? Esto borrará TODA la lista de clientes y vinculaciones de este navegador.",
+    "delete_all_title": "Restablecer de Fábrica"
   },
   "actions": {
     "save": "Guardar",
     "cancel": "Cancelar",
+    "confirm": "Confirmar",
     "delete": "Eliminar",
-    "export_csv": "Hoja de Cálculo (CSV)",
-    "print": "Imprimir",
-    "select_multiple": "Selección múltiple"
+    "export_csv": "Hoja de Cálculo",
+    "ok": "Aceptar"
+  },
+  "alerts": {
+    "success_title": "¡Operación Exitosa!",
+    "error_title": "Error",
+    "info_title": "Información",
+    "link_success": "Medición vinculada correctamente al historial del cliente.",
+    "link_multiple_success": "Se han procesado y vinculado {n} mediciones correctamente.",
+    "export_empty": "Este cliente no tiene mediciones para exportar.",
+    "backup_success": "Copia de seguridad restaurada correctamente.",
+    "backup_error": "El archivo está dañado o no es un backup válido.",
+    "reset_success": "El sistema se ha restablecido de fábrica. Todos los datos han sido borrados."
   },
   "tooltips": {
-    "traffic_light_title": "Semáforo de Grasa Corporal",
-    "traffic_light_description": "Este semáforo muestra el estado de la grasa corporal según los rangos estándar:\n\n• Azul: Grasa baja\n• Verde: Grasa saludable\n• Amarillo: Grasa alta\n• Rojo: Grasa muy alta\n\nLos rangos varían según género y edad.",
     "measurement_card_title": "Colores de las Mediciones",
-    "measurement_card_description": "Las tarjetas cambian de color según el estado de salud:\n\n• Verde: Valores saludables\n• Amarillo: Valores altos\n• Rojo: Valores muy altos\n• Azul: Valores bajos\n\nBasado en rangos estándar de bioimpedancia.",
+    "measurement_card_description": "Las tarjetas cambian de color según el estado de salud:\n\n• Verde: Saludable\n• Amarillo: Alto\n• Rojo: Muy alto\n• Azul: Bajo",
     "visceral_fat_title": "Grasa Visceral",
-    "visceral_fat_description": "La grasa visceral se encuentra dentro del abdomen y rodea los órganos internos.\n\nRango saludable: 1-12\nValores altos: 13+\n\nNiveles elevados aumentan el riesgo de problemas de salud.",
+    "visceral_fat_description": "Grasa que rodea los órganos internos.\n\nRango saludable: 1-12\nAlto riesgo: 13+",
     "metabolic_age_title": "Edad Metabólica",
-    "metabolic_age_description": "Compara tu metabolismo con la edad cronológica promedio.\n\n• Verde: Edad metabólica ≤ edad real\n• Amarillo: Edad metabólica > edad real\n\nUn metabolismo más joven es más eficiente."
+    "metabolic_age_description": "Compara tu metabolismo con tu edad real.\n\n• Verde: Edad metabólica ≤ edad real (Eficiente)\n• Amarillo: Edad metabólica > edad real"
   },
   "first_use": {
     "title": "Guía de Primer Uso",
@@ -250,12 +223,12 @@
     "previous": "Anterior",
     "finish": "Comenzar",
     "step_inbox_title": "📥 Entrada - Cargar Datos",
-    "step_inbox_description": "Aquí cargas los archivos CSV desde la tarjeta SD de la báscula Tanita. Busca en la carpeta /TANITA/GRAPHV1/DATA/ y arrastra todos los archivos .CSV aquí.",
+    "step_inbox_description": "Aquí cargas los datos. Busca en la tarjeta SD la carpeta `/TANITA/GRAPHV1/DATA/` y **arrastra aquí todos los archivos** `DATA.CSV`. (Cuidado: evita los archivos de la carpeta 'system').",
     "step_clients_title": "👥 Clientes - Gestionar Perfiles",
-    "step_clients_description": "Crea y gestiona perfiles de clientes. Puedes usar códigos o alias para mantener la privacidad. Asigna las mediciones desde la entrada a cada cliente.",
-    "step_settings_title": "⚙️ Ajustes - Seguridad y Copias",
-    "step_settings_description": "Realiza copias de seguridad de tu base de datos local y restáuralas cuando cambies de dispositivo. También puedes borrar todos los datos si es necesario.",
-    "step_help_title": "ℹ️ Ayuda - Información y Soporte",
-    "step_help_description": "Encuentra información detallada sobre la aplicación, instrucciones de uso y enlaces al código fuente del proyecto."
+    "step_clients_description": "Gestiona los perfiles. Crea primero los Clientes aquí (usa alias por privacidad) y luego ve a la pestaña Entrada para **vincular** las nuevas mediciones a cada uno.",
+    "step_settings_title": "⚙️ Settings - Seguridad",
+    "step_settings_description": "Tu seguridad. Los datos se guardan solo en este navegador. Descarga regularmente una **Copia de Seguridad** aquí para no perder tu trabajo si se borra el caché.",
+    "step_help_title": "ℹ️ Ayuda - Manual",
+    "step_help_description": "Manual y Trucos. Consulta aquí la guía completa, la interpretación de métricas y el paso a paso del truco de 'Usuarios Infinitos' (Comodín)."
   }
 }

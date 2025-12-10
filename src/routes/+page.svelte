@@ -100,10 +100,6 @@
   // Forms
   let newClientCodeOrAlias = '';
 
-  // Tooltips
-  let showVisceralFatTooltip = false;
-  let showMetabolicAgeTooltip = false;
-  let showMeasurementCardTooltip = false;
 
   // Modal state
   let showModal = false;
@@ -119,7 +115,8 @@
   const guideSteps = [
     { tab: 'inbox', title: 'first_use.step_inbox_title', description: 'first_use.step_inbox_description' },
     { tab: 'clients', title: 'first_use.step_clients_title', description: 'first_use.step_clients_description' },
-    { tab: 'settings', title: 'first_use.step_settings_title', description: 'first_use.step_help_description' }
+    { tab: 'settings', title: 'first_use.step_settings_title', description: 'first_use.step_settings_description' },
+    { tab: 'help', title: 'first_use.step_help_title', description: 'first_use.step_help_description' }
   ];
 
   // --- HELPER: DATE SORTING ---
@@ -295,15 +292,15 @@
   // --- CRUD OPERATIONS ---
   const createClient = () => {
       if (!newClientCodeOrAlias) return;
+      const $t = get(t); 
       const success = PatientManager.addClient(newClientCodeOrAlias, newClientCodeOrAlias);
       if (success) {
         refreshClients();
-        // Don't auto-select the new client
         newClientCodeOrAlias = '';
         clientSearchTerm = '';
         currentTab = 'clients';
       } else {
-        showAlert('Error', 'Client ID already exists.', 'error');
+        showAlert($t('dashboard.client_exists_title'), $t('dashboard.client_exists_message'), 'error');
       }
     };
 
@@ -320,10 +317,14 @@
     );
   };
 
-  const assignRecord = (recordId: string, clientId: string) => {
+  const assignRecord = (recordId: string, clientId: string, silent = false) => {
     if (!clientId) return;
     PatientManager.assignRecordToClient(recordId, clientId);
-    refreshClients(); 
+    if (!silent) {
+        refreshClients();
+        const $t = get(t);
+        showAlert($t('alerts.success_title'), $t('alerts.link_success'), 'success');
+    }
   };
 
   const unassignCurrentRecord = () => {
@@ -378,14 +379,13 @@
     };
 
     const assignSelectedRecords = (clientId: string) => {
-      if (!clientId) return;
-      selectedRecordIds.forEach(recordId => {
-        assignRecord(recordId, clientId);
-      });
-      selectedRecordIds = [];
-      isMultiSelectMode = false;
-      bulkAssignSearch = '';
-    };
+    if (!clientId) return;
+    selectedRecordIds.forEach(recordId => assignRecord(recordId, clientId, true));
+    refreshClients();
+    selectedRecordIds = [];
+    const $t = get(t);
+    showAlert($t('alerts.success_title'), $t('alerts.link_multiple_success').replace('{n}', selectedRecordIds.length.toString()), 'success');
+  };
 
     const toggleInboxSelection = (recordId: string) => {
       const index = selectedInboxMeasurements.indexOf(recordId);
@@ -405,13 +405,16 @@
     };
 
     const assignBulkMeasurements = (clientId: string) => {
-      if (!clientId) return;
-      selectedInboxMeasurements.forEach(recordId => {
-        assignRecord(recordId, clientId);
-      });
-      selectedInboxMeasurements = [];
-      bulkAssignSearch = '';
-    };
+    if (!clientId) return;
+    const count = selectedInboxMeasurements.length;
+    selectedInboxMeasurements.forEach(recordId => assignRecord(recordId, clientId, true));
+    
+    refreshClients();
+    selectedInboxMeasurements = [];
+    bulkAssignSearch = '';
+    const $t = get(t);
+    showAlert($t('alerts.success_title'), $t('alerts.link_multiple_success').replace('{n}', count.toString()), 'success');
+  };
 
   const deleteAllData = () => {
     const $t = get(t);
@@ -424,6 +427,7 @@
         selectedClientId = '';
         selectedRecordId = '';
         refreshClients();
+        showAlert($t('alerts.success_title'), $t('alerts.reset_success'), 'success');
       }
     );
   };
@@ -432,12 +436,13 @@
     const $t = get(t);
     // Verificación de datos vacíos
     if (!clientHistory || clientHistory.length === 0) {
-      showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client') || "No hay mediciones para exportar.", 'error');
+      showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client'), 'error');
       return;
     }
 
     const client = clients.find(c => c.id === selectedClientId);
-    const filename = client ? `${client.id}_${client.alias.replace(/\s/g, '_')}.csv` : 'export.csv';
+    const dateStr = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
+    const filename = client ? `${client.alias.replace(/\s/g, '_')}_${dateStr}.csv` : `export_${dateStr}.csv`;
     
     const headersMap = {
       date: $t('csv_headers.date'), time: $t('csv_headers.time'), model: $t('csv_headers.model'),
@@ -575,6 +580,16 @@
     if (modalCancelCallback) modalCancelCallback();
     showModal = false;
   };
+  // --- HELPER: SIMPLE MARKDOWN FORMATTING ---
+  const formatText = (text: string) => {
+    if (!text) return '';
+    return text
+      // 1. Reemplaza **texto** por negrita
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
+      // 2. Reemplaza `texto` por estilo de código/archivo
+      .replace(/`(.*?)`/g, '<code class="bg-gray-100 text-pink-600 px-1.5 py-0.5 rounded font-mono text-xs border border-gray-200">$1</code>');
+  };
+
 </script>
 
 {#if $isLocaleLoading}
@@ -677,155 +692,136 @@
         <div class="max-w-6xl mx-auto space-y-6 sm:space-y-8 animate-fade-in">
             <div class="text-center py-6 sm:py-8">
                 <h2 class="text-2xl sm:text-4xl font-black text-gray-800 mb-2">{$t('help.page_title')}</h2>
-                <p class="text-gray-500 text-base sm:text-lg max-w-3xl mx-auto">{$t('welcome.subtitle')}</p>
             </div>
 
-            <!-- 🚀 Empezando / Getting Started -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">
-                    {$t('help.section_starting')}
-                </h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_starting')}</h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.starting_requirements')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.starting_requirements_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_requirements_text'))}</p>
                     </div>
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.starting_installation')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.starting_installation_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_installation_text'))}</p>
                     </div>
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.starting_first_steps')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.starting_first_steps_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_first_steps_text'))}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 📁 Formato de Archivos / File Format -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">
-                    {$t('help.section_files')}
-                </h3>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.files_where')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.files_where_text')}</p>
-                    </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.files_structure')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.files_structure_text')}</p>
-                    </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.files_troubleshooting')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.files_troubleshooting_text')}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 👥 Gestión de Clientes / Client Management -->
-            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">
-                    {$t('help.section_clients')}
-                </h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_clients_buttons')}</h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.clients_creation')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.clients_creation_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_creation_text'))}</p>
                     </div>
                     <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.clients_assignment')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.clients_assignment_text')}</p>
+                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.clients_buttons_logic')}</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_buttons_logic_text'))}</p>
                     </div>
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.clients_infinite_trick')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.clients_infinite_trick_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_infinite_trick_text'))}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 📊 Interpretación de Datos / Data Interpretation -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">
-                    {$t('help.section_interpretation')}
-                </h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_files')}</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="space-y-4">
+                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.files_where')}</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_where_text'))}</p>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.files_structure')}</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_structure_text'))}</p>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.files_troubleshooting')}</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_troubleshooting_text'))}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_interpretation')}</h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.interpretation_main_metrics')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.interpretation_main_metrics_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_main_metrics_text'))}</p>
                     </div>
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.interpretation_segmental')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.interpretation_segmental_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_segmental_text'))}</p>
                     </div>
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.interpretation_health_states')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.interpretation_health_states_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_health_states_text'))}</p>
                     </div>
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.interpretation_export')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.interpretation_export_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_export_text'))}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 🔒 Seguridad y Copias / Security & Backups -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">
-                    {$t('help.section_security')}
-                </h3>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_security')}</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.security_local_data')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.security_local_data_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_local_data_text'))}</p>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.security_link')}</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_link_text'))}</p>
                     </div>
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.security_backups')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.security_backups_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_backups_text'))}</p>
                     </div>
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.security_restoration')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.security_restoration_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_restoration_text'))}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- ❓ Resolución de Problemas / Troubleshooting -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">
-                    {$t('help.section_troubleshooting')}
-                </h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_troubleshooting')}</h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="space-y-4">
                         <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.troubleshooting_common')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.troubleshooting_common_text')}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_common_text'))}</p>
                     </div>
                     <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.troubleshooting_compatibility')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.troubleshooting_compatibility_text')}</p>
+                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.troubleshooting_missing_data')}</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_missing_data_text'))}</p>
                     </div>
                     <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.troubleshooting_support')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{$t('help.troubleshooting_support_text')}</p>
+                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.troubleshooting_date')}</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_date_text'))}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- About Section -->
             <div class="mt-8 sm:mt-12 bg-gray-800 text-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-8 text-center shadow-lg">
                 <h4 class="font-bold text-white text-base sm:text-lg mb-2">{$t('about.title')}</h4>
                 <p class="text-xs sm:text-sm mb-4 sm:mb-6 max-w-4xl mx-auto">{$t('about.description')}</p>
-                
                 <div class="flex flex-wrap justify-center gap-2 sm:gap-3 text-xs font-mono mb-6 sm:mb-8">
                     <span class="bg-gray-700 px-2 sm:px-3 py-1 rounded-full border border-gray-600">{$t('about.version')}</span>
                     <span class="bg-gray-700 px-2 sm:px-3 py-1 rounded-full border border-gray-600">{$t('about.license')}</span>
                     <span class="bg-gray-700 px-2 sm:px-3 py-1 rounded-full border border-gray-600">{$t('about.developer')}</span>
                 </div>
-                
                 <a href="https://github.com/JuanPR-Lab/BodyMetrics" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white text-gray-900 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm hover:bg-gray-200 transition-colors shadow-md">
                     <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                     {$t('about.github_btn')}
                 </a>
-                
                 <p class="text-[9px] sm:text-[10px] mt-4 sm:mt-6 opacity-40 uppercase tracking-widest">{$t('about.disclaimer')}</p>
             </div>
         </div>
@@ -1068,7 +1064,6 @@
                 <div class="space-y-2">
                   <input bind:value={newClientCodeOrAlias} placeholder="{$t('dashboard.client_id_placeholder')}" class="w-full text-sm sm:text-sm border rounded px-3 sm:px-3 py-2 sm:py-2 bg-gray-50 focus:bg-white transition-colors" />
                   <button on:click={createClient} disabled={!newClientCodeOrAlias} class="w-full bg-gray-800 text-white text-sm sm:text-sm font-bold py-2 sm:py-2 rounded hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm touch-manipulation">{$t('actions.save')}</button>
-                  <p class="text-[10px] sm:text-[9px] text-red-400 italic mt-1">{$t('welcome.privacy_hint')}</p>
                 </div>
               </div>
               
@@ -1283,14 +1278,7 @@
                         </div>
                       </div>
 
-                      <div
-                        class="grid grid-cols-2 gap-2 sm:gap-3 relative group"
-                        on:mouseenter={() => showMeasurementCardTooltip = true}
-                        on:mouseleave={() => showMeasurementCardTooltip = false}
-                        role="button"
-                        tabindex="0"
-                        aria-label="{$t('tooltips.measurement_card_title')}"
-                      >
+                      <div class="grid grid-cols-2 gap-2 sm:gap-3">
                         <div class="{STYLES.cardMetric} border-yellow-500">
                             <span class={STYLES.metricLabel}>{$t('metrics.body_fat')}</span>
                             <span class={STYLES.metricValueCard}>{currentRecord.bodyFat}<span class={STYLES.metricUnit}>{$t('units.percent')}</span></span>
@@ -1307,115 +1295,23 @@
                             <span class={STYLES.metricLabel}>{$t('metrics.bone_mass')}</span>
                             <span class={STYLES.metricValueCard}>{currentRecord.boneMass}<span class={STYLES.metricUnit}>{$t('units.kg')}</span></span>
                         </div>
-                        {#if showMeasurementCardTooltip}
-                          <div class="fixed sm:absolute bottom-auto sm:bottom-full left-1/2 top-1/2 sm:top-auto transform -translate-x-1/2 -translate-y-1/2 sm:-translate-y-0 sm:mb-2 w-72 max-w-[90vw] bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl z-50 pointer-events-none">
-                            <div class="font-bold text-sm mb-1">{$t('tooltips.measurement_card_title')}</div>
-                            <div class="text-gray-200 leading-relaxed whitespace-pre-line">{$t('tooltips.measurement_card_description')}</div>
-                            <div class="hidden sm:block absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1 w-3 h-3 bg-gray-900 rotate-45"></div>
-                          </div>
-                        {/if}
                       </div>
 
                       <div class="grid grid-cols-2 gap-2 sm:gap-3">
-                        <div
-                          class="bg-gray-50 p-2 sm:p-3 rounded-xl border border-gray-200 flex flex-col justify-between cursor-help relative group"
-                          on:mouseenter={() => showVisceralFatTooltip = true}
-                          on:mouseleave={() => showVisceralFatTooltip = false}
-                          role="button"
-                          tabindex="0"
-                          aria-label="{$t('tooltips.visceral_fat_title')}"
-                        >
+                        <div class="bg-gray-50 p-2 sm:p-3 rounded-xl border border-gray-200 flex flex-col justify-between">
                           <p class="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase">{$t('metrics.visceral_fat')}</p>
                           <div class="flex items-end justify-between mt-1">
                             <span class="text-xs text-gray-400">{$t('dashboard.target')}: 1-12</span>
                             <span class="text-base sm:text-lg font-black {getStatusColor('visceral', currentRecord.visceralFat).replace('bg-', 'text-').replace('-100', '-600')}">{currentRecord.visceralFat}</span>
                           </div>
-                          {#if showVisceralFatTooltip}
-                            <div class="fixed sm:absolute bottom-auto sm:bottom-full left-1/2 top-1/2 sm:top-auto transform -translate-x-1/2 -translate-y-1/2 sm:-translate-y-0 sm:mb-2 w-64 max-w-[90vw] bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl z-50 pointer-events-none">
-                              <div class="font-bold text-sm mb-1">{$t('tooltips.visceral_fat_title')}</div>
-                              <div class="text-gray-200 leading-relaxed whitespace-pre-line">{$t('tooltips.visceral_fat_description')}</div>
-                              <div class="hidden sm:block absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1 w-3 h-3 bg-gray-900 rotate-45"></div>
-                            </div>
-                          {/if}
                         </div>
-                        <div
-                          class="bg-gray-50 p-2 sm:p-3 rounded-xl border border-gray-200 flex flex-col justify-between cursor-help relative group"
-                          on:mouseenter={() => showMetabolicAgeTooltip = true}
-                          on:mouseleave={() => showMetabolicAgeTooltip = false}
-                          role="button"
-                          tabindex="0"
-                          aria-label="{$t('tooltips.metabolic_age_title')}"
-                        >
+                        <div class="bg-gray-50 p-2 sm:p-3 rounded-xl border border-gray-200 flex flex-col justify-between">
                           <p class="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase">{$t('metrics.metabolic_age')}</p>
                           <div class="flex items-end justify-between mt-1">
                             <span class="text-xs text-gray-400">{$t('dashboard.actual_age')}: {currentRecord.age}</span>
                             <span class="text-base sm:text-lg font-black {getStatusColor('meta', currentRecord.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">{currentRecord.metabolicAge}</span>
                           </div>
-                          {#if showMetabolicAgeTooltip}
-                            <div class="fixed sm:absolute bottom-auto sm:bottom-full left-1/2 top-1/2 sm:top-auto transform -translate-x-1/2 -translate-y-1/2 sm:-translate-y-0 sm:mb-2 w-64 max-w-[90vw] bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl z-50 pointer-events-none">
-                              <div class="font-bold text-sm mb-1">{$t('tooltips.metabolic_age_title')}</div>
-                              <div class="text-gray-200 leading-relaxed whitespace-pre-line">{$t('tooltips.metabolic_age_description')}</div>
-                              <div class="hidden sm:block absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1 w-3 h-3 bg-gray-900 rotate-45"></div>
-                            </div>
                           
-                            <!-- Modern Modal Component -->
-                            {#if showModal}
-                              <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
-                                <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto animate-slide-up">
-                                  <div class="p-6">
-                                    <div class="flex items-center gap-3 mb-4">
-                                      {#if modalType === 'error'}
-                                        <div class="bg-rose-100 text-rose-600 p-2 rounded-lg">
-                                          <span class="text-xl">⚠️</span>
-                                        </div>
-                                      {:else if modalType === 'success'}
-                                        <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg">
-                                          <span class="text-xl">✅</span>
-                                        </div>
-                                      {:else if modalType === 'confirm'}
-                                        <div class="bg-amber-100 text-amber-600 p-2 rounded-lg">
-                                          <span class="text-xl">❓</span>
-                                        </div>
-                                      {:else}
-                                        <div class="bg-slate-100 text-slate-600 p-2 rounded-lg">
-                                          <span class="text-xl">ℹ️</span>
-                                        </div>
-                                      {/if}
-                                      <h3 class="text-lg font-bold text-slate-800">{modalTitle}</h3>
-                                    </div>
-                                    
-                                    <div class="mb-6">
-                                      <p class="text-slate-600 text-sm leading-relaxed">{modalMessage}</p>
-                                    </div>
-                                    
-                                    <div class="flex justify-end gap-3">
-                                      {#if modalType === 'confirm'}
-                                        <button
-                                          on:click={handleModalCancel}
-                                          class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
-                                        >
-                                          Cancel
-                                        </button>
-                                        <button
-                                          on:click={handleModalConfirm}
-                                          class="px-4 py-2 text-sm font-medium bg-teal-600 text-white hover:bg-teal-700 rounded-lg transition-colors shadow-sm"
-                                        >
-                                          Confirm
-                                        </button>
-                                      {:else}
-                                        <button
-                                          on:click={() => showModal = false}
-                                          class="px-4 py-2 text-sm font-medium bg-teal-600 text-white hover:bg-teal-700 rounded-lg transition-colors shadow-sm"
-                                        >
-                                          OK
-                                        </button>
-                                      {/if}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            {/if}
-                          {/if}
                         </div>
                       </div>
                     </div>
@@ -1479,6 +1375,64 @@
                 <div class="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-red-100">
                     <button on:click={deleteAllData} class="flex items-center justify-center gap-2 w-full text-red-600 text-xs sm:text-sm font-bold hover:text-red-800 hover:bg-red-50 py-3 sm:py-4 border border-red-100 rounded transition"><span>🗑️</span> {$t('settings.delete_all_btn')}</button>
                 </div>
+            </div>
+          </div>
+        {/if}
+
+        <!-- Global Modal Component -->
+        {#if showModal}
+          <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto animate-slide-up">
+              <div class="p-6">
+                <div class="flex items-center gap-3 mb-4">
+                  {#if modalType === 'error'}
+                    <div class="bg-rose-100 text-rose-600 p-2 rounded-lg">
+                      <span class="text-xl">⚠️</span>
+                    </div>
+                  {:else if modalType === 'success'}
+                    <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg">
+                      <span class="text-xl">✅</span>
+                    </div>
+                  {:else if modalType === 'confirm'}
+                    <div class="bg-amber-100 text-amber-600 p-2 rounded-lg">
+                      <span class="text-xl">❓</span>
+                    </div>
+                  {:else}
+                    <div class="bg-slate-100 text-slate-600 p-2 rounded-lg">
+                      <span class="text-xl">ℹ️</span>
+                    </div>
+                  {/if}
+                  <h3 class="text-lg font-bold text-slate-800">{modalTitle}</h3>
+                </div>
+                
+                <div class="mb-6">
+                  <p class="text-slate-600 text-sm leading-relaxed">{modalMessage}</p>
+                </div>
+                
+                <div class="flex justify-end gap-3">
+                  {#if modalType === 'confirm'}
+                    <button
+                      on:click={handleModalCancel}
+                      class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                    >
+                      {$t('actions.cancel')}
+                    </button>
+                    <button
+                      on:click={handleModalConfirm}
+                      class="px-4 py-2 text-sm font-medium bg-teal-600 text-white hover:bg-teal-700 rounded-lg transition-colors shadow-sm"
+                    >
+                      {$t('actions.confirm')}
+                    </button>
+                  {:else}
+                    <button
+                      on:click={() => showModal = false}
+                      class="px-4 py-2 text-sm font-medium bg-teal-600 text-white hover:bg-teal-700 rounded-lg transition-colors shadow-sm"
+                    >
+                      {$t('actions.ok')}
+                    </button>
+                  {/if}
+                </div>
+              </div>
             </div>
           </div>
         {/if}

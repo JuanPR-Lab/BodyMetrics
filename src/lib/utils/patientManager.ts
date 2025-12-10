@@ -203,7 +203,7 @@ export const PatientManager = {
     const seconds = pad(now.getSeconds());
     
     // Assemble filename (colons replaced by hyphens for OS compatibility)
-    const filename = `bodymetrics_backup_${year}-${month}-${day}_${hours}-${minutes}-${seconds}.json`;
+    const filename = `bm_backup_${year}-${month}-${day}_${hours}-${minutes}-${seconds}.json`;
     
     triggerDownload(JSON.stringify(db, null, 2), filename);
   },
