@@ -624,15 +624,13 @@
       {#if currentTab === 'help'}
         <div class="max-w-6xl mx-auto space-y-6 sm:space-y-8 animate-fade-in">
             <div class="text-center py-6 sm:py-8">
-                <div class="text-4xl sm:text-6xl mb-4 sm:mb-6">📋</div>
-                <h2 class="text-2xl sm:text-4xl font-black text-gray-800 mb-2">{$t('help.section_starting')}</h2>
+                <h2 class="text-2xl sm:text-4xl font-black text-gray-800 mb-2">{$t('help.page_title')}</h2>
                 <p class="text-gray-500 text-base sm:text-lg max-w-3xl mx-auto">{$t('welcome.subtitle')}</p>
             </div>
 
             <!-- 🚀 Empezando / Getting Started -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <span class="text-2xl">🚀</span>
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
                     {$t('help.section_starting')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -653,8 +651,7 @@
 
             <!-- 📁 Formato de Archivos / File Format -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <span class="text-2xl">📁</span>
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
                     {$t('help.section_files')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -675,8 +672,7 @@
 
             <!-- 👥 Gestión de Clientes / Client Management -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <span class="text-2xl">👥</span>
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
                     {$t('help.section_clients')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -697,8 +693,7 @@
 
             <!-- 📊 Interpretación de Datos / Data Interpretation -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <span class="text-2xl">📊</span>
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
                     {$t('help.section_interpretation')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -723,8 +718,7 @@
 
             <!-- 🔒 Seguridad y Copias / Security & Backups -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <span class="text-2xl">🔒</span>
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
                     {$t('help.section_security')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -745,8 +739,7 @@
 
             <!-- ❓ Resolución de Problemas / Troubleshooting -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <span class="text-2xl">❓</span>
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
                     {$t('help.section_troubleshooting')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
