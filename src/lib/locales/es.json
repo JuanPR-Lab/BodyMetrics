@@ -206,7 +206,12 @@
     "export_empty": "Este cliente no tiene mediciones para exportar.",
     "backup_success": "Copia de seguridad restaurada correctamente.",
     "backup_error": "El archivo está dañado o no es un backup válido.",
-    "reset_success": "El sistema se ha restablecido de fábrica. Todos los datos han sido borrados."
+    "reset_success": "El sistema se ha restablecido de fábrica. Todos los datos han sido borrados.",
+    "reset_title": "Restablecer de Fábrica",
+    "reset_confirm": "¿Estás seguro? Esta acción borrará TODA la lista de clientes y sus vínculos en este navegador. No se puede deshacer.",
+    "delete_client_title": "Eliminar Cliente",
+    "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones se desvincularán y volverán a la bandeja de Entrada.",
+    "reset_success": "Todos los datos han sido eliminados correctamente."
   },
   "tooltips": {
     "measurement_card_title": "Colores de las Mediciones",

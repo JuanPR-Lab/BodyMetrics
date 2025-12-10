@@ -30,11 +30,11 @@
     { key: 'metabolicAge', label: 'metrics.metabolic_age', color: '#8b5cf6', unitKey: 'years' }
   ] as const;
 
-  // --- STYLE CONSTANTS (Clinical Slate & Teal Design System) ---
+ 
   const STYLES = {
     // Filter buttons
     filterBtn: "px-3 py-1 text-[11px] font-semibold rounded-lg border border-slate-200 transition-all bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300 uppercase tracking-wide cursor-pointer shadow-sm",
-    filterBtnActive: "bg-teal-600 text-white border-teal-600 font-bold shadow-md",
+    filterBtnActive: "bg-indigo-600 text-white border-orange-600 font-bold shadow-md",
     
     // Metric cards
     cardMetric: "bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-100 flex flex-col justify-between min-h-[80px] transition-all hover:shadow-md",
@@ -307,8 +307,8 @@
   const deleteClient = (id: string) => {
     const $t = get(t);
     showConfirm(
-      $t('dashboard.delete_client_confirm_title'),
-      $t('dashboard.delete_client_confirm'),
+      $t('alerts.delete_client_title'),
+      $t('alerts.delete_client_confirm'),
       () => {
         PatientManager.deleteClient(id);
         if (selectedClientId === id) selectedClientId = '';
@@ -416,13 +416,13 @@
     showAlert($t('alerts.success_title'), $t('alerts.link_multiple_success').replace('{n}', count.toString()), 'success');
   };
 
-  const deleteAllData = () => {
+  const deleindigolData = () => {
     const $t = get(t);
     showConfirm(
-      $t('settings.delete_all_title'),
-      $t('settings.delete_all_confirm'),
+      $t('alerts.reset_title'),
+      $t('alerts.reset_confirm'),
       () => {
-        PatientManager.deleteAllData();
+        PatientManager.deleindigolData();
         clients = [];
         selectedClientId = '';
         selectedRecordId = '';
@@ -654,33 +654,50 @@
   >
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm transition-all backdrop-blur-sm bg-white/95">
       <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
-        <div class="flex items-center gap-2 sm:gap-3">
-          <div class="bg-teal-600 text-white px-3 py-2 rounded-xl font-black text-xl tracking-tighter shadow-md">BM</div>
-          <div><h1 class="text-lg sm:text-xl font-bold text-slate-800 leading-none">{$t('app.title')}</h1></div>
-        </div>
-        <div class="flex items-center gap-2 sm:gap-3">
-          <span class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs uppercase tracking-wider rounded-full font-semibold border border-emerald-200 shadow-sm">🔒 {$t('app.privacy_badge')}</span>
-          <div class="flex items-center text-sm font-semibold border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
-            <button on:click={() => switchLang('es')} class="px-3 py-2 hover:bg-slate-50 border-r border-slate-200 transition-colors {get(locale) === 'es' ? 'bg-slate-100 text-slate-800' : 'text-slate-600'}">ES</button>
-            <button on:click={() => switchLang('en')} class="px-3 py-2 hover:bg-slate-50 transition-colors {get(locale) === 'en' ? 'bg-slate-100 text-slate-800' : 'text-slate-600'}">EN</button>
+        <div class="flex items-center gap-1.5 sm:gap-3">
+          <div class="bg-indigo-600 text-white px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl font-black text-lg sm:text-xl tracking-tighter shadow-md">BM</div>
+          <div><h1 class="text-base sm:text-xl font-bold text-slate-800 leading-none">{$t('app.title')}</h1></div>
+      </div>
+
+      <div class="flex items-center gap-1.5 sm:gap-3">
+          
+          <span class="px-2 sm:px-3 py-1 bg-emerald-50 text-emerald-700 text-xs uppercase tracking-wider rounded-full font-semibold border border-emerald-200 shadow-sm flex items-center gap-1">
+            <span>🔒</span>
+            <span class="hidden sm:inline">{$t('app.privacy_badge')}</span>
+          </span>
+
+          <div class="flex items-center text-xs sm:text-sm font-semibold border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
+            <button 
+              on:click={() => switchLang('es')} 
+              class="px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-slate-50 border-r border-slate-200 transition-colors {get(locale) === 'es' ? 'bg-slate-100 text-slate-800' : 'text-slate-600'}"
+            >
+              ES
+            </button>
+            <button 
+              on:click={() => switchLang('en')} 
+              class="px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-slate-50 transition-colors {get(locale) === 'en' ? 'bg-slate-100 text-slate-800' : 'text-slate-600'}"
+            >
+              EN
+            </button>
           </div>
-        </div>
+
+      </div>
       </div>
       
       <div class="max-w-7xl mx-auto px-4 sm:px-6 flex gap-0 sm:gap-8 overflow-x-auto no-scrollbar border-t border-slate-100">
-        <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'inbox' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'inbox'}>
+        <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'inbox' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'inbox'}>
           📥 {$t('dashboard.tabs.inbox')}
           {#if inboxRecords.length > 0}
             <span class="bg-red-500 text-white text-[10px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded-full font-bold shadow-sm animate-pulse">{inboxRecords.length}</span>
           {/if}
         </button>
-        <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'clients' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'clients'}>
+        <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'clients' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'clients'}>
           👥 {$t('dashboard.tabs.clients')}
         </button>
-        <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'settings' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'settings'}>
+        <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'settings' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'settings'}>
           ⚙️ {$t('dashboard.tabs.settings')}
         </button>
-        <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'help' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'help'}>
+        <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'help' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'help'}>
           ℹ️ {$t('dashboard.tabs.help')}
         </button>
       </div>
@@ -828,77 +845,130 @@
       {/if}
 
       {#if currentTab === 'inbox'}
-          <!-- Hero Dropzone Component -->
-          <div class="bg-white p-6 sm:p-8 md:p-10 rounded-2xl border-2 border-dashed border-slate-300 mb-6 sm:mb-8 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 transition-all hover:border-teal-400 hover:bg-slate-50 {isDragging ? 'ring-4 ring-teal-100 border-teal-500 bg-teal-50' : ''}">
-            <div class="text-sm sm:text-base text-slate-600 flex flex-col gap-3 max-w-lg">
-              <div class="flex items-center gap-3 mb-2">
-                <div class="bg-teal-100 text-teal-600 p-2 rounded-lg">
-                  <span class="text-xl">📥</span>
-                </div>
-                <div>
-                  <strong class="text-slate-800 text-lg sm:text-xl font-bold">{$t('upload.instruction_title')}</strong>
-                  <p class="text-slate-500 text-sm mt-1">{$t('upload.drop_zone')}</p>
-                </div>
-              </div>
-              <div class="bg-slate-100 text-slate-600 px-3 py-2 rounded-lg border border-slate-200 font-mono text-xs">
-                {$t('upload.instruction_path')}
+        <div class="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
+          
+          <div class="text-center space-y-4 pt-4 sm:pt-8">
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-800">
+              {$t('upload.instruction_title')}
+            </h2>
+            
+            <div class="flex justify-center">
+              <div class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 border border-slate-200 rounded-full text-xs sm:text-sm font-mono text-slate-600 shadow-sm">
+                <span class="text-lg leading-none">📂</span>
+                <span>{$t('upload.instruction_path')}</span>
               </div>
             </div>
-            <div class="flex flex-col items-center md:items-end gap-3 sm:gap-4 w-full md:w-auto">
-              <label class="cursor-pointer bg-teal-600 hover:bg-teal-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold transition-all inline-flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95 w-full md:w-auto touch-manipulation">
-                <span class="text-lg">📂</span>
-                {isProcessing ? $t('upload.processing') : $t('upload.browse')}
-                <input
-                  bind:this={fileInput}
-                  type="file"
-                  multiple
-                  accept=".csv,text/csv,application/vnd.ms-excel"
-                  on:click={(e) => { e.currentTarget.value = ''; }}
-                  on:change={(e)=>handleFiles((e.target as HTMLInputElement).files)}
-                  disabled={isProcessing}
-                  class="hidden"
-                />
-              </label>
-            </div>
-            {#if errorMessage}<div class="w-full md:w-auto text-rose-600 text-sm font-bold bg-rose-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-rose-200 animate-pulse">{errorMessage}</div>{/if}
           </div>
-        
-          <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[200px] sm:min-h-[300px]">
+
+          <div class="max-w-3xl mx-auto">
+            <label 
+              class="relative block group cursor-pointer transform transition-all duration-300 hover:-translate-y-1"
+              on:dragover|preventDefault={() => isDragging = true}
+              on:dragleave|preventDefault={() => isDragging = false}
+              on:drop|preventDefault={handleDrop}
+            >
+              <input
+                bind:this={fileInput}
+                type="file"
+                multiple
+                accept=".csv,text/csv,application/vnd.ms-excel"
+                class="hidden"
+                on:click={(e) => { e.currentTarget.value = ''; }}
+                on:change={(e)=>handleFiles((e.target as HTMLInputElement).files)}
+                disabled={isProcessing}
+              />
+              
+              <div class="border-3 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all bg-white
+                {isDragging 
+                  ? 'border-indigo-500 bg-indigo-50 ring-4 ring-indigo-100 scale-[1.01] shadow-xl' 
+                  : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-50 hover:shadow-lg shadow-sm'}"
+              >
+                 <div class="flex flex-col items-center gap-6">
+                   <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-4xl mb-1 transition-transform group-hover:scale-110 shadow-inner">
+                     {#if isProcessing}
+                       <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                     {:else}
+                       ☁️
+                     {/if}
+                   </div>
+                   
+                   {#if isProcessing}
+                      <h3 class="text-lg font-bold text-indigo-600 animate-pulse">{$t('upload.processing')}...</h3>
+                   {:else}
+                      <p class="text-slate-600 font-medium text-lg max-w-md mx-auto leading-relaxed">
+                        {$t('upload.drop_zone')}
+                      </p>
+                   {/if}
+
+                   {#if !isProcessing}
+                     <span class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md group-hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                       <span>📂</span> {$t('upload.browse')}
+                     </span>
+                   {/if}
+                 </div>
+              </div>
+            </label>
+
+            {#if errorMessage}
+              <div class="mt-6 mx-auto max-w-lg bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-lg animate-pulse flex items-start gap-3 shadow-sm">
+                <span class="text-xl">⚠️</span>
+                <div>
+                  <h4 class="font-bold text-rose-700 text-sm">Error</h4>
+                  <p class="text-sm text-rose-600">{errorMessage}</p>
+                </div>
+              </div>
+            {/if}
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[300px] mt-8">
             {#if inboxRecords.length === 0}
-              <div class="p-8 sm:p-12 text-center text-slate-400 bg-slate-50 h-full flex flex-col justify-center items-center">
-                <div class="text-3xl sm:text-4xl mb-2 opacity-50">✓</div>
-                <p class="text-sm">{$t('dashboard.inbox_empty')}</p>
+              <div class="p-12 text-center h-full flex flex-col justify-center items-center py-20">
+                <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                  <span class="text-4xl opacity-30 grayscale">📭</span>
+                </div>
+                <h3 class="text-slate-400 font-medium text-lg">{$t('dashboard.inbox_empty')}</h3>
               </div>
             {:else}
-              <!-- Bulk assignment toolbar -->
-              {#if selectedInboxMeasurements.length > 0}
-                <div class="bg-slate-50 p-3 border-b border-slate-200 flex justify-between items-center">
-                  <div class="text-sm font-medium text-slate-700">
-                    <span class="text-teal-600 font-bold">{selectedInboxMeasurements.length}</span> {$t('dashboard.records_selected')}
-                  </div>
-                  <div class="flex gap-2">
+              
+              <div class="bg-slate-50 p-4 border-b border-slate-200 sticky top-0 z-20 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                   <label class="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
+                        on:change={selectAllInboxMeasurements}
+                        class="h-5 w-5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 transition-all cursor-pointer"
+                      />
+                      <span class="text-sm font-bold text-slate-700">
+                        {selectedInboxMeasurements.length > 0 
+                          ? `${selectedInboxMeasurements.length} ${$t('dashboard.records_selected')}`
+                          : $t('dashboard.multi_assignment')}
+                      </span>
+                   </label>
+                </div>
+                
+                {#if selectedInboxMeasurements.length > 0}
+                  <div class="flex gap-2 w-full sm:w-auto animate-fade-in">
                     <button
                       on:click={() => selectedInboxMeasurements = []}
-                      class="text-xs text-slate-600 hover:text-slate-800 border border-slate-300 hover:border-slate-400 px-3 py-1.5 rounded-lg transition-colors"
+                      class="px-3 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 border border-slate-300 hover:border-slate-400 rounded-lg bg-white transition-colors"
                     >
                       {$t('actions.cancel')}
                     </button>
-                    <div class="relative">
+                    <div class="relative flex-1 sm:w-64">
                       <input
                         type="text"
-                        placeholder="{$t('dashboard.assign_btn')}"
-                        class="text-xs border border-slate-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-teal-500 outline-none w-48"
+                        placeholder="{$t('dashboard.assign_btn')}..."
+                        class="w-full text-sm border border-indigo-300 rounded-lg pl-9 pr-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm outline-none"
                         bind:value={bulkAssignSearch}
                       />
-                      <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                        <span class="text-slate-400">🔍</span>
-                      </div>
+                      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
                       {#if bulkAssignSearch}
-                        <div class="absolute top-full left-0 right-0 mt-1 max-h-32 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-sm z-10">
+                        <div class="absolute top-full left-0 right-0 mt-2 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-30">
                           {#each filteredBulkClients as c}
                             <button
                               on:click={() => assignBulkMeasurements(c.id)}
-                              class="w-full text-left px-3 py-2 text-xs hover:bg-teal-50 transition-colors"
+                              class="w-full text-left px-4 py-3 text-sm hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0 font-medium text-slate-700"
                             >
                               {c.alias}
                             </button>
@@ -907,135 +977,144 @@
                       {/if}
                     </div>
                   </div>
-                </div>
-              {:else}
-                <div class="bg-slate-50 p-3 border-b border-slate-200 flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
-                    on:change={selectAllInboxMeasurements}
-                    class="h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-2 focus:ring-teal-500 focus:ring-offset-1"
-                  />
-                  <div class="text-xs font-medium text-slate-600">
-                    📋 {$t('dashboard.multi_assignment')}
-                  </div>
-                </div>
-              {/if}
-              <!-- Mobile-first measurement cards -->
-              <div class="block lg:hidden bg-slate-50 p-3 space-y-3 sm:space-y-4">
+                {/if}
+              </div>
+
+              <div class="block lg:hidden bg-slate-50/50 p-3 space-y-3">
                 {#each inboxRecords as rec (rec.id)}
-                  <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 transition-all {selectedInboxMeasurements.includes(rec.id) ? 'border-teal-600 bg-teal-50 ring-2 ring-teal-500' : 'hover:shadow-md hover:border-slate-300'}">
-                    <div class="flex justify-between items-start mb-3 sm:mb-4">
-                      <div class="flex items-start gap-3 flex-1">
-                        <input
-                          type="checkbox"
-                          checked={selectedInboxMeasurements.includes(rec.id)}
-                          on:change={() => toggleInboxSelection(rec.id)}
-                          class="mt-1 h-5 w-5 text-teal-600 rounded border-slate-300 focus:ring-2 focus:ring-teal-500 focus:ring-offset-1"
-                        />
-                        <div class="flex-1">
-                          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">{rec.date} {rec.time}</div>
-                          <div class="text-2xl sm:text-2xl font-black text-slate-800 mt-1">{rec.weight}<span class="text-sm sm:text-sm font-normal text-slate-500 ml-1">kg</span></div>
-                          <div class="flex flex-wrap gap-1 mt-2">
-                            <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg text-xs font-medium border border-slate-200">{rec.bodyFat}% {$t('metrics.body_fat')}</span>
-                            <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg text-xs font-medium border border-slate-200">{$t('common.height')}: {rec.height}cm</span>
-                            <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg text-xs font-medium border border-slate-200">{rec.gender === 'male' ? $t('common.male_short') : $t('common.female_short')} / {rec.age} {$t('units.years')}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-slate-100">
-                      {#if clients.length === 0}
-                        <div class="w-full bg-slate-100 text-slate-500 text-xs font-medium py-3 px-4 rounded-lg text-center">{$t('dashboard.no_clients_created')}</div>
-                      {:else}
-                        <div class="relative">
+                  <div class="bg-white p-4 rounded-xl shadow-sm border transition-all duration-200 relative
+                    {selectedInboxMeasurements.includes(rec.id) 
+                      ? 'border-indigo-500 bg-indigo-50/30 ring-1 ring-indigo-500' 
+                      : 'border-slate-200 hover:border-indigo-300'}"
+                  >
+                    <div class="flex items-start gap-4">
+                       <div class="pt-1">
                           <input
-                            type="text"
-                            placeholder="{$t('dashboard.assign_btn')}"
-                            class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-teal-500 outline-none"
-                            bind:value={assignmentSearchTerms[rec.id]}
+                            type="checkbox"
+                            checked={selectedInboxMeasurements.includes(rec.id)}
+                            on:change={() => toggleInboxSelection(rec.id)}
+                            class="h-6 w-6 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
                           />
-                          <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                            <span class="text-slate-400">🔍</span>
+                       </div>
+                       <div class="flex-1 min-w-0">
+                          <div class="flex justify-between items-start">
+                             <div>
+                               <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                 {rec.date} • {rec.time}
+                               </div>
+                               <div class="flex items-baseline gap-1">
+                                 <span class="text-2xl font-black text-slate-800">{rec.weight}</span>
+                                 <span class="text-sm text-slate-500 font-medium">kg</span>
+                               </div>
+                             </div>
+                             <div class="text-right">
+                               <div class="inline-flex flex-col items-end gap-1">
+                                  <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-xs font-bold">
+                                    {rec.height}cm
+                                  </span>
+                                  <span class="text-xs text-slate-500">{rec.bodyFat}% grasa</span>
+                               </div>
+                             </div>
                           </div>
-                          {#if assignmentSearchTerms[rec.id]}
-                            <div class="mt-2 space-y-1 max-h-32 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-sm">
-                              {#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
-                                <button
-                                  on:click={() => { assignRecord(rec.id, c.id); assignmentSearchTerms[rec.id] = ''; }}
-                                  class="w-full text-left px-3 py-2 text-xs hover:bg-teal-50 rounded transition-colors"
-                                >
-                                  {c.alias}
-                                </button>
-                              {/each}
-                            </div>
-                          {/if}
-                        </div>
-                      {/if}
+                          <div class="mt-4 pt-3 border-t border-slate-100">
+                            {#if clients.length === 0}
+                              <div class="text-xs text-slate-400 italic text-center py-1">{$t('dashboard.no_clients_created')}</div>
+                            {:else}
+                              <div class="relative">
+                                <input
+                                  type="text"
+                                  placeholder="{$t('dashboard.assign_btn')}..."
+                                  class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors"
+                                  bind:value={assignmentSearchTerms[rec.id]}
+                                />
+                                {#if assignmentSearchTerms[rec.id]}
+                                  <div class="absolute bottom-full left-0 right-0 mb-1 max-h-32 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-10">
+                                    {#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
+                                      <button
+                                        on:click={() => { assignRecord(rec.id, c.id); assignmentSearchTerms[rec.id] = ''; }}
+                                        class="w-full text-left px-3 py-2 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+                                      >
+                                        {c.alias}
+                                      </button>
+                                    {/each}
+                                  </div>
+                                {/if}
+                              </div>
+                            {/if}
+                          </div>
+                       </div>
                     </div>
                   </div>
                  {/each}
               </div>
 
-              <!-- Desktop table view -->
               <div class="hidden lg:block overflow-x-auto">
                 <table class="w-full text-sm text-left">
-                  <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                  <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase text-xs tracking-wider">
                     <tr>
-                      <th class="px-4 sm:px-6 py-3 w-12">
+                      <th class="px-6 py-4 w-16 text-center">
                         <input
                           type="checkbox"
                           checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
                           on:change={selectAllInboxMeasurements}
-                          class="h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-2 focus:ring-teal-500 focus:ring-offset-1"
+                          class="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
                         />
                       </th>
-                      <th class="px-4 sm:px-6 py-3 w-32">{$t('analysis.date')}</th>
-                      <th class="px-4 sm:px-6 py-3 w-40">{$t('metrics.weight')}</th>
-                      <th class="px-4 sm:px-6 py-3">Info</th>
-                      <th class="px-4 sm:px-6 py-3 text-right w-64">{$t('dashboard.assign_btn')}</th>
+                      <th class="px-6 py-4">{$t('analysis.date')}</th>
+                      <th class="px-6 py-4">{$t('metrics.weight')}</th>
+                      <th class="px-6 py-4">Datos Clave</th>
+                      <th class="px-6 py-4 text-right w-64">Acción</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     {#each inboxRecords as rec (rec.id)}
-                      <tr class="hover:bg-slate-50 transition-all {selectedInboxMeasurements.includes(rec.id) ? 'bg-teal-50' : ''}">
-                        <td class="px-4 sm:px-6 py-3 sm:py-4">
+                      <tr class="hover:bg-slate-50/80 transition-colors {selectedInboxMeasurements.includes(rec.id) ? 'bg-indigo-50/40' : ''}">
+                        <td class="px-6 py-4 text-center">
                           <input
                             type="checkbox"
                             checked={selectedInboxMeasurements.includes(rec.id)}
                             on:change={() => toggleInboxSelection(rec.id)}
-                            class="h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-2 focus:ring-teal-500 focus:ring-offset-1"
+                            class="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
                           />
                         </td>
-                        <td class="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-800 whitespace-nowrap">{rec.date} <br><span class="text-xs text-slate-500 font-mono">{rec.time}</span></td>
-                        <td class="px-4 sm:px-6 py-3 sm:py-4 font-bold text-lg whitespace-nowrap">{rec.weight} <span class="text-xs text-slate-500 font-normal">{$t('units.kg')}</span></td>
-                        <td class="px-4 sm:px-6 py-3 sm:py-4">
-                           <div class="flex gap-1 sm:gap-2 text-xs">
-                             <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg font-semibold border border-slate-200">{rec.bodyFat} {$t('units.percent')} {$t('metrics.body_fat')}</span>
-                             <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg border border-slate-200">{rec.gender === 'male' ? $t('common.male_short') : $t('common.female_short')} / {rec.age} {$t('units.years')}</span>
-                             <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-lg border border-slate-200">{rec.height}cm</span>
+                        <td class="px-6 py-4">
+                           <div class="font-bold text-slate-700">{rec.date}</div>
+                           <div class="text-xs text-slate-400 font-mono mt-0.5">{rec.time}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                           <span class="text-lg font-black text-slate-800">{rec.weight}</span> 
+                           <span class="text-xs text-slate-500">kg</span>
+                        </td>
+                        <td class="px-6 py-4">
+                           <div class="flex flex-wrap gap-2 text-xs">
+                             <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded font-bold">
+                               {rec.height}cm
+                             </span>
+                             <span class="px-2 py-1 bg-white border border-slate-200 rounded text-slate-500">
+                               {rec.gender === 'male' ? 'H' : 'M'} / {rec.age} años
+                             </span>
+                             <span class="px-2 py-1 bg-white border border-slate-200 rounded text-slate-400">
+                               {rec.bodyFat}%
+                             </span>
                            </div>
                         </td>
-                        <td class="px-4 sm:px-6 py-3 sm:py-4 text-right">
+                        <td class="px-6 py-4 text-right">
                           {#if clients.length === 0}
-                            <div class="w-40 sm:w-48 bg-slate-100 text-slate-500 text-xs font-medium py-2 px-3 rounded-lg text-center">{$t('dashboard.no_clients_created')}</div>
+                            <span class="text-xs text-slate-400 italic pr-2">{$t('dashboard.no_clients_created')}</span>
                           {:else}
-                            <div class="relative w-40 sm:w-48">
+                            <div class="relative w-56 ml-auto">
                               <input
                                 type="text"
-                                placeholder="{$t('dashboard.assign_btn')}"
-                                class="w-full text-xs sm:text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-teal-500 outline-none"
+                                placeholder="{$t('dashboard.assign_btn')}..."
+                                class="w-full text-xs border border-slate-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
                                 bind:value={assignmentSearchTerms[rec.id]}
                               />
-                              <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                <span class="text-slate-400 text-xs">🔍</span>
-                              </div>
                               {#if assignmentSearchTerms[rec.id]}
-                                <div class="absolute top-full left-0 right-0 mt-1 max-h-32 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-sm z-10">
+                                <div class="absolute top-full right-0 w-full mt-1 max-h-40 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-xl z-50 text-left">
                                   {#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
                                     <button
                                       on:click={() => { assignRecord(rec.id, c.id); assignmentSearchTerms[rec.id] = ''; }}
-                                      class="w-full text-left px-3 py-2 text-xs hover:bg-teal-50 transition-colors"
+                                      class="w-full text-left px-4 py-2 text-xs hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0"
                                     >
                                       {c.alias}
                                     </button>
@@ -1052,7 +1131,8 @@
               </div>
             {/if}
           </div>
-        {/if}
+        </div>
+      {/if}
 
         {#if currentTab === 'clients'}
           <div class="flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[800px]">
@@ -1062,7 +1142,7 @@
               <div class="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
                 <h3 class="font-bold text-gray-700 text-xs uppercase mb-2 sm:mb-3 tracking-wide">{$t('dashboard.create_btn')}</h3>
                 <div class="space-y-2">
-                  <input bind:value={newClientCodeOrAlias} placeholder="{$t('dashboard.client_id_placeholder')}" class="w-full text-sm sm:text-sm border rounded px-3 sm:px-3 py-2 sm:py-2 bg-gray-50 focus:bg-white transition-colors" />
+                  <input bind:value={newClientCodeOrAlias} placeholder="{$t('dashboard.client_id_placeholder')}" class="w-full text-sm border border-gray-200 rounded px-3 py-2 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"/>
                   <button on:click={createClient} disabled={!newClientCodeOrAlias} class="w-full bg-gray-800 text-white text-sm sm:text-sm font-bold py-2 sm:py-2 rounded hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm touch-manipulation">{$t('actions.save')}</button>
                 </div>
               </div>
@@ -1074,7 +1154,7 @@
                   class="w-full flex items-center justify-between p-3 font-medium text-gray-700 hover:bg-gray-50 transition"
                 >
                   <span class="flex items-center gap-2">
-                    <span class="text-blue-600">👥</span>
+                    <span class="text-indigo-600">👥</span>
                     {$t('dashboard.select_client_prompt')}
                   </span>
                   <span class="text-gray-400 transition-transform duration-300 {isClientListOpen ? 'rotate-180' : ''}">▼</span>
@@ -1083,7 +1163,7 @@
                 {#if isClientListOpen}
                   <div class="border-t border-gray-100">
                     <div class="p-2 border-b bg-gray-50">
-                      <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 sm:py-1.5 bg-white focus:ring-1 focus:ring-blue-500 outline-none" />
+                      <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 sm:py-1.5 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
                     </div>
                     <div class="max-h-[300px] overflow-y-auto p-1 sm:p-2 space-y-1">
                       {#each paginatedClients as client (client.id)}
@@ -1092,13 +1172,13 @@
                             selectedClientId = client.id;
                             isClientListOpen = false; // Auto-collapse on selection
                           }}
-                          class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-blue-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-blue-50 text-blue-800 border-blue-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-blue-50'}"
+                          class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}"
                         >
                           <div class="truncate pr-2 flex items-center gap-2">
-                            <div class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                            <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
                             <div class="font-semibold truncate">{client.alias}</div>
                           </div>
-                          <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
+                          <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
                             {PatientManager.getClientHistory(client.id, allRecords).length}
                           </span>
                         </button>
@@ -1139,16 +1219,16 @@
               <!-- Desktop: Fixed Height Sidebar with Scroll -->
               <div class="hidden lg:flex bg-white rounded-lg shadow-sm border border-gray-200 flex-1 overflow-hidden flex-col h-[600px]">
                 <div class="p-2 border-b bg-gray-50">
-                  <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm sm:text-sm border rounded px-3 sm:px-3 py-2 sm:py-1.5 bg-white focus:ring-1 focus:ring-blue-500 outline-none" />
+                  <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm sm:text-sm border rounded px-3 sm:px-3 py-2 sm:py-1.5 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
                 </div>
                 <div class="overflow-y-auto flex-1 p-1 sm:p-2 space-y-1">
                   {#each paginatedClients as client (client.id)}
-                    <button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 sm:px-3 py-3 sm:py-3 rounded-lg text-sm sm:text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-blue-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-blue-50 text-blue-800 border-blue-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-blue-50'}">
+                    <button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 sm:px-3 py-3 sm:py-3 rounded-lg text-sm sm:text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}">
                       <div class="truncate pr-2 flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                        <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
                         <div class="font-semibold truncate">{client.alias}</div>
                       </div>
-                      <span class="text-[10px] sm:text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
+                      <span class="text-[10px] sm:text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
                          {PatientManager.getClientHistory(client.id, allRecords).length}
                       </span>
                     </button>
@@ -1230,13 +1310,13 @@
                           on:click={() => selectedRecordId = rec.id}
                           class="flex-shrink-0 w-24 sm:w-32 p-2 sm:p-3 rounded-lg border text-left transition-all touch-manipulation relative
                             {selectedRecordId === rec.id || (!selectedRecordId && rec === currentRecord)
-                              ? 'border-blue-600 bg-white ring-2 ring-blue-500 shadow-md transform scale-105 z-10'
+                              ? 'border-indigo-600 bg-white ring-2 ring-blue-500 shadow-md transform scale-105 z-10'
                               : 'bg-white border-gray-200 opacity-80 hover:opacity-100'
                             }"
                         >
                           <div class="text-[9px] sm:text-[10px] text-gray-500 uppercase font-bold mb-1 leading-tight">{rec.date} <br><span class="font-normal opacity-75 text-[8px] sm:text-[9px]">{rec.time}</span></div>
                           <div class="font-black text-gray-800 text-lg sm:text-xl">{rec.weight}<span class="text-xs sm:text-sm font-normal text-gray-400 ml-0.5">{$t('units.kg')}</span></div>
-                          <div class="text-xs font-medium mt-1 sm:mt-2 flex justify-between"><span class="text-blue-600">{rec.bodyFat}%</span><span class="text-gray-400">{rec.bmi}</span></div>
+                          <div class="text-xs font-medium mt-1 sm:mt-2 flex justify-between"><span class="text-indigo-600">{rec.bodyFat}%</span><span class="text-gray-400">{rec.bmi}</span></div>
                         </button>
                       {/each}
                     </div>
@@ -1283,7 +1363,7 @@
                             <span class={STYLES.metricLabel}>{$t('metrics.body_fat')}</span>
                             <span class={STYLES.metricValueCard}>{currentRecord.bodyFat}<span class={STYLES.metricUnit}>{$t('units.percent')}</span></span>
                         </div>
-                        <div class="{STYLES.cardMetric} border-blue-500">
+                        <div class="{STYLES.cardMetric} border-indigo-500">
                             <span class={STYLES.metricLabel}>{$t('metrics.muscle_mass')}</span>
                             <span class={STYLES.metricValueCard}>{currentRecord.muscleMass}<span class={STYLES.metricUnit}>{$t('units.kg')}</span></span>
                         </div>
@@ -1321,7 +1401,7 @@
                     <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm mt-4 sm:mt-6">
                       <div class="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-2">
                          <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{$t('dashboard.evolution_chart')} ({chartData.pointsData.length})</h3>
-                         <select bind:value={selectedChartMetric} class="w-full sm:w-auto min-w-[200px] sm:min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-xs sm:text-sm font-medium bg-white hover:border-blue-400 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer shadow-sm">
+                         <select bind:value={selectedChartMetric} class="w-full sm:w-auto min-w-[200px] sm:min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-xs sm:text-sm font-medium bg-white hover:border-indigo-400 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer shadow-sm">
                            {#each CHART_OPTIONS as option}<option value={option.key}>{$t(option.label)}</option>{/each}
                          </select>
                       </div>
@@ -1369,11 +1449,11 @@
                     <button on:click={() => PatientManager.exportBackup()} class="flex items-center justify-center gap-2 sm:gap-3 w-full bg-gray-800 text-white py-3 sm:py-4 rounded-lg hover:bg-black transition font-bold shadow-md text-sm sm:text-base"><span>💾</span> {$t('settings.btn_export')}</button>
                     <div class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 md:p-8 text-center hover:bg-gray-50 transition cursor-pointer group">
                         <input type="file" accept=".json" on:change={handleImportBackup} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                        <div class="text-gray-500 group-hover:text-blue-600 font-medium flex flex-col items-center gap-2"><span class="text-xl sm:text-2xl">📂</span> {$t('settings.btn_import')}</div>
+                        <div class="text-gray-500 group-hover:text-indigo-600 font-medium flex flex-col items-center gap-2"><span class="text-xl sm:text-2xl">📂</span> {$t('settings.btn_import')}</div>
                     </div>
                 </div>
                 <div class="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-red-100">
-                    <button on:click={deleteAllData} class="flex items-center justify-center gap-2 w-full text-red-600 text-xs sm:text-sm font-bold hover:text-red-800 hover:bg-red-50 py-3 sm:py-4 border border-red-100 rounded transition"><span>🗑️</span> {$t('settings.delete_all_btn')}</button>
+                    <button on:click={deleindigolData} class="flex items-center justify-center gap-2 w-full text-red-600 text-xs sm:text-sm font-bold hover:text-red-800 hover:bg-red-50 py-3 sm:py-4 border border-red-100 rounded transition"><span>🗑️</span> {$t('settings.delete_all_btn')}</button>
                 </div>
             </div>
           </div>
@@ -1394,7 +1474,7 @@
                       <span class="text-xl">✅</span>
                     </div>
                   {:else if modalType === 'confirm'}
-                    <div class="bg-amber-100 text-amber-600 p-2 rounded-lg">
+                    <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg">
                       <span class="text-xl">❓</span>
                     </div>
                   {:else}
@@ -1419,14 +1499,14 @@
                     </button>
                     <button
                       on:click={handleModalConfirm}
-                      class="px-4 py-2 text-sm font-medium bg-teal-600 text-white hover:bg-teal-700 rounded-lg transition-colors shadow-sm"
+                      class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors shadow-sm"
                     >
                       {$t('actions.confirm')}
                     </button>
                   {:else}
                     <button
                       on:click={() => showModal = false}
-                      class="px-4 py-2 text-sm font-medium bg-teal-600 text-white hover:bg-teal-700 rounded-lg transition-colors shadow-sm"
+                      class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors shadow-sm"
                     >
                       {$t('actions.ok')}
                     </button>

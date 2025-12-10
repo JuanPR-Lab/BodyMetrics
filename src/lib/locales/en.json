@@ -206,7 +206,12 @@
     "export_empty": "No measurements available to export for this client.",
     "backup_success": "Backup restored successfully.",
     "backup_error": "The file is corrupted or not a valid backup.",
-    "reset_success": "Factory reset complete. All data has been erased."
+    "reset_success": "Factory reset complete. All data has been erased.",
+    "reset_title": "Factory Reset",
+    "reset_confirm": "Are you sure? This will delete ALL client lists and links from this browser. This cannot be undone.",
+    "delete_client_title": "Delete Client",
+    "delete_client_confirm": "Are you sure? This client will be deleted and their measurements will return to the Inbox.",
+    "reset_success": "All data has been deleted successfully."
   },
   "tooltips": {
     "measurement_card_title": "Measurement Colors",

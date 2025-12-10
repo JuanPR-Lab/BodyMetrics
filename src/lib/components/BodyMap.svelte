@@ -208,12 +208,7 @@
 
       {#if viewMode === 'fat'}
         <div
-          class="absolute bottom-2 left-4 flex flex-col gap-1 w-36 bg-white/80 p-2 rounded-lg backdrop-blur-sm border border-gray-100 shadow-sm cursor-help group"
-          on:mouseenter={() => showTrafficLightTooltip = true}
-          on:mouseleave={() => showTrafficLightTooltip = false}
-          role="button"
-          tabindex="0"
-          aria-label="{$t('tooltips.traffic_light_title')}"
+          class="absolute bottom-2 left-4 flex flex-col gap-1 w-36 bg-white/80 p-2 rounded-lg backdrop-blur-sm border border-gray-100 shadow-sm"
         >
            <div class="flex justify-between items-end h-3 mb-1 px-1">
               <div class="w-3 h-3 border-l-2 border-t-2 border-gray-600 bg-white rotate-45 transform transition-all duration-300
@@ -224,24 +219,18 @@
                 {currentStatus === 'unknown' ? 'opacity-0' : 'opacity-100'}
               "></div>
            </div>
+
            <div class="flex w-full h-3 rounded-full overflow-hidden shadow-inner bg-gray-100 gap-[2px]">
              <div class="flex-1 transition-all duration-300 {getTrafficLightClass('under', currentStatus)}"></div>
              <div class="flex-1 transition-all duration-300 {getTrafficLightClass('healthy', currentStatus)}"></div>
              <div class="flex-1 transition-all duration-300 {getTrafficLightClass('over', currentStatus)}"></div>
              <div class="flex-1 transition-all duration-300 {getTrafficLightClass('obese', currentStatus)}"></div>
            </div>
+
            <div class="flex justify-between text-[8px] text-gray-400 font-bold uppercase mt-1 px-1">
              <span>{$t('status.under')}</span>
              <span>{$t('status.over')}</span>
            </div>
-           
-           {#if showTrafficLightTooltip}
-             <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl z-50 pointer-events-none">
-               <div class="font-bold text-sm mb-1">{$t('tooltips.traffic_light_title')}</div>
-               <div class="text-gray-200 leading-relaxed whitespace-pre-line">{$t('tooltips.traffic_light_description')}</div>
-               <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1 w-3 h-3 bg-gray-900 rotate-45"></div>
-             </div>
-           {/if}
          </div>
        {/if}
 
