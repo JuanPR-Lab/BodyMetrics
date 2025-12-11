@@ -7,7 +7,7 @@
   "common": {
     "male_short": "H",
     "female_short": "M",
-    "year_short": " años",
+    "year_short": "a",
     "height": "Altura",
     "unit": "Unidad",
     "language": "Idioma"
@@ -69,7 +69,7 @@
     "page_title": "📚 Manual de Usuario",
     "section_starting": "🚀 Primeros Pasos",
     "starting_requirements": "Requisitos",
-    "starting_requirements_text": "• Navegador moderno (Chrome, Brave, Safari, Edge, etc).\n• Tarjeta SD con archivos de tu Tanita BC-601/602/613.\n• **No requiere internet** tras la instalación (Funciona 100% Offline).",
+    "starting_requirements_text": "• Modern browser (Chrome, Brave, Safari, Edge, etc.).\n• SD card with files from your Tanita BC-601/602/613.\n• **No internet required** after installation (100% Offline).",
     "starting_installation": "Instalar como App",
     "starting_installation_text": "Para usarla a pantalla completa y sin conexión, busca la opción **'Instalar aplicación'** o **'Añadir a pantalla de inicio'** en el menú (móviles) o barra de navegación (PC) de tu navegador.",
     "starting_first_steps": "Flujo de trabajo",
@@ -144,7 +144,7 @@
     "water": "Agua Corporal",
     "bone_mass": "Masa Ósea",
     "metabolic_age": "Edad Metabólica",
-    "dci": "Ingesta Diaria (DCI)"
+    "dci": "Ingesta Diaria"
   },
   "csv_headers": {
     "date": "Fecha",
@@ -169,7 +169,8 @@
     "right_leg": "Pierna Der.",
     "left_leg": "Pierna Izq.",
     "fat": "Grasa",
-    "muscle": "Músculo"
+    "muscle": "Músculo",
+    "visceral": "Grasa Visceral"
   },
   "status": {
     "under": "Bajo",
@@ -210,8 +211,7 @@
     "reset_title": "Restablecer de Fábrica",
     "reset_confirm": "¿Estás seguro? Esta acción borrará TODA la lista de clientes y sus vínculos en este navegador. No se puede deshacer.",
     "delete_client_title": "Eliminar Cliente",
-    "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones se desvincularán y volverán a la bandeja de Entrada.",
-    "reset_success": "Todos los datos han sido eliminados correctamente."
+    "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones se desvincularán y volverán a la bandeja de Entrada."
   },
   "tooltips": {
     "measurement_card_title": "Colores de las Mediciones",

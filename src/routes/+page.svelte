@@ -19,26 +19,28 @@
 
   // --- STATIC CONFIG ---
   const CHART_OPTIONS = [
-    { key: 'weight', label: 'metrics.weight', color: '#1f2937', unitKey: 'kg' },
-    { key: 'bmi', label: 'metrics.bmi', color: '#4b5563', unitKey: '' },
-    { key: 'dci', label: 'metrics.dci', color: '#10b981', unitKey: 'kcal' },
-    { key: 'bodyFat', label: 'metrics.body_fat', color: '#eab308', unitKey: 'percent' },
-    { key: 'muscleMass', label: 'metrics.muscle_mass', color: '#3b82f6', unitKey: 'kg' },
-    { key: 'waterPercentage', label: 'metrics.water', color: '#0ea5e9', unitKey: 'percent' },
-    { key: 'boneMass', label: 'metrics.bone_mass', color: '#6b7280', unitKey: 'kg' },
-    { key: 'visceralFat', label: 'metrics.visceral_fat', color: '#d97706', unitKey: 'rating' },
-    { key: 'metabolicAge', label: 'metrics.metabolic_age', color: '#8b5cf6', unitKey: 'years' }
+    { key: 'weight', label: 'metrics.weight', color: '#475569', unitKey: 'kg' }, // Slate-600
+    { key: 'bmi', label: 'metrics.bmi', color: '#64748b', unitKey: '' },         // Slate-500
+    { key: 'bodyFat', label: 'metrics.body_fat', color: '#f59e0b', unitKey: 'percent' }, // Amber-500
+    { key: 'muscleMass', label: 'metrics.muscle_mass', color: '#6366f1', unitKey: 'kg' }, // Indigo-500
+    { key: 'waterPercentage', label: 'metrics.water', color: '#0ea5e9', unitKey: 'percent' }, // Sky-500
+    { key: 'boneMass', label: 'metrics.bone_mass', color: '#94a3b8', unitKey: 'kg' },      // Gray-400
+    { key: 'dci', label: 'metrics.dci', color: '#10b981', unitKey: 'kcal' }, // Emerald-500
+    { key: 'metabolicAge', label: 'metrics.metabolic_age', color: '#8b5cf6', unitKey: 'years' }, // Violet-500
+    { key: 'visceralFat', label: 'metrics.visceral_fat', color: '#d97706', unitKey: 'rating' } // Orange-600 (para destacarlo)
   ] as const;
 
  
   const STYLES = {
-    // Filter buttons
-    filterBtn: "px-3 py-1 text-[11px] font-semibold rounded-lg border border-slate-200 transition-all bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300 uppercase tracking-wide cursor-pointer shadow-sm",
-    filterBtnActive: "bg-indigo-600 text-white border-orange-600 font-bold shadow-md",
-    
+    // Quitamos el hover del fondo blanco, y ponemos texto blanco en el activo
+    filterBtn: "px-3 py-1 text-[11px] font-semibold rounded-lg border border-slate-200 transition-all bg-white text-slate-500 hover:text-slate-700 hover:border-slate-300 uppercase tracking-wide cursor-pointer shadow-sm",
+    // Hacemos el estilo activo más simple y fuerte
+    filterBtnActive: "!bg-indigo-600 !text-white !border-indigo-700 font-bold shadow-md", 
+    // ...
     // Metric cards
-    cardMetric: "bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-100 flex flex-col justify-between min-h-[80px] transition-all hover:shadow-md",
-    
+    // Metric cards
+// ELIMINAMOS el color de borde inicial (border-slate-100)
+    cardMetric: "bg-white p-4 rounded-xl shadow-sm border-l-4 flex flex-col justify-between min-h-[80px] transition-all hover:shadow-md",   
     // Metric labels and values
     metricLabel: "text-[10px] font-bold text-slate-500 uppercase tracking-wider self-start",
     metricValueCard: "text-2xl font-black text-slate-800 leading-none self-end mt-1",
@@ -1278,7 +1280,7 @@
                       <h2 class="text-2xl font-bold text-gray-800">{clients.find(c => c.id === selectedClientId)?.alias}</h2>
                     </div>
                     <div class="flex gap-2">
-                      <button on:click={() => deleteClient(selectedClientId)} class="text-red-600 text-xs font-bold hover:bg-red-50 px-3 py-2 rounded border border-transparent hover:border-red-100 transition touch-manipulation">🗑 {$t('actions.delete')}</button>
+                      <button on:click={() => deleteClient(selectedClientId)} class="text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"><span>🗑</span> {$t('actions.delete')}</button>
                       <button on:click={exportClientData} class="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded hover:bg-green-700 shadow-sm transition touch-manipulation">📊 {$t('actions.export_csv')}</button>
                     </div>
                   </div>
@@ -1307,16 +1309,16 @@
                     <div class="flex gap-2 sm:gap-3">
                       {#each displayedHistory as rec (rec.id)}
                         <button
-                          on:click={() => selectedRecordId = rec.id}
-                          class="flex-shrink-0 w-24 sm:w-32 p-2 sm:p-3 rounded-lg border text-left transition-all touch-manipulation relative
-                            {selectedRecordId === rec.id || (!selectedRecordId && rec === currentRecord)
-                              ? 'border-indigo-600 bg-white ring-2 ring-blue-500 shadow-md transform scale-105 z-10'
-                              : 'bg-white border-gray-200 opacity-80 hover:opacity-100'
-                            }"
-                        >
-                          <div class="text-[9px] sm:text-[10px] text-gray-500 uppercase font-bold mb-1 leading-tight">{rec.date} <br><span class="font-normal opacity-75 text-[8px] sm:text-[9px]">{rec.time}</span></div>
-                          <div class="font-black text-gray-800 text-lg sm:text-xl">{rec.weight}<span class="text-xs sm:text-sm font-normal text-gray-400 ml-0.5">{$t('units.kg')}</span></div>
-                          <div class="text-xs font-medium mt-1 sm:mt-2 flex justify-between"><span class="text-indigo-600">{rec.bodyFat}%</span><span class="text-gray-400">{rec.bmi}</span></div>
+  on:click={() => selectedRecordId = rec.id}
+  class="flex-shrink-0 w-[85px] sm:w-[110px] p-2 rounded-lg border text-left transition-all touch-manipulation relative
+  {selectedRecordId === rec.id ||
+  (!selectedRecordId && rec === currentRecord)
+    ? 'border-indigo-400 bg-indigo-50 shadow-md transform scale-105 z-10' 
+    : 'bg-white border-gray-200 opacity-80 hover:opacity-100'
+  }"
+>
+                           <div class="text-[12px] sm:text-[13px] text-gray-500 uppercase font-bold mb-1 leading-tight">{rec.date} <br><span class="font-normal opacity-75 text-[11px] sm:text-[12px]">{rec.time}</span></div>
+<div class="font-black text-gray-800 text-lg sm:text-xl">{rec.weight}<span class="text-xs sm:text-sm font-normal text-gray-400 ml-0.5">{$t('units.kg')}</span></div>
                         </button>
                       {/each}
                     </div>
@@ -1335,75 +1337,87 @@
                     </button>
                   </div>
 
-                  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-                    <div class="h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
-                      <BodyMap record={currentRecord} />
-                    </div>
+               
 
-                    <div class="flex flex-col gap-3 sm:gap-4">
-                      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between gap-1 sm:gap-2">
-                        <div class={STYLES.metricColMain}>
-                          <span class={STYLES.metricLabel}>{$t('metrics.weight')}</span>
-                          <span class={STYLES.metricValueLg}>{currentRecord.weight}<span class={STYLES.metricUnit}>{$t('units.kg')}</span></span>
-                        </div>
-                        <div class={STYLES.divider}></div>
-                        <div class={STYLES.metricColMain}>
-                          <span class={STYLES.metricLabel}>{$t('metrics.bmi')}</span>
-                          <span class="{STYLES.metricValueMd} {getStatusColor('bmi', currentRecord.bmi).replace('bg-', 'text-').replace('-100', '-600')}">{currentRecord.bmi}</span>
-                        </div>
-                        <div class={STYLES.divider}></div>
-                        <div class={STYLES.metricColMain}>
-                          <span class={STYLES.metricLabel}>{$t('metrics.dci')}</span>
-                          <span class="{STYLES.metricValueMd} text-green-600">{currentRecord.dci}<span class={STYLES.metricUnit}>kcal</span></span>
-                        </div>
-                      </div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+  
+  <div class="xl:col-span-2 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
+    <BodyMap record={currentRecord} />
+  </div>
 
-                      <div class="grid grid-cols-2 gap-2 sm:gap-3">
-                        <div class="{STYLES.cardMetric} border-yellow-500">
-                            <span class={STYLES.metricLabel}>{$t('metrics.body_fat')}</span>
-                            <span class={STYLES.metricValueCard}>{currentRecord.bodyFat}<span class={STYLES.metricUnit}>{$t('units.percent')}</span></span>
-                        </div>
-                        <div class="{STYLES.cardMetric} border-indigo-500">
-                            <span class={STYLES.metricLabel}>{$t('metrics.muscle_mass')}</span>
-                            <span class={STYLES.metricValueCard}>{currentRecord.muscleMass}<span class={STYLES.metricUnit}>{$t('units.kg')}</span></span>
-                        </div>
-                        <div class="{STYLES.cardMetric} {getStatusColor('water', currentRecord.waterPercentage).replace('bg-', 'border-')}">
-                            <span class={STYLES.metricLabel}>{$t('metrics.water')}</span>
-                            <span class={STYLES.metricValueCard}>{currentRecord.waterPercentage}<span class={STYLES.metricUnit}>{$t('units.percent')}</span></span>
-                        </div>
-                        <div class="{STYLES.cardMetric} border-gray-400">
-                            <span class={STYLES.metricLabel}>{$t('metrics.bone_mass')}</span>
-                            <span class={STYLES.metricValueCard}>{currentRecord.boneMass}<span class={STYLES.metricUnit}>{$t('units.kg')}</span></span>
-                        </div>
-                      </div>
+  <div class="flex flex-col gap-3 sm:gap-4"> 
+    
+    <div class="grid grid-cols-2 gap-3 sm:gap-4">
+      
+      <div class="{STYLES.cardMetric} border-slate-800">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.weight')}</span>
+          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
+            {currentRecord.weight}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.kg')}</span>
+          </span>
+      </div>
 
-                      <div class="grid grid-cols-2 gap-2 sm:gap-3">
-                        <div class="bg-gray-50 p-2 sm:p-3 rounded-xl border border-gray-200 flex flex-col justify-between">
-                          <p class="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase">{$t('metrics.visceral_fat')}</p>
-                          <div class="flex items-end justify-between mt-1">
-                            <span class="text-xs text-gray-400">{$t('dashboard.target')}: 1-12</span>
-                            <span class="text-base sm:text-lg font-black {getStatusColor('visceral', currentRecord.visceralFat).replace('bg-', 'text-').replace('-100', '-600')}">{currentRecord.visceralFat}</span>
-                          </div>
-                        </div>
-                        <div class="bg-gray-50 p-2 sm:p-3 rounded-xl border border-gray-200 flex flex-col justify-between">
-                          <p class="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase">{$t('metrics.metabolic_age')}</p>
-                          <div class="flex items-end justify-between mt-1">
-                            <span class="text-xs text-gray-400">{$t('dashboard.actual_age')}: {currentRecord.age}</span>
-                            <span class="text-base sm:text-lg font-black {getStatusColor('meta', currentRecord.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">{currentRecord.metabolicAge}</span>
-                          </div>
-                          
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+      <div class="{STYLES.cardMetric} border-slate-500">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.bmi')}</span>
+          <span class="text-xl font-black leading-none self-end mt-1 {getStatusColor('bmi', currentRecord.bmi).replace('bg-', 'text-').replace('-100', '-600')}">
+            {currentRecord.bmi}
+          </span>
+      </div>
+
+      <div class="{STYLES.cardMetric} border-amber-500">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.body_fat')}</span>
+          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
+            {currentRecord.bodyFat}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.percent')}</span>
+          </span>
+      </div>
+
+      <div class="{STYLES.cardMetric} border-indigo-500">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.muscle_mass')}</span>
+          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
+            {currentRecord.muscleMass}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.kg')}</span>
+          </span>
+      </div>
+
+      <div class="{STYLES.cardMetric} border-cyan-500">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.water')}</span>
+          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
+            {currentRecord.waterPercentage}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.percent')}</span>
+          </span>
+      </div>
+
+      <div class="{STYLES.cardMetric} border-gray-400">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.bone_mass')}</span>
+          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
+            {currentRecord.boneMass}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.kg')}</span>
+          </span>
+      </div>
+
+      <div class="{STYLES.cardMetric} border-emerald-500">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.dci')}</span>
+          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
+            {currentRecord.dci}<span class="text-xs font-normal text-slate-400 ml-0.5">kcal</span>
+          </span>
+      </div>
+
+      <div class="{STYLES.cardMetric} border-purple-500">
+          <div class="flex justify-between items-start">
+             <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{$t('metrics.metabolic_age')}</span>
+          </div>
+          <span class="text-xl font-black leading-none self-end mt-1 {getStatusColor('meta', currentRecord.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">
+            {currentRecord.metabolicAge}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('common.year')}</span>
+          </span>
+      </div>
+
+    </div>
+  </div>
+</div>
 
                   {#if chartData}
                     <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm mt-4 sm:mt-6">
                       <div class="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-2">
                          <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{$t('dashboard.evolution_chart')} ({chartData.pointsData.length})</h3>
-                         <select bind:value={selectedChartMetric} class="w-full sm:w-auto min-w-[200px] sm:min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-xs sm:text-sm font-medium bg-white hover:border-indigo-400 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer shadow-sm">
-                           {#each CHART_OPTIONS as option}<option value={option.key}>{$t(option.label)}</option>{/each}
-                         </select>
+                         <select bind:value={selectedChartMetric} class="w-full sm:w-auto min-w-[200px] sm:min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-xs sm:text-sm font-medium bg-white hover:border-indigo-500 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 outline-none cursor-pointer shadow-sm">
+  {#each CHART_OPTIONS as option}<option value={option.key}>{$t(option.label)}</option>{/each}
+</select>
                       </div>
                       <div role="img" aria-label="Evolution Chart" class="h-48 sm:h-64 md:h-72 w-full relative group" on:mouseleave={() => { hoveredIndex = null; hoveredPointData = null; }}>
                         <svg viewBox="-12 -5 115 120" preserveAspectRatio="none" class="w-full h-full overflow-visible font-sans">

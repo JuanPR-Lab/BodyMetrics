@@ -14,7 +14,7 @@
     return `${val}`;
   };
 
-  // --- REACTIVE DATA ---
+  // --- DATOS REACTIVOS ---
   $: data = record ? {
     fat: {
       armR: record.fatArmR, armL: record.fatArmL, trunk: record.fatTrunk,
@@ -30,12 +30,12 @@
 
   // --- LÓGICA GRASA VISCERAL ---
   $: visceralFat = record ? Number(record.visceralFat) : 0;
-  // Forzamos la lógica visual aquí para asegurar que 3 sea verde (<= 12 Sano)
   $: isVisceralHealthy = visceralFat <= 12;
   
-  // Colores SVG
-  $: activeFill = viewMode === 'fat' ? '#eab308' : '#6366f1'; 
-  $: hoverFill = viewMode === 'fat' ? '#f97316' : '#4338ca'; 
+  // --- COLORES (AMBER 400 / INDIGO 400) ---
+  $: baseFill = viewMode === 'fat' ? '#fef3c7' : '#e0e7ff'; // Amber-100
+  $: activeFill = viewMode === 'fat' ? '#fbbf24' : '#818cf8'; // Amber-400
+  $: hoverFill = viewMode === 'fat' ? '#f59e0b' : '#6366f1';  // Amber-500
   
   // --- LÓGICA DEL SEMÁFORO (Inferior) ---
   $: currentStatus = (() => {
@@ -70,15 +70,15 @@
     <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shadow-inner">
       <button
         on:click={() => viewMode = 'fat'}
-        class="text-[10px] font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'fat' ? 'bg-yellow-500 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
+        class="text-[10px] font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'fat' ? 'bg-amber-400 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
       >
-        {$t('metrics.body_fat')}
+        {$t('segments.fat')}
       </button>
       <button
         on:click={() => viewMode = 'muscle'}
-        class="text-[10px] font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'muscle' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
+        class="text-[10px] font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition-all uppercase tracking-wide {viewMode === 'muscle' ? 'bg-indigo-400 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}"
       >
-        {$t('metrics.muscle_mass')}
+        {$t('segments.muscle')}
       </button>
     </div>
   </div>
@@ -90,6 +90,7 @@
     <p class="text-xs font-medium text-gray-400">{$t('client_view.no_data_client')}</p>
   </div>
 {:else}
+  
   <svg viewBox="-50 0 380 520" class="h-full w-full max-h-[400px] sm:max-h-[600px] drop-shadow-xl overflow-visible">
         <defs>
           <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
@@ -119,9 +120,10 @@
              <line x1="85" y1="25" x2="105" y2="40" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
              <rect x="0" y="0" width="85" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
              <text x="42" y="18" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.right_arm')}</text>
+             
              <text x="42" y="40" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">
                {formatVal(currentData?.armR)}
-               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="-5">{currentData?.unit}</tspan>
+               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="0" dx="1">{currentData?.unit}</tspan>
              </text>
           </g>
         </g>
@@ -142,9 +144,10 @@
              <line x1="0" y1="25" x2="-25" y2="40" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
              <rect x="0" y="0" width="85" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
              <text x="42" y="18" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.left_arm')}</text>
+             
              <text x="42" y="40" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">
                {formatVal(currentData?.armL)}
-               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="-5">{currentData?.unit}</tspan>
+               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="0" dx="1">{currentData?.unit}</tspan>
              </text>
           </g>
         </g>
@@ -161,26 +164,13 @@
             style="fill: {hoveredSegment === 'trunk' ? hoverFill : activeFill}; stroke: white; stroke-width: 3px;"
             class="transition-colors duration-300"
           />
-           
-           {#if visceralFat > 0}
-             <ellipse 
-               cx="140" cy="195" rx="35" ry="12" 
-               fill={isVisceralHealthy ? '#ecfdf5' : '#fff1f2'} 
-               stroke={isVisceralHealthy ? '#10b981' : '#f43f5e'} 
-               stroke-width="2" 
-               filter="url(#soft-glow)" 
-               fill-opacity="0.9"
-             />
-             <text x="140" y="192" font-size="6" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase">VISCERAL</text>
-             <text x="140" y="202" font-size="10" font-weight="900" fill={isVisceralHealthy ? '#047857' : '#be123c'} text-anchor="middle">{visceralFat}</text>
-           {/if}
-
            <g transform="translate(100, 115)">
              <rect x="0" y="0" width="80" height="45" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
              <text x="40" y="16" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.trunk')}</text>
+             
              <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">
                {formatVal(currentData?.trunk)}
-               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="-5">{currentData?.unit}</tspan>
+               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="0" dx="1">{currentData?.unit}</tspan>
              </text>
           </g>
         </g>
@@ -201,9 +191,10 @@
              <line x1="80" y1="20" x2="95" y2="20" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
              <rect x="0" y="0" width="80" height="45" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
              <text x="40" y="16" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.right_leg')}</text>
+             
              <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">
                {formatVal(currentData?.legR)}
-               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="-5">{currentData?.unit}</tspan>
+               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="0" dx="1">{currentData?.unit}</tspan>
              </text>
           </g>
         </g>
@@ -224,12 +215,49 @@
              <line x1="0" y1="20" x2="-15" y2="20" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
              <rect x="0" y="0" width="80" height="45" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" class="shadow-lg" fill-opacity="0.95"/>
              <text x="40" y="16" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-wider">{$t('segments.left_leg')}</text>
+             
              <text x="40" y="36" font-size="18" font-weight="900" fill="#1f2937" text-anchor="middle">
                {formatVal(currentData?.legL)}
-               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="-5">{currentData?.unit}</tspan>
+               <tspan font-size="10" font-weight="bold" fill="#94a3b8" dy="0" dx="1">{currentData?.unit}</tspan>
              </text>
           </g>
         </g>
+
+        {#if viewMode === 'fat' && visceralFat > 0}
+            <g class="transition-all duration-500 ease-out hover:scale-105 origin-center">
+                <ellipse 
+                  cx="140" cy="235" rx="65" ry="30" 
+                  fill="#ffffff"
+                  stroke={isVisceralHealthy ? '#10b981' : '#f43f5e'} 
+                  stroke-width="3" 
+                  stroke-opacity="0.8"
+                  fill-opacity={isVisceralHealthy ? '0.4' : '0.25'} 
+                />
+                
+                <ellipse 
+                  cx="140" cy="235" rx="50" ry="22" 
+                  fill={isVisceralHealthy ? '#ecfdf5' : '#fff1f2'} 
+                  stroke={isVisceralHealthy ? '#34d399' : '#f43f5e'} 
+                  stroke-width="3"
+                  fill-opacity="0.4"
+                />
+
+                <ellipse 
+                  cx="140" cy="235" rx="20" ry="10" 
+                  fill={isVisceralHealthy ? '#10b981' : '#f43f5e'} 
+                />
+                
+                <rect x="90" y="265" width="100" height="14" rx="4" fill="white" fill-opacity="0.9" />
+
+                <text x="140" y="275" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle" class="uppercase tracking-widest">
+                  {$t('segments.visceral')}
+                </text>
+                
+                <text x="140" y="240" font-size="14" font-weight="900" fill="white" text-anchor="middle" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2)">
+                    {visceralFat}
+                </text>
+            </g>
+        {/if}
 
       </svg>
       

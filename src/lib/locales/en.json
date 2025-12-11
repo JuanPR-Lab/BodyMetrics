@@ -69,7 +69,7 @@
     "page_title": "📚 User Manual",
     "section_starting": "🚀 Getting Started",
     "starting_requirements": "Requirements",
-    "starting_installation_text": "To use full screen and offline, look for **'Install App'** or **'Add to Home Screen'** in your browser's menu (mobile) or navigation bar (PC).",
+    "starting_requirements_text": "• Modern browser (Chrome, Edge, Firefox, Safari).\n• Tanita Segmental Scale with SD card (e.g., BC-545N, BC-601, BC-1000, etc.).\n• SD card reader for your computer or mobile device.",
     "starting_installation": "Install as App",
     "starting_installation_text": "To use full screen and offline, look for **'Install App'** or **'Add to Home Screen'** in your browser menu.",
     "starting_first_steps": "Workflow",
@@ -144,7 +144,7 @@
     "water": "Body Water",
     "bone_mass": "Bone Mass",
     "metabolic_age": "Metabolic Age",
-    "dci": "Daily Intake (DCI)"
+    "dci": "Daily Intake"
   },
   "csv_headers": {
     "date": "Date",
@@ -169,7 +169,8 @@
     "right_leg": "Right Leg",
     "left_leg": "Left Leg",
     "fat": "Fat",
-    "muscle": "Muscle"
+    "muscle": "Muscle",
+    "visceral": "Visceral Fat"
   },
   "status": {
     "under": "Low",
@@ -210,9 +211,7 @@
     "reset_title": "Factory Reset",
     "reset_confirm": "Are you sure? This will delete ALL client lists and links from this browser. This cannot be undone.",
     "delete_client_title": "Delete Client",
-    "delete_client_confirm": "Are you sure? This client will be deleted and their measurements will return to the Inbox.",
-    "reset_success": "All data has been deleted successfully."
-  },
+    "delete_client_confirm": "Are you sure? This client will be deleted and their measurements will return to the Inbox."  },
   "tooltips": {
     "measurement_card_title": "Measurement Colors",
     "measurement_card_description": "Cards change color based on health status:\n\n• Green: Healthy\n• Yellow: High\n• Red: Very high\n• Blue: Low",
