@@ -107,10 +107,10 @@
   let showModal = false;
   let modalTitle = '';
   let modalMessage = '';
-  let modalType: 'confirm' | 'alert' | 'error' | 'success' = 'alert';
+  let modalType: 'confirm' | 'alert' | 'error' | 'success' | 'prompt' = 'alert';
   let modalConfirmCallback: (() => void) | null = null;
   let modalCancelCallback: (() => void) | null = null;
-
+  let modalInputValue = '';
   // First-use guide
   let showFirstUseGuide = false;
   let currentGuideStep = 0;
@@ -293,15 +293,38 @@
 
   // --- CRUD OPERATIONS ---
   const createClient = () => {
-      if (!newClientCodeOrAlias) return;
+      // 1. Limpiamos espacios
+      const newAlias = newClientCodeOrAlias ? newClientCodeOrAlias.trim() : '';
+      
+      if (!newAlias) return;
+
       const $t = get(t); 
-      const success = PatientManager.addClient(newClientCodeOrAlias, newClientCodeOrAlias);
+
+      // 2. VALIDACIÓN DE DUPLICADOS (NUEVO)
+      // Buscamos si ya existe alguien con ese mismo nombre (ignorando mayúsculas/minúsculas)
+      const isTaken = clients.some(c => c.alias.toLowerCase() === newAlias.toLowerCase());
+
+      if (isTaken) {
+          // Si existe, lanzamos el error y paramos
+          showAlert(
+              $t('dashboard.client_exists_title'), 
+              $t('dashboard.client_exists_message'), 
+              'error'
+          );
+          return; 
+      }
+
+      // 3. Si no está repetido, creamos el cliente con ID único
+      const uniqueId = Date.now().toString(); 
+      const success = PatientManager.addClient(uniqueId, newAlias);
+
       if (success) {
         refreshClients();
         newClientCodeOrAlias = '';
         clientSearchTerm = '';
         currentTab = 'clients';
       } else {
+        // Fallback de seguridad (por si fallara la escritura en disco, raro)
         showAlert($t('dashboard.client_exists_title'), $t('dashboard.client_exists_message'), 'error');
       }
     };
@@ -314,6 +337,47 @@
       () => {
         PatientManager.deleteClient(id);
         if (selectedClientId === id) selectedClientId = '';
+        refreshClients();
+      }
+    );
+  };
+
+  const handleRenameClient = () => {
+    if (!selectedClientId) return;
+    const client = clients.find(c => c.id === selectedClientId);
+    if (!client) return;
+
+    const $t = get(t);
+    
+    showPrompt(
+      $t('actions.rename'),
+      '', 
+      '', 
+      () => {
+        const newAlias = modalInputValue ? modalInputValue.trim() : '';
+        
+        // 1. Si está vacío, no hacemos nada (silencioso)
+        if (!newAlias) return;
+
+        // 2. VALIDACIÓN DE DUPLICADOS (Estricta)
+        // Busca si el nombre existe en CUALQUIER cliente (incluido él mismo)
+        const isTaken = clients.some(c => c.alias.toLowerCase() === newAlias.toLowerCase());
+
+        if (isTaken) {
+            // Usamos setTimeout para esperar a que cierre el modal de escritura
+            setTimeout(() => {
+                showAlert(
+                    $t('dashboard.client_exists_rename_title'), // TÍTULO NUEVO: "Error al Renombrar"
+                    $t('dashboard.client_exists_message'),      // MENSAJE COMÚN
+                    'error'                                     // ICONO: 'error' (Rojo) para todo
+                );
+            }, 100);
+            
+            return; 
+        }
+
+        // 3. Ejecutar renombrado si no hay conflictos
+        PatientManager.renameClient(selectedClientId, newAlias);
         refreshClients();
       }
     );
@@ -418,17 +482,25 @@
     showAlert($t('alerts.success_title'), $t('alerts.link_multiple_success').replace('{n}', count.toString()), 'success');
   };
 
-  const deleindigolData = () => {
+  // Función corregida para el reseteo de fábrica
+  const handleFactoryReset = () => {
     const $t = get(t);
     showConfirm(
       $t('alerts.reset_title'),
       $t('alerts.reset_confirm'),
       () => {
-        PatientManager.deleindigolData();
+        // CORRECCIÓN AQUÍ: Llamamos al nombre real del método en PatientManager
+        PatientManager.deleteAllData();
+        
+        // Limpiamos el estado local
         clients = [];
         selectedClientId = '';
         selectedRecordId = '';
+        
+        // Refrescamos la interfaz
         refreshClients();
+        
+        // Confirmamos éxito
         showAlert($t('alerts.success_title'), $t('alerts.reset_success'), 'success');
       }
     );
@@ -570,6 +642,17 @@
     modalType = 'confirm';
     modalConfirmCallback = onConfirm;
     modalCancelCallback = onCancel || null;
+    showModal = true;
+  };
+
+  // Función para mostrar un modal con campo de texto
+  const showPrompt = (title: string, message: string, initialValue: string, onConfirm: () => void) => {
+    modalTitle = title;
+    modalMessage = message;
+    modalInputValue = initialValue; // Pre-llenar con el nombre actual
+    modalType = 'prompt';
+    modalConfirmCallback = onConfirm;
+    modalCancelCallback = null;
     showModal = true;
   };
 
@@ -850,14 +933,14 @@
         <div class="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
           
           <div class="text-center space-y-4 pt-4 sm:pt-8">
-            <h2 class="text-2xl sm:text-3xl font-black text-slate-800">
+            <h2 class="text-xl sm:text-3xl font-black text-slate-800">
               {$t('upload.instruction_title')}
             </h2>
             
             <div class="flex justify-center">
-              <div class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 border border-slate-200 rounded-full text-xs sm:text-sm font-mono text-slate-600 shadow-sm">
-                <span class="text-lg leading-none">📂</span>
-                <span>{$t('upload.instruction_path')}</span>
+              <div class="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-slate-100 border border-slate-200 rounded-full text-xs sm:text-base font-mono text-slate-700 shadow-sm">
+                <span class="text-lg sm:text-xl leading-none">📂</span>
+                <span class="font-bold">{$t('upload.instruction_path')}</span>
               </div>
             </div>
           </div>
@@ -880,59 +963,56 @@
                 disabled={isProcessing}
               />
               
-              <div class="border-3 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all bg-white
+              <div class="border-3 border-dashed rounded-2xl p-6 sm:p-16 text-center transition-all bg-white
                 {isDragging 
                   ? 'border-indigo-500 bg-indigo-50 ring-4 ring-indigo-100 scale-[1.01] shadow-xl' 
                   : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-50 hover:shadow-lg shadow-sm'}"
               >
-                 <div class="flex flex-col items-center gap-6">
-                   <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-4xl mb-1 transition-transform group-hover:scale-110 shadow-inner">
-                     {#if isProcessing}
-                       <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                     {:else}
-                       ☁️
-                     {/if}
-                   </div>
+                 <div class="flex flex-col items-center gap-4 sm:gap-8">
                    
                    {#if isProcessing}
-                      <h3 class="text-lg font-bold text-indigo-600 animate-pulse">{$t('upload.processing')}...</h3>
+                      <div class="flex flex-col items-center gap-3">
+                        <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                        <h3 class="text-sm sm:text-lg font-bold text-indigo-600 animate-pulse">{$t('upload.processing')}...</h3>
+                      </div>
                    {:else}
-                      <p class="text-slate-600 font-medium text-lg max-w-md mx-auto leading-relaxed">
+                      <p class="text-slate-600 font-medium text-sm sm:text-xl max-w-lg mx-auto leading-relaxed">
                         {$t('upload.drop_zone')}
                       </p>
-                   {/if}
 
-                   {#if !isProcessing}
-                     <span class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md group-hover:bg-indigo-700 transition-colors flex items-center gap-2">
-                       <span>📂</span> {$t('upload.browse')}
-                     </span>
+                      <span class="px-6 py-2.5 sm:px-10 sm:py-4 bg-indigo-600 text-white font-bold rounded-xl shadow-md group-hover:bg-indigo-700 transition-colors text-xs sm:text-base tracking-wide">
+                         {$t('upload.browse')}
+                      </span>
                    {/if}
                  </div>
               </div>
             </label>
 
             {#if errorMessage}
-              <div class="mt-6 mx-auto max-w-lg bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-lg animate-pulse flex items-start gap-3 shadow-sm">
-                <span class="text-xl">⚠️</span>
+              <div class="mt-4 sm:mt-6 mx-auto max-w-lg bg-rose-50 border-l-4 border-rose-500 p-3 sm:p-4 rounded-r-lg animate-pulse flex items-start gap-3 shadow-sm">
+                <span class="text-lg sm:text-xl">⚠️</span>
                 <div>
-                  <h4 class="font-bold text-rose-700 text-sm">Error</h4>
-                  <p class="text-sm text-rose-600">{errorMessage}</p>
+                  <h4 class="font-bold text-rose-700 text-xs sm:text-sm">Error</h4>
+                  <p class="text-xs sm:text-sm text-rose-600">{errorMessage}</p>
                 </div>
               </div>
             {/if}
           </div>
 
-          <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[300px] mt-8">
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[150px] sm:min-h-[200px] mt-4 sm:mt-6">
+            
             {#if inboxRecords.length === 0}
-              <div class="p-12 text-center h-full flex flex-col justify-center items-center py-20">
-                <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                  <span class="text-4xl opacity-30 grayscale">📭</span>
+              <div class="p-4 sm:p-8 text-center h-full flex flex-col justify-center items-center py-6 sm:py-12">
+                
+                <div class="w-12 h-12 sm:w-20 sm:h-20 bg-slate-50 rounded-full flex items-center justify-center mb-2 sm:mb-4">
+                  <span class="text-xl sm:text-4xl opacity-30 grayscale">📭</span>
                 </div>
-                <h3 class="text-slate-400 font-medium text-lg">{$t('dashboard.inbox_empty')}</h3>
+                
+                <h3 class="text-slate-400 font-medium text-xs sm:text-lg">{$t('dashboard.inbox_empty')}</h3>
               </div>
             {:else}
               
-              <div class="bg-slate-50 p-4 border-b border-slate-200 sticky top-0 z-20 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div class="bg-slate-50 p-3 sm:p-4 border-b border-slate-200 sticky top-0 z-20 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
                 <div class="flex items-center gap-3 w-full sm:w-auto">
                    <label class="flex items-center gap-2 cursor-pointer select-none">
                       <input
@@ -941,7 +1021,7 @@
                         on:change={selectAllInboxMeasurements}
                         class="h-5 w-5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 transition-all cursor-pointer"
                       />
-                      <span class="text-sm font-bold text-slate-700">
+                      <span class="text-xs sm:text-sm font-bold text-slate-700">
                         {selectedInboxMeasurements.length > 0 
                           ? `${selectedInboxMeasurements.length} ${$t('dashboard.records_selected')}`
                           : $t('dashboard.multi_assignment')}
@@ -960,11 +1040,10 @@
                     <div class="relative flex-1 sm:w-64">
                       <input
                         type="text"
-                        placeholder="{$t('dashboard.assign_btn')}..."
-                        class="w-full text-sm border border-indigo-300 rounded-lg pl-9 pr-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm outline-none"
+                        placeholder="{$t('dashboard.assign_btn')}"
+                        class="w-full text-sm border border-indigo-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm outline-none"
                         bind:value={bulkAssignSearch}
                       />
-                      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
                       {#if bulkAssignSearch}
                         <div class="absolute top-full left-0 right-0 mt-2 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-30">
                           {#each filteredBulkClients as c}
@@ -982,15 +1061,16 @@
                 {/if}
               </div>
 
-              <div class="block lg:hidden bg-slate-50/50 p-3 space-y-3">
+              <div class="block lg:hidden bg-slate-50/50 p-2 sm:p-3 space-y-2 sm:space-y-3">
                 {#each inboxRecords as rec (rec.id)}
-                  <div class="bg-white p-4 rounded-xl shadow-sm border transition-all duration-200 relative
+                  <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border transition-all duration-200 relative
                     {selectedInboxMeasurements.includes(rec.id) 
                       ? 'border-indigo-500 bg-indigo-50/30 ring-1 ring-indigo-500' 
                       : 'border-slate-200 hover:border-indigo-300'}"
                   >
-                    <div class="flex items-start gap-4">
-                       <div class="pt-1">
+                    <div class="flex items-start gap-6">
+                       
+                       <div class="flex-shrink-0 pt-1">
                           <input
                             type="checkbox"
                             checked={selectedInboxMeasurements.includes(rec.id)}
@@ -998,35 +1078,44 @@
                             class="h-6 w-6 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
                           />
                        </div>
+
                        <div class="flex-1 min-w-0">
-                          <div class="flex justify-between items-start">
-                             <div>
-                               <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                 {rec.date} • {rec.time}
-                               </div>
-                               <div class="flex items-baseline gap-1">
-                                 <span class="text-2xl font-black text-slate-800">{rec.weight}</span>
-                                 <span class="text-sm text-slate-500 font-medium">kg</span>
-                               </div>
+                          <div class="flex justify-between items-center gap-2">
+                             
+                             <div class="flex-shrink-0 text-left">
+                               <div class="font-bold text-slate-700 text-base leading-tight">{rec.date}</div>
+                               <div class="text-xs text-slate-500 font-mono mt-0.5">{rec.time}</div>
                              </div>
-                             <div class="text-right">
-                               <div class="inline-flex flex-col items-end gap-1">
-                                  <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-xs font-bold">
+
+                             <div class="flex items-baseline gap-0.5 flex-shrink-0 mx-auto">
+                               <span class="text-xl font-black text-slate-800">{rec.weight}</span>
+                               <span class="text-xs text-slate-500 font-medium">kg</span>
+                             </div>
+
+                             <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                                  <span class="px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-xs font-bold whitespace-nowrap">
                                     {rec.height}cm
                                   </span>
-                                  <span class="text-xs text-slate-500">{rec.bodyFat}% grasa</span>
-                               </div>
+                                  
+                                  <span class="px-2 py-0.5 bg-white border border-slate-200 text-slate-600 rounded text-xs font-medium whitespace-nowrap">
+                                    {$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
+                                  </span>
+                                  
+                                  <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-700 rounded text-xs font-medium whitespace-nowrap">
+                                    {rec.age} {$t('units.years')}
+                                  </span>
                              </div>
                           </div>
-                          <div class="mt-4 pt-3 border-t border-slate-100">
+
+                          <div class="mt-2 pt-2 border-t border-slate-100">
                             {#if clients.length === 0}
                               <div class="text-xs text-slate-400 italic text-center py-1">{$t('dashboard.no_clients_created')}</div>
                             {:else}
                               <div class="relative">
                                 <input
                                   type="text"
-                                  placeholder="{$t('dashboard.assign_btn')}..."
-                                  class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors"
+                                  placeholder="{$t('dashboard.assign_btn')}"
+                                  class="w-full text-xs sm:text-sm border border-slate-200 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors"
                                   bind:value={assignmentSearchTerms[rec.id]}
                                 />
                                 {#if assignmentSearchTerms[rec.id]}
@@ -1049,7 +1138,6 @@
                   </div>
                  {/each}
               </div>
-
               <div class="hidden lg:block overflow-x-auto">
                 <table class="w-full text-sm text-left">
                   <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase text-xs tracking-wider">
@@ -1064,8 +1152,10 @@
                       </th>
                       <th class="px-6 py-4">{$t('analysis.date')}</th>
                       <th class="px-6 py-4">{$t('metrics.weight')}</th>
-                      <th class="px-6 py-4">Datos Clave</th>
-                      <th class="px-6 py-4 text-right w-64">Acción</th>
+                      
+                      <th class="px-6 py-4">{$t('dashboard.key_data')}</th>
+                      
+                      <th class="px-6 py-4 text-right w-64">{$t('dashboard.action')}</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
@@ -1092,11 +1182,13 @@
                              <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded font-bold">
                                {rec.height}cm
                              </span>
-                             <span class="px-2 py-1 bg-white border border-slate-200 rounded text-slate-500">
-                               {rec.gender === 'male' ? 'H' : 'M'} / {rec.age} años
+                             
+                             <span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded font-medium">
+                               {$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
                              </span>
-                             <span class="px-2 py-1 bg-white border border-slate-200 rounded text-slate-400">
-                               {rec.bodyFat}%
+
+                             <span class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-700 rounded font-medium">
+                               {rec.age} {$t('units.years')}
                              </span>
                            </div>
                         </td>
@@ -1107,7 +1199,7 @@
                             <div class="relative w-56 ml-auto">
                               <input
                                 type="text"
-                                placeholder="{$t('dashboard.assign_btn')}..."
+                                placeholder="{$t('dashboard.assign_btn')}"
                                 class="w-full text-xs border border-slate-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
                                 bind:value={assignmentSearchTerms[rec.id]}
                               />
@@ -1151,16 +1243,28 @@
               
               <!-- Mobile: Accordion Client List -->
               <div class="lg:hidden bg-white rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
-                <button
-                  on:click={() => isClientListOpen = !isClientListOpen}
-                  class="w-full flex items-center justify-between p-3 font-medium text-gray-700 hover:bg-gray-50 transition"
-                >
-                  <span class="flex items-center gap-2">
-                    <span class="text-indigo-600">👥</span>
-                    {$t('dashboard.select_client_prompt')}
-                  </span>
-                  <span class="text-gray-400 transition-transform duration-300 {isClientListOpen ? 'rotate-180' : ''}">▼</span>
-                </button>
+ <button
+    on:click={() => isClientListOpen = !isClientListOpen}
+    class="w-full flex items-center justify-center px-3 py-5 font-medium text-gray-700 hover:bg-gray-50 transition relative"
+>
+    <span class="text-indigo-600 text-lg absolute left-3 top-1/2 -translate-y-1/2">
+        👥
+    </span>
+
+    <span class="text-sm font-bold text-gray-700 uppercase absolute left-1/2 -translate-x-1/2">
+        {$t('dashboard.client_list_title')}
+    </span>
+    
+    <span 
+        class="text-gray-400 flex-shrink-0 transition-transform duration-300 absolute right-3 top-1/2 -translate-y-1/2 
+        {isClientListOpen ? 'rotate-180' : ''}"
+    >
+        ▼
+    </span>
+</button>
+  
+
+   
                 
                 {#if isClientListOpen}
                   <div class="border-t border-gray-100">
@@ -1275,29 +1379,70 @@
                 </div>
               {:else}
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4 flex-shrink-0">
-                  <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
-                    <div>
-                      <h2 class="text-2xl font-bold text-gray-800">{clients.find(c => c.id === selectedClientId)?.alias}</h2>
+                  
+                  <div class="flex flex-col sm:flex-row items-center sm:justify-between gap-3 sm:gap-4 w-full">
+                    
+                    <div class="text-center sm:text-left">
+                      <h2 class="text-2xl font-bold text-gray-800 break-words">
+                        {clients.find(c => c.id === selectedClientId)?.alias}
+                      </h2>
                     </div>
-                    <div class="flex gap-2">
-                      <button on:click={() => deleteClient(selectedClientId)} class="text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"><span>🗑</span> {$t('actions.delete')}</button>
-                      <button on:click={exportClientData} class="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded hover:bg-green-700 shadow-sm transition touch-manipulation">📊 {$t('actions.export_csv')}</button>
+
+                    <div class="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
+                      
+                      <button 
+                        on:click={exportClientData} 
+                        class="col-span-2 sm:w-auto justify-center text-emerald-600 hover:text-white border border-emerald-200 hover:bg-emerald-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
+                        title="{$t('actions.export_csv')}"
+                      >
+                        <span>📊</span> 
+                        <span>{$t('actions.export_csv')}</span>
+                      </button>
+
+                      <button 
+                        on:click={handleRenameClient} 
+                        class="col-span-1 sm:w-auto justify-center text-indigo-600 hover:text-white border border-indigo-200 hover:bg-indigo-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
+                        title="{$t('actions.rename')}"
+                      >
+                        <span>✏️</span> 
+                        <span>{$t('actions.rename')}</span>
+                      </button>
+
+                      <button 
+                        on:click={() => deleteClient(selectedClientId)} 
+                        class="col-span-1 sm:w-auto justify-center text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
+                        title="{$t('actions.delete')}"
+                      >
+                        <span>🗑</span> 
+                        <span>{$t('actions.delete')}</span>
+                      </button>
+                      
                     </div>
                   </div>
-                  <div class="flex flex-wrap items-center gap-2 border-t pt-3">
-                    <span class="text-xs font-bold text-gray-400 uppercase mr-1">{$t('dashboard.filters.title')}</span>
-                    <button on:click={() => currentFilter = 'all'} class="{STYLES.filterBtn} {currentFilter === 'all' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.all')}</button>
-                    <button on:click={() => currentFilter = '1m'} class="{STYLES.filterBtn} {currentFilter === '1m' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_month')}</button>
-                    <button on:click={() => currentFilter = '3m'} class="{STYLES.filterBtn} {currentFilter === '3m' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_3_months')}</button>
-                    <button on:click={() => currentFilter = '6m'} class="{STYLES.filterBtn} {currentFilter === '6m' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_6_months')}</button>
-                    <button on:click={() => currentFilter = '1y'} class="{STYLES.filterBtn} {currentFilter === '1y' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_year')}</button>
+
+                  <div class="flex flex-col sm:flex-row items-center gap-3 border-t pt-3 w-full">
                     
-                    <div class="flex items-center gap-2 ml-auto border rounded px-3 py-1 bg-gray-50 flex-grow max-w-sm">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start w-full sm:w-auto gap-2 sm:gap-0">
+                        
+                        <div class="w-full sm:w-12 text-center sm:text-left flex-shrink-0 sm:pt-1 mb-1 sm:mb-0">
+                            <span class="text-xs font-bold text-gray-400 uppercase">{$t('dashboard.filters.title')}</span>
+                        </div>
+                        
+                        <div class="flex flex-wrap justify-center sm:justify-start gap-2 flex-grow px-10 sm:px-0">
+                            <button on:click={() => currentFilter = 'all'} class="{STYLES.filterBtn} {currentFilter === 'all' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.all')}</button>
+                            <button on:click={() => currentFilter = '1m'} class="{STYLES.filterBtn} {currentFilter === '1m' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_month')}</button>
+                            <button on:click={() => currentFilter = '3m'} class="{STYLES.filterBtn} {currentFilter === '3m' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_3_months')}</button>
+                            <button on:click={() => currentFilter = '6m'} class="{STYLES.filterBtn} {currentFilter === '6m' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_6_months')}</button>
+                            <button on:click={() => currentFilter = '1y'} class="{STYLES.filterBtn} {currentFilter === '1y' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_year')}</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-1 sm:ml-auto border rounded px-2 py-1 bg-gray-50 flex-shrink-0 mt-2 sm:mt-0">
                        <span class="text-xs text-gray-500 font-medium whitespace-nowrap">{$t('dashboard.filters.from')}</span>
-                       <input type="date" bind:value={customDateStart} on:change={() => currentFilter = 'custom'} class="text-xs bg-transparent outline-none flex-grow" placeholder="dd/mm/yyyy" />
+                       <input type="date" bind:value={customDateStart} on:change={() => currentFilter = 'custom'} class="text-xs bg-transparent outline-none w-[120px]" placeholder="dd/mm/yyyy" />
                        <span class="text-gray-400 font-bold">→</span>
                        <span class="text-xs text-gray-500 font-medium whitespace-nowrap">{$t('dashboard.filters.to')}</span>
-                       <input type="date" bind:value={customDateEnd} on:change={() => currentFilter = 'custom'} class="text-xs bg-transparent outline-none flex-grow" placeholder="dd/mm/yyyy" />
+                       <input type="date" bind:value={customDateEnd} on:change={() => currentFilter = 'custom'} class="text-xs bg-transparent outline-none w-[120px]" placeholder="dd/mm/yyyy" />
                     </div>
                   </div>
                 </div>
@@ -1310,7 +1455,7 @@
                       {#each displayedHistory as rec (rec.id)}
                         <button
   on:click={() => selectedRecordId = rec.id}
-  class="flex-shrink-0 w-[85px] sm:w-[110px] p-2 rounded-lg border text-left transition-all touch-manipulation relative
+  class="flex-shrink-0 w-[85px] sm:w-[85px] p-2 rounded-lg border text-left transition-all touch-manipulation relative
   {selectedRecordId === rec.id ||
   (!selectedRecordId && rec === currentRecord)
     ? 'border-indigo-400 bg-indigo-50 shadow-md transform scale-105 z-10' 
@@ -1326,13 +1471,29 @@
                 </div>
                 
                 {#if currentRecord}
-                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 -mt-2 mb-4 border-b border-gray-100 pb-3">
-                    <div class="flex items-center gap-2">
-                      <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">{$t('dashboard.latest_reading')}</span>
+                  <div class="flex flex-col sm:flex-row items-center sm:justify-between gap-3 sm:gap-0 -mt-2 mb-4 border-b border-gray-100 pb-3 w-full">
+                    
+                    <div class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+                      <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        {$t('dashboard.latest_reading')}
+                      </span>
+                      
                       <span class="text-xs font-mono text-gray-300 hidden sm:inline">|</span>
-                      <span class="text-xs font-bold text-gray-600">{currentRecord.date} {currentRecord.time}</span>
+                      
+                      <div class="flex items-baseline gap-1.5">
+                        <span class="text-xs font-black text-gray-700">
+                            {currentRecord.date}
+                        </span>
+                        <span class="text-[10px] font-medium text-gray-400">
+                            {currentRecord.time}
+                        </span>
+                      </div>
                     </div>
-                    <button on:click={unassignCurrentRecord} class="text-xs text-red-500 hover:text-white border border-red-200 hover:bg-red-500 px-2 sm:px-3 py-1 rounded transition-colors flex items-center gap-1 font-medium touch-manipulation self-end sm:self-auto">
+
+                    <button 
+                      on:click={unassignCurrentRecord} 
+                      class="text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
+                    >
                       <span>↩️</span> {$t('dashboard.detach_record')}
                     </button>
                   </div>
@@ -1341,11 +1502,7 @@
 
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
   
-  <div class="xl:col-span-2 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
-    <BodyMap record={currentRecord} />
-  </div>
-
-  <div class="flex flex-col gap-3 sm:gap-4"> 
+  <div class="flex flex-col gap-3 sm:gap-4 xl:col-span-1"> 
     
     <div class="grid grid-cols-2 gap-3 sm:gap-4">
       
@@ -1403,12 +1560,17 @@
              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{$t('metrics.metabolic_age')}</span>
           </div>
           <span class="text-xl font-black leading-none self-end mt-1 {getStatusColor('meta', currentRecord.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">
-            {currentRecord.metabolicAge}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('common.year')}</span>
+            {currentRecord.metabolicAge}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.years')}</span>
           </span>
       </div>
 
     </div>
   </div>
+
+  <div class="xl:col-span-2 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
+    <BodyMap record={currentRecord} />
+  </div>
+
 </div>
 
                   {#if chartData}
@@ -1456,57 +1618,144 @@
         {/if}
 
         {#if currentTab === 'settings'}
-          <div class="max-w-2xl mx-auto space-y-6 sm:space-y-8">
-            <div class="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-2">{$t('settings.backup_section')}</h3>
-                <div class="grid gap-3 sm:gap-4">
-                    <button on:click={() => PatientManager.exportBackup()} class="flex items-center justify-center gap-2 sm:gap-3 w-full bg-gray-800 text-white py-3 sm:py-4 rounded-lg hover:bg-black transition font-bold shadow-md text-sm sm:text-base"><span>💾</span> {$t('settings.btn_export')}</button>
-                    <div class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 md:p-8 text-center hover:bg-gray-50 transition cursor-pointer group">
-                        <input type="file" accept=".json" on:change={handleImportBackup} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                        <div class="text-gray-500 group-hover:text-indigo-600 font-medium flex flex-col items-center gap-2"><span class="text-xl sm:text-2xl">📂</span> {$t('settings.btn_import')}</div>
-                    </div>
+          <div class="max-w-2xl mx-auto space-y-6 animate-fade-in pb-12">
+            
+            <div class="text-center pt-4 sm:pt-8 mb-4">
+               <h2 class="text-2xl sm:text-3xl font-black text-slate-800">
+                 {$t('settings.title')}
+               </h2>
+               </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center">
+                    <span class="text-3xl mb-1">👥</span>
+                    <span class="text-2xl font-black text-indigo-600">{clients.length}</span>
+                    <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">{$t('settings.active_clients')}</span>
                 </div>
-                <div class="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-red-100">
-                    <button on:click={deleindigolData} class="flex items-center justify-center gap-2 w-full text-red-600 text-xs sm:text-sm font-bold hover:text-red-800 hover:bg-red-50 py-3 sm:py-4 border border-red-100 rounded transition"><span>🗑️</span> {$t('settings.delete_all_btn')}</button>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center">
+                    <span class="text-3xl mb-1">📊</span>
+                    
+                    <span class="text-2xl font-black text-indigo-600">
+                        {PatientManager.getAssignmentCount()}
+                    </span>
+                    
+                    <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">{$t('settings.total_measurements')}</span>
                 </div>
             </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100">
+                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                        <span>💾</span> {$t('settings.backup_section')}
+                    </h3>
+                </div>
+                
+                <div class="p-6 sm:p-8 space-y-6">
+                    
+                    <div>
+                        <div class="relative flex py-2 items-center mb-4">
+                            <div class="flex-grow border-t border-slate-200"></div>
+                            <span class="flex-shrink-0 mx-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                {$t('settings.section_save')}
+                            </span>
+                            <div class="flex-grow border-t border-slate-200"></div>
+                        </div>
+
+                        <button 
+                            on:click={() => PatientManager.exportBackup()} 
+                            class="flex items-center justify-center gap-2 w-full bg-indigo-600 text-white py-3 sm:py-4 rounded-xl hover:bg-indigo-700 transition-all font-bold shadow-md shadow-indigo-200 active:scale-[0.98]"
+                        >
+                            <span class="text-lg">⬇️</span> {$t('settings.btn_export')}
+                        </button>
+                    </div>
+
+                    <div>
+                        <div class="relative flex py-2 items-center mb-4">
+                            <div class="flex-grow border-t border-slate-200"></div>
+                            <span class="flex-shrink-0 mx-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                {$t('settings.section_restore')}
+                            </span>
+                            <div class="flex-grow border-t border-slate-200"></div>
+                        </div>
+
+                        <div class="relative group">
+                            <div class="border-2 border-dashed border-indigo-200 rounded-xl p-6 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer">
+                                 <div class="flex flex-col items-center gap-2 text-indigo-600 group-hover:text-indigo-700">
+                                     <span class="text-3xl transition-transform group-hover:scale-110">📂</span>
+                                     <span class="font-bold text-sm">{$t('settings.btn_import')}</span>
+                                     <span class="text-xs text-indigo-400 font-normal">
+                                        {$t('settings.drag_backup')}
+                                     </span>
+                                 </div>
+                            </div>
+                            <input type="file" accept=".json" on:change={handleImportBackup} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="bg-rose-50/50 rounded-xl shadow-sm border border-rose-100 overflow-hidden">
+                 <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                     <div class="text-center sm:text-left">
+                         <h4 class="text-rose-700 font-bold text-sm uppercase">{$t('settings.danger_zone_title')}</h4>
+                     </div>
+                     <button 
+                        on:click={handleFactoryReset} 
+                        class="flex-shrink-0 bg-white border border-rose-200 text-rose-600 text-xs sm:text-sm font-bold px-5 py-3 rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm whitespace-nowrap"
+                     >
+                        🗑️ {$t('settings.delete_all_btn')}
+                     </button>
+                 </div>
+            </div>
+
           </div>
         {/if}
 
         <!-- Global Modal Component -->
         {#if showModal}
           <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto animate-slide-up">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto animate-slide-up" on:keydown|stopPropagation>
               <div class="p-6">
                 <div class="flex items-center gap-3 mb-4">
                   {#if modalType === 'error'}
-                    <div class="bg-rose-100 text-rose-600 p-2 rounded-lg">
-                      <span class="text-xl">⚠️</span>
-                    </div>
+                    <div class="bg-rose-100 text-rose-600 p-2 rounded-lg"><span class="text-xl">⚠️</span></div>
                   {:else if modalType === 'success'}
-                    <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg">
-                      <span class="text-xl">✅</span>
-                    </div>
+                    <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg"><span class="text-xl">✅</span></div>
                   {:else if modalType === 'confirm'}
-                    <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg">
-                      <span class="text-xl">❓</span>
-                    </div>
+                    <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg"><span class="text-xl">❓</span></div>
+                  
+                  {:else if modalType === 'prompt'}
+                    <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg"><span class="text-xl">✏️</span></div>
+                  
                   {:else}
-                    <div class="bg-slate-100 text-slate-600 p-2 rounded-lg">
-                      <span class="text-xl">ℹ️</span>
-                    </div>
+                    <div class="bg-slate-100 text-slate-600 p-2 rounded-lg"><span class="text-xl">ℹ️</span></div>
                   {/if}
+                  
                   <h3 class="text-lg font-bold text-slate-800">{modalTitle}</h3>
                 </div>
                 
-                <div class="mb-6">
+                <div class="mb-6 space-y-3">
                   <p class="text-slate-600 text-sm leading-relaxed">{modalMessage}</p>
+                  
+                  {#if modalType === 'prompt'}
+                    <div>
+                        <input 
+                            type="text" 
+                            bind:value={modalInputValue}
+                            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
+                            placeholder="{$t('dashboard.new_alias_placeholder')}" 
+                            autofocus
+                            on:keydown={(e) => e.key === 'Enter' && handleModalConfirm()} 
+                        />
+                    </div>
+                  {/if}
                 </div>
                 
                 <div class="flex justify-end gap-3">
-                  {#if modalType === 'confirm'}
+                  {#if modalType === 'confirm' || modalType === 'prompt'}
                     <button
-                      on:click={handleModalCancel}
+                      on:click={() => showModal = false}
                       class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
                     >
                       {$t('actions.cancel')}

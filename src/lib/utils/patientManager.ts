@@ -132,6 +132,20 @@ export const PatientManager = {
     
     this.saveDB(db);
   },
+  /**
+   * Actualiza el alias (nombre) de un cliente sin cambiar su ID.
+   */
+  renameClient(id: string, newAlias: string): boolean {
+    const db = this.loadDB();
+    const clientIndex = db.clients.findIndex(c => c.id === id);
+    
+    if (clientIndex !== -1) {
+      db.clients[clientIndex].alias = newAlias;
+      this.saveDB(db);
+      return true;
+    }
+    return false;
+  },
 
   // --- RECORD ASSIGNMENT LOGIC ---
 
@@ -142,6 +156,15 @@ export const PatientManager = {
     const db = this.loadDB();
     db.assignments[recordId] = clientId;
     this.saveDB(db);
+  },
+  /**
+   * Returns the total number of linked records in the database,
+   * regardless of whether the CSV data is currently loaded or not.
+   */
+  getAssignmentCount(): number {
+    const db = this.loadDB();
+    // Si assignments no existe por algún motivo, devuelve 0
+    return Object.keys(db.assignments || {}).length;
   },
 
   /**

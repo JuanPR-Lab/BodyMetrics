@@ -10,7 +10,10 @@
     "year_short": "y",
     "height": "Height",
     "unit": "Unit",
-    "language": "Language"
+    "language": "Language",
+    "date_format": "dd/mm/yyyy",
+    "male": "Male",
+    "female": "Female"
   },
   "units": {
     "kg": "kg",
@@ -35,15 +38,22 @@
       "all": "All",
       "custom": "Custom",
       "from": "From:",
-      "to": "To:"
+      "to": "To:",
+      "date_range": "Date Range"
     },
+    "key_data": "Key Data",
+    "action": "Action",
+    "new_alias_placeholder": "New Code or Alias",
+    "rename_prompt": "Enter new name or alias for the client:",
     "client_exists_title": "Creation Error",
-    "client_exists_message": "Client ID or Alias already exists. Please try a different name.",
+    "client_exists_rename_title": "Renaming Error",
+    "client_exists_message": "Client Code or Alias already exists, try another.",
     "inbox_empty": "All clean! No pending measurements to link, or the SD files have not been loaded.",
     "assign_btn": "Link to...",
     "create_btn": "New Client",
     "filter_placeholder": "Search client...",
     "select_client_prompt": "Select a client from the list to view their progress.",
+    "client_list_title": "Client List",
     "latest_reading": "Selected Measurement",
     "client_id_placeholder": "Code or Alias",
     "target": "Goal",
@@ -66,7 +76,7 @@
     }
   },
   "help": {
-    "page_title": "📚 User Manual",
+    "page_title": "User Manual",
     "section_starting": "🚀 Getting Started",
     "starting_requirements": "Requirements",
     "starting_requirements_text": "• Modern browser (Chrome, Edge, Firefox, Safari).\n• Tanita Segmental Scale with SD card (e.g., BC-545N, BC-601, BC-1000, etc.).\n• SD card reader for your computer or mobile device.",
@@ -127,7 +137,7 @@
     "instruction_title": "How to upload new data?",
     "instruction_text": "",
     "instruction_path": "Look on your SD card for folder: /TANITA/GRAPHV1/DATA/",
-    "drop_zone": "Drag here all .CSV files from that folder",
+    "drop_zone": "Drag here all DATA.CSV files from that folder",
     "browse": "Or click to browse the SD card",
     "processing": "Reading files...",
     "error": "No valid measurements found. Please ensure the files are DATA.CSV and come from the DATA folder on the SD card."  
@@ -177,7 +187,14 @@
     "over": "High"
   },
   "settings": {
-    "title": "Settings & Security",
+    "title": "Data Management & Security",
+    "active_clients": "Active Clients",
+    "total_measurements": "Linked Measurements",
+    "export_description": "Download a full copy of your database to keep it safe.",
+    "section_save": "SAVE YOUR DATA",
+    "section_restore": "RESTORE YOUR DATA",
+    "drag_backup": "Drag or click",
+    "danger_zone_title": "Danger Zone",
     "backup_section": "Your Backups",
     "backup_desc": "The Database is saved locally. Download a .json backup regularly.",
     "btn_export": "Download Backup",
@@ -186,7 +203,7 @@
     "import_success_title": "Import Successful",
     "import_error": "File does not look like a valid backup.",
     "import_error_title": "Import Error",
-    "delete_all_btn": "Factory Reset (Wipe All)",
+    "delete_all_btn": "Factory Reset",
     "delete_all_confirm": "Are you sure? This will delete ALL client lists and links from this browser.",
     "delete_all_title": "Factory Reset"
   },
@@ -196,7 +213,8 @@
     "confirm": "Confirm",
     "delete": "Delete",
     "export_csv": "Spreadsheet",
-    "ok": "OK"
+    "ok": "OK",
+    "rename": "Rename"
   },
   "alerts": {
     "success_title": "Success!",

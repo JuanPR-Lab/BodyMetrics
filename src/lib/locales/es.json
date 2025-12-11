@@ -10,7 +10,10 @@
     "year_short": "a",
     "height": "Altura",
     "unit": "Unidad",
-    "language": "Idioma"
+    "language": "Idioma",
+    "date_format": "dd/mm/aaaa",
+    "male": "Hombre",
+    "female": "Mujer"
   },
   "units": {
     "kg": "kg",
@@ -35,15 +38,22 @@
       "all": "Todo",
       "custom": "Personalizado",
       "from": "Del:",
-      "to": "Al:"
+      "to": "Al:",
+      "date_range": "Rango de Fecha"
     },
-    "client_exists_title": "Error al crear",
-    "client_exists_message": "El ID o Alias del cliente ya existe. Prueba con otro nombre.",
+    "key_data": "Datos Clave",
+    "action": "Acción",
+    "new_alias_placeholder": "Nuevo Código o Alias",
+    "rename_prompt": "Escribe el nuevo nombre o alias del cliente:",
+    "client_exists_title": "Error al Crear",
+    "client_exists_rename_title": "Error al Renombrar",
+    "client_exists_message": "El Código o Alias del cliente ya existe, prueba con otro.",
     "inbox_empty": "¡Todo limpio! No hay mediciones pendientes de vincular, o no se han cargado los archivos de la SD.",
     "assign_btn": "Vincular a...",
     "create_btn": "Nuevo Cliente",
     "filter_placeholder": "Buscar cliente...",
     "select_client_prompt": "Selecciona un cliente de la lista para ver su progreso.",
+    "client_list_title": "Lista de Clientes",
     "latest_reading": "Medición Seleccionada",
     "client_id_placeholder": "Código o Alias",
     "target": "Objetivo",
@@ -66,7 +76,7 @@
     }
   },
   "help": {
-    "page_title": "📚 Manual de Usuario",
+    "page_title": "Manual de Usuario",
     "section_starting": "🚀 Primeros Pasos",
     "starting_requirements": "Requisitos",
     "starting_requirements_text": "• Modern browser (Chrome, Brave, Safari, Edge, etc.).\n• SD card with files from your Tanita BC-601/602/613.\n• **No internet required** after installation (100% Offline).",
@@ -127,7 +137,7 @@
     "instruction_title": "¿Cómo subir nuevos datos?",
     "instruction_text": "",
     "instruction_path": "Busca en tu tarjeta SD la carpeta: /TANITA/GRAPHV1/DATA/",
-    "drop_zone": "Arrastra aquí todos los archivos .CSV de esa carpeta",
+    "drop_zone": "Arrastra aquí todos los archivos DATA.CSV de esa carpeta",
     "browse": "O pulsa para buscar en la tarjeta SD",
     "processing": "Leyendo archivos...",
     "error": "No hemos encontrado mediciones válidas. Asegúrate de que los archivos sean DATA.CSV y provengan de la carpeta DATA de la tarjeta SD."
@@ -177,7 +187,14 @@
     "over": "Alto"
   },
   "settings": {
-    "title": "Ajustes y Seguridad",
+    "title": "Gestión de Datos y Seguridad",
+    "active_clients": "Clientes Activos",
+    "total_measurements": "Mediciones Vinculadas",
+    "export_description": "Descarga una copia completa de tu base de datos para guardarla en lugar seguro.",
+    "section_save": "GUARDA TUS DATOS",
+    "section_restore": "RESTAURA TUS DATOS",
+    "drag_backup": "Arrastra o haz clic",
+    "danger_zone_title": "Zona de Peligro",
     "backup_section": "Tus Copias de Seguridad",
     "backup_desc": "La base de datos se guarda en este navegador. Crea copias .json regularmente.",
     "btn_export": "Descargar Copia de Seguridad",
@@ -186,7 +203,7 @@
     "import_success_title": "Importación Exitosa",
     "import_error": "El archivo no parece una copia válida.",
     "import_error_title": "Error de Importación",
-    "delete_all_btn": "Restablecer de fábrica (Borrar todo)",
+    "delete_all_btn": "Restablecer de Fábrica",
     "delete_all_confirm": "¿Estás seguro? Esto borrará TODA la lista de clientes y vinculaciones de este navegador.",
     "delete_all_title": "Restablecer de Fábrica"
   },
@@ -196,7 +213,8 @@
     "confirm": "Confirmar",
     "delete": "Eliminar",
     "export_csv": "Hoja de Cálculo",
-    "ok": "Aceptar"
+    "ok": "Aceptar",
+    "rename": "Renombrar"
   },
   "alerts": {
     "success_title": "¡Operación Exitosa!",
