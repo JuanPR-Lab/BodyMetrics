@@ -84,7 +84,7 @@
   $: filteredAssignmentClients = (searchTerm: string) => {
     if (!searchTerm) return [];
     const term = searchTerm.toLowerCase().trim();
-    return clients.filter(c => c.id.toLowerCase().includes(term) || c.alias.toLowerCase().includes(term));
+    return clients.filter(c => c.alias.toLowerCase().includes(term));
   };
   $: filteredBulkClients = filteredAssignmentClients(bulkAssignSearch);
   
@@ -134,12 +134,13 @@
   };
 
   // --- REACTIVE DERIVED STATE ---
-  $: inboxRecords = allRecords.filter(r => !PatientManager.getClientForRecord(r.id));
-
+  $: inboxRecords = allRecords
+      .filter(r => !PatientManager.getClientForRecord(r.id))
+      .sort((a, b) => getTimestamp(b.date, b.time) - getTimestamp(a.date, a.time));
   $: filteredClients = clients.filter(c => {
     if (!clientSearchTerm) return true;
     const term = clientSearchTerm.toLowerCase().trim();
-    return c.id.toLowerCase().includes(term) || c.alias.toLowerCase().includes(term);
+    return c.alias.toLowerCase().includes(term);
   }).sort((a, b) => {
     // Sort by alias alphabetically, numbers first
     const aAlias = a.alias.toLowerCase();
@@ -191,6 +192,24 @@
 
   // --- LIFECYCLE ---
   onMount(() => {
+    // --- LÓGICA DE DETECCIÓN DE IDIOMA ---
+    const savedLocale = localStorage.getItem('user_locale');
+    
+    if (savedLocale) {
+        // 1. Si el usuario ya eligió un idioma antes, lo respetamos
+        locale.set(savedLocale);
+    } else {
+        // 2. Si es la primera vez, detectamos el navegador
+        // 'navigator.language' devuelve cosas como "es-ES", "es-MX", "en-US", "fr-FR"
+        const browserLang = navigator.language || 'en';
+        
+        // Si empieza por 'es' (cualquier variante), ponemos español. Si no, inglés por defecto.
+        if (browserLang.toLowerCase().startsWith('es')) {
+            locale.set('es');
+        } else {
+            locale.set('en');
+        }
+    }
     refreshClients();
     const today = new Date().toISOString().split('T')[0];
     customDateEnd = today;
@@ -225,10 +244,16 @@
 
   function nextGuideStep() {
     if (currentGuideStep < guideSteps.length - 1) {
+      // Avanzar paso normal
       currentGuideStep++;
       currentTab = guideSteps[currentGuideStep].tab as any;
     } else {
-      showFirstUseGuide = false;
+      // AL FINALIZAR:
+      showFirstUseGuide = false; // 1. Cierra el modal
+      currentTab = 'help';       // 2. Fuerza ir a Ayuda
+      
+      // Opcional: Hacer scroll arriba del todo para que empiecen a leer desde el principio
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -261,7 +286,15 @@
     } catch (err) {
       console.error(err);
       const $t = get(t);
-      errorMessage = $t('upload.error');
+      
+      // ANTES: errorMessage = $t('upload.error');
+      // AHORA: Usamos el modal unificado
+      showAlert(
+          $t('upload.error_title'), 
+          $t('upload.error'), 
+          'error'
+      );
+      
     } finally {
       isProcessing = false;
       isDragging = false;
@@ -607,8 +640,12 @@
   }
 
   // --- UI HELPERS ---
-  const switchLang = (lang: string) => locale.set(lang);
 
+  const switchLang = (lang: string) => {
+      locale.set(lang);
+      // Guardamos la preferencia para el futuro
+      localStorage.setItem('user_locale', lang); 
+  };
   const getStatusColor = (type: string, val: number) => {
     if (!currentRecord) return STATUS_COLORS.unknown;
     try {
@@ -687,7 +724,10 @@
           <div class="text-center mb-4">
             <div class="text-4xl mb-2">🎯</div>
             <h2 class="text-xl font-bold text-gray-800 mb-2">{$t('first_use.title')}</h2>
-            <p class="text-gray-600 text-sm">Paso {currentGuideStep + 1} de {guideSteps.length}</p>
+            
+            <p class="text-gray-600 text-sm">
+               {$t('first_use.step_counter', { values: { current: currentGuideStep + 1, total: guideSteps.length } })}
+            </p>
           </div>
           
           <div class="mb-6">
@@ -695,19 +735,19 @@
             <p class="text-gray-600 text-sm leading-relaxed">{$t(guideSteps[currentGuideStep].description)}</p>
           </div>
           
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center mt-8">
             <button
               on:click={skipGuide}
-              class="text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors"
+              class="text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors"
             >
               {$t('first_use.skip')}
             </button>
             
-            <div class="flex gap-2">
+            <div class="flex gap-3">
               {#if currentGuideStep > 0}
                 <button
                   on:click={previousGuideStep}
-                  class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors"
+                  class="px-4 py-2 rounded-lg font-bold text-indigo-600 border border-indigo-200 hover:bg-indigo-50 transition-colors"
                 >
                   {$t('first_use.previous')}
                 </button>
@@ -715,7 +755,7 @@
               
               <button
                 on:click={nextGuideStep}
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-bold shadow-md shadow-indigo-200 transition-all transform active:scale-[0.98]"
               >
                 {#if currentGuideStep === guideSteps.length - 1}
                   {$t('first_use.finish')}
@@ -732,7 +772,7 @@
 
   <div
     role="application"
-    class="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20 select-none {showFirstUseGuide ? 'blur-sm pointer-events-none' : ''}"
+    class="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20 select-none {showFirstUseGuide ? 'pointer-events-none' : ''}"
     on:dragover|preventDefault={() => isDragging = true}
     on:dragleave|preventDefault={() => isDragging = false}
     on:drop|preventDefault={handleDrop}
@@ -791,140 +831,159 @@
     <main class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
       
       {#if currentTab === 'help'}
-        <div class="max-w-6xl mx-auto space-y-6 sm:space-y-8 animate-fade-in">
-            <div class="text-center py-6 sm:py-8">
-                <h2 class="text-2xl sm:text-4xl font-black text-gray-800 mb-2">{$t('help.page_title')}</h2>
+        <div class="max-w-6xl mx-auto space-y-8 animate-fade-in pb-12">
+            
+            <div class="text-center pt-4 sm:pt-8">
+                <h2 class="text-2xl sm:text-4xl font-black text-slate-800">
+                    {$t('help.page_title')}
+                </h2>
             </div>
 
-            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_starting')}</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.starting_requirements')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_requirements_text'))}</p>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                    {$t('help.section_starting')}
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.starting_requirements')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_requirements_text'))}</p>
                     </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.starting_installation')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_installation_text'))}</p>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.starting_installation')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_installation_text'))}</p>
                     </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.starting_first_steps')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_first_steps_text'))}</p>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.starting_first_steps')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_first_steps_text'))}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_clients_buttons')}</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.clients_creation')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_creation_text'))}</p>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                    {$t('help.section_clients_buttons')}
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.clients_creation')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_creation_text'))}</p>
                     </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.clients_buttons_logic')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_buttons_logic_text'))}</p>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.clients_buttons_logic')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_buttons_logic_text'))}</p>
                     </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.clients_infinite_trick')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_infinite_trick_text'))}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_files')}</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.files_where')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_where_text'))}</p>
-                    </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.files_structure')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_structure_text'))}</p>
-                    </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.files_troubleshooting')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_troubleshooting_text'))}</p>
+                    <div class="space-y-3">
+                        <div class="bg-amber-50 border border-amber-100 p-4 rounded-xl">
+                            <h4 class="font-bold text-amber-700 text-sm uppercase tracking-wider mb-2">{$t('help.clients_infinite_trick')}</h4>
+                            <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_infinite_trick_text'))}</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_interpretation')}</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.interpretation_main_metrics')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_main_metrics_text'))}</p>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                    {$t('help.section_files')}
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.files_where')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_where_text'))}</p>
                     </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.interpretation_segmental')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_segmental_text'))}</p>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.files_structure')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_structure_text'))}</p>
                     </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.interpretation_health_states')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_health_states_text'))}</p>
-                    </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.interpretation_export')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_export_text'))}</p>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.files_troubleshooting')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_troubleshooting_text'))}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_security')}</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.security_local_data')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_local_data_text'))}</p>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                    {$t('help.section_interpretation')}
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.interpretation_main_metrics')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_main_metrics_text'))}</p>
                     </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.security_link')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_link_text'))}</p>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.interpretation_segmental')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_segmental_text'))}</p>
                     </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.security_backups')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_backups_text'))}</p>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.interpretation_health_states')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_health_states_text'))}</p>
                     </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.security_restoration')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_restoration_text'))}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">{$t('help.section_troubleshooting')}</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.troubleshooting_common')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_common_text'))}</p>
-                    </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.troubleshooting_missing_data')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_missing_data_text'))}</p>
-                    </div>
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-700 text-sm uppercase tracking-wide">{$t('help.troubleshooting_date')}</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_date_text'))}</p>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.interpretation_export')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_export_text'))}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-8 sm:mt-12 bg-gray-800 text-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-8 text-center shadow-lg">
-                <h4 class="font-bold text-white text-base sm:text-lg mb-2">{$t('about.title')}</h4>
-                <p class="text-xs sm:text-sm mb-4 sm:mb-6 max-w-4xl mx-auto">{$t('about.description')}</p>
-                <div class="flex flex-wrap justify-center gap-2 sm:gap-3 text-xs font-mono mb-6 sm:mb-8">
-                    <span class="bg-gray-700 px-2 sm:px-3 py-1 rounded-full border border-gray-600">{$t('about.version')}</span>
-                    <span class="bg-gray-700 px-2 sm:px-3 py-1 rounded-full border border-gray-600">{$t('about.license')}</span>
-                    <span class="bg-gray-700 px-2 sm:px-3 py-1 rounded-full border border-gray-600">{$t('about.developer')}</span>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                    {$t('help.section_security')}
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_local_data')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_local_data_text'))}</p>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_link')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_link_text'))}</p>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_backups')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_backups_text'))}</p>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_restoration')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_restoration_text'))}</p>
+                    </div>
                 </div>
-                <a href="https://github.com/JuanPR-Lab/BodyMetrics" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white text-gray-900 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm hover:bg-gray-200 transition-colors shadow-md">
-                    <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            </div>
+
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                    {$t('help.section_troubleshooting')}
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-rose-600 text-sm uppercase tracking-wider">{$t('help.troubleshooting_common')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_common_text'))}</p>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-rose-600 text-sm uppercase tracking-wider">{$t('help.troubleshooting_missing_data')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_missing_data_text'))}</p>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-rose-600 text-sm uppercase tracking-wider">{$t('help.troubleshooting_date')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_date_text'))}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 sm:mt-12 bg-slate-900 text-slate-400 rounded-2xl p-6 sm:p-10 text-center shadow-lg">
+                <h4 class="font-bold text-white text-lg mb-2">{$t('about.title')}</h4>
+                <p class="text-xs sm:text-sm mb-6 max-w-4xl mx-auto leading-relaxed">{$t('about.description')}</p>
+                <div class="flex flex-wrap justify-center gap-3 text-xs font-mono mb-8">
+                    <span class="bg-slate-800 px-3 py-1 rounded-full border border-slate-700">{$t('about.version')}</span>
+                    <span class="bg-slate-800 px-3 py-1 rounded-full border border-slate-700">{$t('about.license')}</span>
+                    <span class="bg-slate-800 px-3 py-1 rounded-full border border-slate-700">{$t('about.developer')}</span>
+                </div>
+                
+                <a href="https://github.com/JuanPR-Lab/BodyMetrics" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white text-slate-900 px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors shadow-md">
+                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                     {$t('about.github_btn')}
                 </a>
-                <p class="text-[9px] sm:text-[10px] mt-4 sm:mt-6 opacity-40 uppercase tracking-widest">{$t('about.disclaimer')}</p>
+                
+                <p class="text-[10px] mt-8 opacity-30 uppercase tracking-widest">{$t('about.disclaimer')}</p>
             </div>
         </div>
       {/if}
@@ -932,61 +991,55 @@
       {#if currentTab === 'inbox'}
         <div class="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
           
-          <div class="text-center space-y-4 pt-4 sm:pt-8">
+          <div class="text-center pt-4 sm:pt-8 space-y-4">
             <h2 class="text-xl sm:text-3xl font-black text-slate-800">
               {$t('upload.instruction_title')}
             </h2>
             
-            <div class="flex justify-center">
-              <div class="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-slate-100 border border-slate-200 rounded-full text-xs sm:text-base font-mono text-slate-700 shadow-sm">
-                <span class="text-lg sm:text-xl leading-none">📂</span>
-                <span class="font-bold">{$t('upload.instruction_path')}</span>
-              </div>
+            <div class="flex flex-col items-center gap-2">
+                <p class="text-sm text-slate-500 font-medium">{$t('upload.instruction_text')}</p>
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-slate-100 border border-slate-200 rounded-full font-mono text-xs sm:text-sm text-slate-600 shadow-sm">
+                    <span class="text-lg">📂</span>
+                    <span class="font-bold tracking-wide">{$t('upload.instruction_path')}</span>
+                </div>
             </div>
           </div>
 
           <div class="max-w-3xl mx-auto">
-            <label 
-              class="relative block group cursor-pointer transform transition-all duration-300 hover:-translate-y-1"
-              on:dragover|preventDefault={() => isDragging = true}
-              on:dragleave|preventDefault={() => isDragging = false}
-              on:drop|preventDefault={handleDrop}
-            >
-              <input
-                bind:this={fileInput}
-                type="file"
-                multiple
-                accept=".csv,text/csv,application/vnd.ms-excel"
-                class="hidden"
-                on:click={(e) => { e.currentTarget.value = ''; }}
-                on:change={(e)=>handleFiles((e.target as HTMLInputElement).files)}
-                disabled={isProcessing}
-              />
-              
-              <div class="border-3 border-dashed rounded-2xl p-6 sm:p-16 text-center transition-all bg-white
-                {isDragging 
-                  ? 'border-indigo-500 bg-indigo-50 ring-4 ring-indigo-100 scale-[1.01] shadow-xl' 
-                  : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-50 hover:shadow-lg shadow-sm'}"
-              >
-                 <div class="flex flex-col items-center gap-4 sm:gap-8">
-                   
-                   {#if isProcessing}
-                      <div class="flex flex-col items-center gap-3">
+            
+            <div class="relative group">
+                <div class="border-2 border-dashed border-indigo-200 rounded-2xl p-8 sm:p-12 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer flex flex-col items-center justify-center gap-3">
+                     
+                     {#if isProcessing}
                         <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                        <h3 class="text-sm sm:text-lg font-bold text-indigo-600 animate-pulse">{$t('upload.processing')}...</h3>
-                      </div>
-                   {:else}
-                      <p class="text-slate-600 font-medium text-sm sm:text-xl max-w-lg mx-auto leading-relaxed">
-                        {$t('upload.drop_zone')}
-                      </p>
+                        <h3 class="text-sm font-bold text-indigo-600 animate-pulse">{$t('upload.processing')}...</h3>
+                     {:else}
+                        <span class="text-4xl sm:text-5xl transition-transform group-hover:scale-110 mb-2">📥</span>
+                        
+                        <span class="font-bold text-base sm:text-lg text-indigo-700">
+                            {$t('upload.btn_load')}
+                        </span>
+                        
+                        <span class="text-xs sm:text-sm text-indigo-400 font-normal">
+                            {$t('upload.drag_instruction')}
+                        </span>
+                     {/if}
+                </div>
 
-                      <span class="px-6 py-2.5 sm:px-10 sm:py-4 bg-indigo-600 text-white font-bold rounded-xl shadow-md group-hover:bg-indigo-700 transition-colors text-xs sm:text-base tracking-wide">
-                         {$t('upload.browse')}
-                      </span>
-                   {/if}
-                 </div>
-              </div>
-            </label>
+                <input
+                    bind:this={fileInput}
+                    type="file"
+                    multiple
+                    accept=".csv,text/csv,application/vnd.ms-excel"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    disabled={isProcessing}
+                    on:click={(e) => { e.currentTarget.value = ''; }}
+                    on:change={(e)=>handleFiles((e.target as HTMLInputElement).files)}
+                    on:drop|preventDefault={(e) => { isDragging = false; handleFiles(e.dataTransfer?.files || null); }}
+                    on:dragover|preventDefault={() => isDragging = true}
+                    on:dragleave|preventDefault={() => isDragging = false}
+                />
+            </div>
 
             {#if errorMessage}
               <div class="mt-4 sm:mt-6 mx-auto max-w-lg bg-rose-50 border-l-4 border-rose-500 p-3 sm:p-4 rounded-r-lg animate-pulse flex items-start gap-3 shadow-sm">
@@ -1688,8 +1741,14 @@
                                      </span>
                                  </div>
                             </div>
-                            <input type="file" accept=".json" on:change={handleImportBackup} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                        </div>
+                            <input 
+                                type="file" 
+                                accept=".json" 
+                                on:change={handleImportBackup} 
+                                on:click={(e) => { e.currentTarget.value = ''; }}
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                            />
+                          </div>
                     </div>
 
                 </div>
