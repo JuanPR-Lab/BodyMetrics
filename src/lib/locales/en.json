@@ -5,13 +5,7 @@
     "privacy_badge": "Local Data"
   },
   "common": {
-    "male_short": "M",
-    "female_short": "F",
-    "year_short": "y",
     "height": "Height",
-    "unit": "Unit",
-    "language": "Language",
-    "date_format": "dd/mm/yyyy",
     "male": "Male",
     "female": "Female"
   },
@@ -36,15 +30,12 @@
       "last_6_months": "6 Months",
       "last_year": "1 Year",
       "all": "All",
-      "custom": "Custom",
       "from": "From:",
-      "to": "To:",
-      "date_range": "Date Range"
+      "to": "To:"
     },
     "key_data": "Key Data",
     "action": "Action",
     "new_alias_placeholder": "New Code or Alias",
-    "rename_prompt": "Enter new name or alias for the client:",
     "client_exists_title": "Creation Error",
     "client_exists_rename_title": "Renaming Error",
     "client_exists_message": "Client Code or Alias already exists, try another.",
@@ -56,13 +47,9 @@
     "client_list_title": "Client List",
     "latest_reading": "Selected Measurement",
     "client_id_placeholder": "Code or Alias",
-    "target": "Goal",
-    "actual_age": "Real Age",
     "evolution_chart": "Progress",
     "detach_record": "Remove this measurement from client",
     "detach_record_title": "Unlink Measurement",
-    "delete_client_confirm": "Are you sure? This client will be deleted and measurements sent back to Inbox.",
-    "delete_client_confirm_title": "Delete Client",
     "no_data_client": "This client has no linked measurements yet or the SD files have not been loaded.",
     "no_data_title": "No Data",
     "no_clients_created": "You haven't created any clients yet",
@@ -71,8 +58,7 @@
     "pagination": {
       "previous": "Previous",
       "next": "Next",
-      "page_of": "Page {current} of {total}",
-      "clients_per_page": "Clients per page"
+      "page_of": "Page {current} of {total}"
     }
   },
   "help": {
@@ -139,15 +125,6 @@
     "github_btn": "Github Repository",
     "disclaimer": "Independent project. Not affiliated with Tanita Corp."
   },
-  "upload": {
-    "instruction_title": "How to upload new data?",
-    "instruction_text": "",
-    "instruction_path": "Look on your SD card for folder: /TANITA/GRAPHV1/DATA/",
-    "drop_zone": "Drag here all DATA.CSV files from that folder",
-    "browse": "Or click to browse the SD card",
-    "processing": "Reading files...",
-    "error": "No valid measurements found. Please ensure the files are DATA.CSV and come from the DATA folder on the SD card."  
-  },
   "analysis": {
     "date": "Date"
   },
@@ -196,22 +173,18 @@
     "title": "Data Management & Security",
     "active_clients": "Active Clients",
     "total_measurements": "Linked Measurements",
-    "export_description": "Download a full copy of your database to keep it safe.",
     "section_save": "SAVE YOUR DATA",
     "section_restore": "RESTORE YOUR DATA",
     "drag_backup": "Drag or click",
     "danger_zone_title": "Danger Zone",
     "backup_section": "Your Backups",
-    "backup_desc": "The Database is saved locally. Download a .json backup regularly.",
     "btn_export": "Download Backup",
     "btn_import": "Load Backup",
     "import_success": "Data restored successfully!",
     "import_success_title": "Import Successful",
     "import_error": "File does not look like a valid backup.",
     "import_error_title": "Import Error",
-    "delete_all_btn": "Factory Reset",
-    "delete_all_confirm": "Are you sure? This will delete ALL client lists and links from this browser.",
-    "delete_all_title": "Factory Reset"
+    "delete_all_btn": "Factory Reset"
   },
   "actions": {
     "save": "Save",
@@ -224,25 +197,13 @@
   },
   "alerts": {
     "success_title": "Success!",
-    "error_title": "Error",
-    "info_title": "Info",
     "link_success": "Measurement successfully linked to client history.",
     "link_multiple_success": "Successfully processed and linked {n} measurements.",
-    "export_empty": "No measurements available to export for this client.",
-    "backup_success": "Backup restored successfully.",
-    "backup_error": "The file is corrupted or not a valid backup.",
     "reset_success": "Factory reset complete. All data has been erased.",
     "reset_title": "Factory Reset",
     "reset_confirm": "Are you sure? This will delete ALL client lists and links from this browser. This cannot be undone.",
     "delete_client_title": "Delete Client",
-    "delete_client_confirm": "Are you sure? This client will be deleted and their measurements will return to the Inbox."  },
-  "tooltips": {
-    "measurement_card_title": "Measurement Colors",
-    "measurement_card_description": "Cards change color based on health status:\n\n• Green: Healthy\n• Yellow: High\n• Red: Very high\n• Blue: Low",
-    "visceral_fat_title": "Visceral Fat",
-    "visceral_fat_description": "Fat surrounding internal organs.\n\nHealthy range: 1-12\nHigh risk: 13+",
-    "metabolic_age_title": "Metabolic Age",
-    "metabolic_age_description": "Compares metabolism to real age.\n\n• Green: <= real age (Efficient)\n• Yellow: > real age"
+    "delete_client_confirm": "Are you sure? This client will be deleted and their measurements will return to the Inbox."  
   },
   "first_use": {
     "title": "Welcome to BodyMetrics",
@@ -271,6 +232,7 @@
     "btn_load": "Load DATA.CSV files",
     "drag_instruction": "Drag or click",
     "error_title": "Upload Error",
-    "error": "Ensure that the files are DATA.CSV and come from the DATA folder."
+    "error": "Ensure that the files are DATA.CSV and come from the DATA folder.",
+    "processing": "Reading files..."
   }
 }

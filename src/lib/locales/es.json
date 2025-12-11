@@ -5,13 +5,7 @@
     "privacy_badge": "Datos Locales"
   },
   "common": {
-    "male_short": "H",
-    "female_short": "M",
-    "year_short": "a",
     "height": "Altura",
-    "unit": "Unidad",
-    "language": "Idioma",
-    "date_format": "dd/mm/aaaa",
     "male": "Hombre",
     "female": "Mujer"
   },
@@ -36,15 +30,12 @@
       "last_6_months": "6 Meses",
       "last_year": "1 Año",
       "all": "Todo",
-      "custom": "Personalizado",
       "from": "Del:",
-      "to": "Al:",
-      "date_range": "Rango de Fecha"
+      "to": "Al:"
     },
     "key_data": "Datos Clave",
     "action": "Acción",
     "new_alias_placeholder": "Nuevo Código o Alias",
-    "rename_prompt": "Escribe el nuevo nombre o alias del cliente:",
     "client_exists_title": "Error al Crear",
     "client_exists_rename_title": "Error al Renombrar",
     "client_exists_message": "El Código o Alias del cliente ya existe, prueba con otro.",
@@ -56,13 +47,9 @@
     "client_list_title": "Lista de Clientes",
     "latest_reading": "Medición Seleccionada",
     "client_id_placeholder": "Código o Alias",
-    "target": "Objetivo",
-    "actual_age": "Edad Real",
     "evolution_chart": "Progreso",
     "detach_record": "Quitar esta medición del cliente",
     "detach_record_title": "Desvincular Medición",
-    "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones volverán a la Entrada.",
-    "delete_client_confirm_title": "Eliminar Cliente",
     "no_data_client": "Este cliente aún no tiene mediciones vinculadas o no se han cargado los archivos de la SD.",
     "no_data_title": "Sin Datos",
     "no_clients_created": "Aún no has creado ningún cliente",
@@ -71,8 +58,7 @@
     "pagination": {
       "previous": "Anterior",
       "next": "Siguiente",
-      "page_of": "Página {current} de {total}",
-      "clients_per_page": "Clientes por página"
+      "page_of": "Página {current} de {total}"
     }
   },
   "help": {
@@ -139,15 +125,6 @@
     "github_btn": "Repositorio GitHub",
     "disclaimer": "Proyecto independiente. No afiliado a Tanita Corp."
   },
-  "upload": {
-    "instruction_title": "¿Cómo subir nuevos datos?",
-    "instruction_text": "",
-    "instruction_path": "Busca en tu tarjeta SD la carpeta: /TANITA/GRAPHV1/DATA/",
-    "drop_zone": "Arrastra aquí todos los archivos DATA.CSV de esa carpeta",
-    "browse": "O pulsa para buscar en la tarjeta SD",
-    "processing": "Leyendo archivos...",
-    "error": "No hemos encontrado mediciones válidas. Asegúrate de que los archivos sean DATA.CSV y provengan de la carpeta DATA de la tarjeta SD."
-  },
   "analysis": {
     "date": "Fecha"
   },
@@ -196,22 +173,18 @@
     "title": "Gestión de Datos y Seguridad",
     "active_clients": "Clientes Activos",
     "total_measurements": "Mediciones Vinculadas",
-    "export_description": "Descarga una copia completa de tu base de datos para guardarla en lugar seguro.",
     "section_save": "GUARDA TUS DATOS",
     "section_restore": "RESTAURA TUS DATOS",
     "drag_backup": "Arrastra o haz clic",
     "danger_zone_title": "Zona de Peligro",
     "backup_section": "Tus Copias de Seguridad",
-    "backup_desc": "La base de datos se guarda en este navegador. Crea copias .json regularmente.",
     "btn_export": "Descargar Copia de Seguridad",
     "btn_import": "Cargar Copia de Seguridad",
     "import_success": "¡Datos recuperados con éxito!",
     "import_success_title": "Importación Exitosa",
     "import_error": "El archivo no parece una copia válida.",
     "import_error_title": "Error de Importación",
-    "delete_all_btn": "Restablecer de Fábrica",
-    "delete_all_confirm": "¿Estás seguro? Esto borrará TODA la lista de clientes y vinculaciones de este navegador.",
-    "delete_all_title": "Restablecer de Fábrica"
+    "delete_all_btn": "Restablecer de Fábrica"
   },
   "actions": {
     "save": "Guardar",
@@ -224,26 +197,13 @@
   },
   "alerts": {
     "success_title": "¡Operación Exitosa!",
-    "error_title": "Error",
-    "info_title": "Información",
     "link_success": "Medición vinculada correctamente al historial del cliente.",
     "link_multiple_success": "Se han procesado y vinculado {n} mediciones correctamente.",
-    "export_empty": "Este cliente no tiene mediciones para exportar.",
-    "backup_success": "Copia de seguridad restaurada correctamente.",
-    "backup_error": "El archivo está dañado o no es un backup válido.",
     "reset_success": "El sistema se ha restablecido de fábrica. Todos los datos han sido borrados.",
     "reset_title": "Restablecer de Fábrica",
     "reset_confirm": "¿Estás seguro? Esta acción borrará TODA la lista de clientes y sus vínculos en este navegador. No se puede deshacer.",
     "delete_client_title": "Eliminar Cliente",
     "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones se desvincularán y volverán a la bandeja de Entrada."
-  },
-  "tooltips": {
-    "measurement_card_title": "Colores de las Mediciones",
-    "measurement_card_description": "Las tarjetas cambian de color según el estado de salud:\n\n• Verde: Saludable\n• Amarillo: Alto\n• Rojo: Muy alto\n• Azul: Bajo",
-    "visceral_fat_title": "Grasa Visceral",
-    "visceral_fat_description": "Grasa que rodea los órganos internos.\n\nRango saludable: 1-12\nAlto riesgo: 13+",
-    "metabolic_age_title": "Edad Metabólica",
-    "metabolic_age_description": "Compara tu metabolismo con tu edad real.\n\n• Verde: Edad metabólica ≤ edad real (Eficiente)\n• Amarillo: Edad metabólica > edad real"
   },
   "first_use": {
     "title": "Bienvenido a BodyMetrics",
@@ -272,6 +232,7 @@
     "btn_load": "Cargar archivos DATA.CSV",
     "drag_instruction": "Arrastra o haz clic",
     "error_title": "Error de Carga",
-    "error": "Asegúrate de que los archivos sean DATA.CSV y provengan de la carpeta DATA."
+    "error": "Asegúrate de que los archivos sean DATA.CSV y provengan de la carpeta DATA.",
+    "processing": "Reading files..."
   }
 }
