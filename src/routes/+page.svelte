@@ -840,7 +840,7 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
                     {$t('help.section_starting')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -860,7 +860,7 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
                     {$t('help.section_clients_buttons')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -882,7 +882,7 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
                     {$t('help.section_files')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -902,7 +902,7 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
                     {$t('help.section_interpretation')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -926,7 +926,7 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
                     {$t('help.section_security')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -950,7 +950,7 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
                     {$t('help.section_troubleshooting')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
