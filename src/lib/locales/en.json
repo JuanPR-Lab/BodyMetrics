@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "BodyMetrics",
-    "subtitle": "Body Composition Analysis with total privacy.",
+    "subtitle": "Body Composition Analysis with complete privacy.",
     "privacy_badge": "Local Data"
   },
   "common": {
@@ -14,7 +14,7 @@
     "percent": "%",
     "years": "years",
     "kcal": "kcal",
-    "rating": "level"
+    "rating": "rating"
   },
   "dashboard": {
     "tabs": {
@@ -35,11 +35,11 @@
     },
     "key_data": "Key Data",
     "action": "Action",
-    "new_alias_placeholder": "New Code or Alias",
+    "new_alias_placeholder": "Enter Code or Alias",
     "client_exists_title": "Creation Error",
     "client_exists_rename_title": "Renaming Error",
     "client_exists_message": "Client Code or Alias already exists, try another.",
-    "inbox_empty": "All caught up! No pending measurements to link, or the SD files have not been loaded",
+    "inbox_empty": "All caught up! No pending measurements found (or files not loaded)",
     "assign_btn": "Link to...",
     "create_btn": "New Client",
     "filter_placeholder": "Search client...",
@@ -48,7 +48,7 @@
     "latest_reading": "Selected Measurement",
     "client_id_placeholder": "Code or Alias",
     "evolution_chart": "Progress",
-    "detach_record": "Remove Selected Measurement",
+    "detach_record": "Unlink Measurement",
     "detach_record_title": "Unlink Measurement",
     "no_data_client": "This client has no linked measurements yet or the SD files have not been loaded.",
     "no_data_title": "No Data",
@@ -66,7 +66,7 @@
     
     "section_starting": "🚀 Getting Started",
     "starting_requirements": "Requirements",
-    "starting_requirements_text": "• Modern browser (Chrome, Brave, Safari, Edge, etc).\n• SD card with files from your Tanita BC-601/602/613.\n• **No internet required** after installation (100% Offline).",
+    "starting_requirements_text": "• Modern browser (Chrome, Brave, Safari, Edge, etc).\n• SD card with files from your Tanita BC-601/602/613.\n• **No internet connection needed** after installation (100% Offline).",
     "starting_installation": "Install as App",
     "starting_installation_text": "To use full screen and offline, look for the **'Install App'** icon in the address bar (PC) or **'Add to Home Screen'** in your browser menu (Mobile).",
     "starting_first_steps": "Daily Workflow",
@@ -74,7 +74,7 @@
 
     "section_clients_buttons": "👥 Clients & Physical Buttons",
     "clients_creation": "Privacy & Aliases",
-    "clients_creation_text": "We recommend using **Codes** (e.g., `C001`) or **Aliases** (e.g., `JUAN PR`) instead of real names. Keep a private external record (spreadsheet, notes, etc.) linking the code to the real person for maximum security.",   
+    "clients_creation_text": "We recommend using **Codes** (e.g., `C001`) or **Aliases** (e.g., `JUAN PR`) instead of real names. Keep a private external record (spreadsheet, notes, etc.) linking the code to the real name for maximum security.",   
     "clients_buttons_logic": "Button Assignment",
     "clients_buttons_logic_text": "The scale only has 4 memory slots. We recommend:\n\n• **Buttons 1, 2, & 3:** Use for yourself or fixed family members.\n• **Button 4 (Wildcard):** Use for multiple clients as described in the next section.",
     "clients_infinite_trick": "Multi-User Mode (Button 4)",
@@ -84,9 +84,9 @@
     "files_where": "SD Structure",
     "files_where_text": "The scale creates files based on the button pressed:\n• **Button 1:** `DATA1.CSV` (and `DATA5` if full).\n• **Button 2:** `DATA2.CSV` (and `DATA6`).\n• **Button 3:** `DATA3.CSV` (and `DATA7`).\n• **Button 4:** `DATA4.CSV` (and `DATA8`).",
     "files_structure": "How it works",
-    "files_structure_text": "The app reads `DATA.CSV` files but **does not modify the SD**. It creates a **'virtual link'** in the browser between the measurement date and the Client.",
+    "files_structure_text": "The app reads `DATA.CSV` files but **does not modify the SD**. It creates a **'virtual link'** within your browser between the measurement date and the Client.",
     "files_troubleshooting": "💡 Important: Old Data",
-    "files_troubleshooting_text": "If your SD has years of data, **organize in batches**:\n1. Load only Button 1 files (`DATA1`/`DATA5`) in **Inbox**.\n2. Use **Multi-Link** to assign them to 'Mom' (e.g.).\n3. Load Button 2 files (`DATA2`/`DATA6`) and assign to another client.\n4. Repeat for all.\n\nOnce history is organized, you can **load all files together** for daily use.",
+    "files_troubleshooting_text": "If your SD has years of data, **process in batches**:\n1. Load only Button 1 files (`DATA1`/`DATA5`) in **Inbox**.\n2. Use **Multi-Link** to assign them to 'Mom' (e.g.).\n3. Load Button 2 files (`DATA2`/`DATA6`) and assign to another client.\n4. Repeat for all.\n\nOnce history is organized, you can **load all files together** for daily use.",
 
     "section_interpretation": "📊 Interpretation",
     "interpretation_main_metrics": "Health Indicators",
@@ -94,14 +94,14 @@
     "interpretation_segmental": "Segmental",
     "interpretation_segmental_text": "Detect asymmetries and prevent injuries! Visualize hidden muscle imbalances (e.g., a weaker leg after recovery) or sports adaptations (e.g., dominant arm in tennis) to correct them in time.",
     "interpretation_health_states": "Dynamic Ranges",
-    "interpretation_health_states_text": "'Healthy' ranges are not fixed: the app calculates them automatically following the **scale manual**, adapting to the exact age and gender for each measurement.",
+    "interpretation_health_states_text": "'Healthy' ranges are not fixed: the app calculates them automatically based on **scale's manual**, adapting to the exact age and gender for each measurement.",
     "interpretation_export": "Export Data",
-    "interpretation_export_text": "In the client profile, press **Spreadsheet** to download a clean `ClientAlias.csv` file with the full history. Compatible with Excel, LibreOffice, or Google Sheets.",
+    "interpretation_export_text": "In the client profile, press **Spreadsheet** to download a formatted `ClientAlias.csv` file with the full history. Compatible with Excel, LibreOffice, or Google Sheets.",
 
     "section_security": "🔒 Security",
     "security_local_data": "Local Privacy",
     "security_local_data_text": "BodyMetrics has no server or cloud. **Your data never leaves your device**.",
-    "security_link": "The Link (Cache)",
+    "security_link": "Browser Cache (Links)",
     "security_link_text": "The app runs in your browser. If you clear \"browsing data\", the links are lost, but **the SD data remains safe**.",
     "security_backups": "Backups",
     "security_backups_text": "It is **vital** to go to Settings > **Download Backup** regularly. This generates a `bm_backup...json` file containing all links between measurements and clients.",
@@ -112,7 +112,7 @@
     "troubleshooting_common": "Which file to upload?",
     "troubleshooting_common_text": "• For new measurements: The `DATA.CSV` files from the SD.\n• To restore or sync the app: The `bm_backup...json` file.",
     "troubleshooting_missing_data": "No data shown?",
-    "troubleshooting_missing_data_text": "Every time you close the app **you must reload the SD files**. The app remembers who owns what, but needs to read the original file each session.",
+    "troubleshooting_missing_data_text": "Every time you close the app **you must reload the SD files**. The app remembers assignments, but needs to read the original file each session.",
     "troubleshooting_date": "Wrong date?",
     "troubleshooting_date_text": "If you see measurements from 2010, the scale clock reset (e.g., battery change). Configure the date on the physical scale."
   },
@@ -175,7 +175,7 @@
     "total_measurements": "Linked Measurements",
     "section_save": "BACK UP YOUR DATA",
     "section_restore": "RESTORE YOUR DATA",
-    "drag_backup": "Drag or click",
+    "drag_backup": "Drag & Drop or Click",
     "danger_zone_title": "Danger Zone",
     "backup_section": "Your Backups",
     "btn_export": "Download Backup",
@@ -184,7 +184,7 @@
     "import_success_title": "Import Successful",
     "import_error": "File does not look like a valid backup.",
     "import_error_title": "Import Error",
-    "delete_all_btn": "Factory Reset"
+    "delete_all_btn": "Factory Reset (Clear Data)"
   },
   "actions": {
     "save": "Save",
@@ -227,12 +227,12 @@
   },
   "upload": {
     "instruction_title": "Data Upload & Linking",
-    "instruction_text": "Locate this folder on your SD card:",
+    "instruction_text": "Navigate to this folder on your SD card:",
     "instruction_path": "/TANITA/GRAPHV1/DATA/",
     "btn_load": "Load DATA.CSV files",
-    "drag_instruction": "Drag or click",
+    "drag_instruction": "Drag & Drop or Click",
     "error_title": "Upload Error",
-    "error": "Ensure that the files are DATA.CSV and come from the DATA folder.",
+    "error": "Please ensure files are named DATA.CSV and come from the DATA folder.",
     "processing": "Reading files..."
   }
 }
