@@ -1,6 +1,6 @@
-// Updated import to use the new generic type
 import type { BioMetricRecord } from './csvSDparser';
 
+// Helper: Download blob logic
 const downloadFile = (content: string, filename: string, mimeType: string) => {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
@@ -13,16 +13,23 @@ const downloadFile = (content: string, filename: string, mimeType: string) => {
   URL.revokeObjectURL(url);
 };
 
+// Helper: Get YYYY-MM-DD string
+const getTodayStr = () => new Date().toISOString().split('T')[0];
+
 /**
- * Export data to CSV format optimized for Excel/LibreOffice (European Format).
- * Features:
- * - Uses semicolon (;) delimiter instead of comma.
- * - Replaces decimal dots (.) with commas (,).
- * - WRAPS ALL VALUES IN QUOTES to prevent column shifting issues.
- * - Adds BOM (\uFEFF) for correct UTF-8 character encoding.
+ * EXPORT 1: Client Data (CSV)
+ * optimized for Excel/LibreOffice (European Format).
  */
-export const exportToCSV = (data: BioMetricRecord[], headersMap: Record<string, string>, filename = 'data.csv') => {
+export const exportToCSV = (
+  data: BioMetricRecord[], 
+  headersMap: Record<string, string>, 
+  clientName: string = 'Client'
+) => {
   if (!data || data.length === 0) return;
+
+  // Logic: Sanitize filename
+  const cleanName = clientName.replace(/[^a-z0-9]/gi, '_');
+  const filename = `BodyMetrics_${cleanName}_${getTodayStr()}.csv`;
 
   // 1. Define strict column order
   const columns: (keyof BioMetricRecord)[] = [
@@ -35,6 +42,7 @@ export const exportToCSV = (data: BioMetricRecord[], headersMap: Record<string, 
 
   // 2. Build Header Row (Quoted & Semicolon separated)
   const headerRow = columns.map(col => {
+    // Fallback to internal key if translation is missing
     const label = headersMap[col] || col; 
     return `"${String(label).replace(/"/g, '""')}"`;
   }).join(';');
@@ -46,7 +54,7 @@ export const exportToCSV = (data: BioMetricRecord[], headersMap: Record<string, 
       
       if (val === undefined || val === null) return '""';
 
-      // CRITICAL FIX: Wrap numbers in quotes too after converting dot to comma
+      // FORMAT: Number -> String with Comma (European)
       if (typeof val === 'number') {
         return `"${val.toString().replace('.', ',')}"`;
       }
@@ -55,25 +63,18 @@ export const exportToCSV = (data: BioMetricRecord[], headersMap: Record<string, 
     }).join(';');
   });
 
-  // 4. Combine and Download with BOM
+  // 4. Add BOM (Byte Order Mark) for UTF-8 Excel compatibility
   const csvContent = '\uFEFF' + [headerRow, ...bodyRows].join('\n');
+  
   downloadFile(csvContent, filename, 'text/csv;charset=utf-8;');
 };
 
-export const exportToJSON = (data: BioMetricRecord[], filename = 'backup_full.json') => {
+/**
+ * EXPORT 2: Full Backup (JSON)
+ * Used to restore app state.
+ */
+export const exportToJSON = (data: BioMetricRecord[], filenameArg?: string) => {
+  const filename = filenameArg || `BodyMetrics_Backup_${getTodayStr()}.json`;
   const jsonContent = JSON.stringify(data, null, 2);
   downloadFile(jsonContent, filename, 'application/json');
-};
-
-export const exportToXML = (data: BioMetricRecord[], filename = 'data.xml') => {
-  let xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n<BodyMetrics>\n';
-  data.forEach(record => {
-    xmlContent += '  <Record>\n';
-    Object.entries(record).forEach(([key, value]) => {
-      xmlContent += `    <${key}>${value}</${key}>\n`;
-    });
-    xmlContent += '  </Record>\n';
-  });
-  xmlContent += '</BodyMetrics>';
-  downloadFile(xmlContent, filename, 'application/xml');
 };
