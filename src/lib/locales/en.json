@@ -203,7 +203,8 @@
     "reset_title": "Factory Reset",
     "reset_confirm": "Are you sure? This will delete ALL client lists and links from this browser. This cannot be undone.",
     "delete_client_title": "Delete Client",
-    "delete_client_confirm": "Are you sure? This client will be deleted and their measurements will return to the Inbox."  
+    "delete_client_confirm": "Are you sure? This client will be deleted and their measurements will return to the Inbox.",
+    "detach_record_confirm": "Are you sure you want to unlink this measurement? The record will return to the Inbox and can be linked to a different client."
   },
   "first_use": {
     "title": "Welcome to BodyMetrics",

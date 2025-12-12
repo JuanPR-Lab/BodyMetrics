@@ -182,7 +182,7 @@
     "btn_import": "Cargar Copia de Seguridad",
     "import_success": "¡Datos recuperados con éxito!",
     "import_success_title": "Importación Exitosa",
-    "import_error": "El archivo está dañado o no es válido.",
+    "import_error": "El archivo no parece una copia de seguridad válida.",
     "import_error_title": "Error de Importación",
     "delete_all_btn": "Restablecer de Fábrica (Borrar Datos)"
   },
@@ -203,7 +203,8 @@
     "reset_title": "Restablecer de Fábrica",
     "reset_confirm": "¿Estás seguro? Esta acción borrará TODA la lista de clientes y sus vínculos en este navegador. No se puede deshacer.",
     "delete_client_title": "Eliminar Cliente",
-    "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones se desvincularán y volverán a la bandeja de Entrada."
+    "delete_client_confirm": "¿Seguro que quieres eliminar este cliente? Sus mediciones se desvincularán y volverán a la bandeja de Entrada.",
+    "detach_record_confirm": "¿Estás seguro de que quieres desvincular esta medición? El registro volverá a la bandeja de Entrada y podrá ser vinculado a otro cliente."
   },
   "first_use": {
     "title": "Bienvenido a BodyMetrics",

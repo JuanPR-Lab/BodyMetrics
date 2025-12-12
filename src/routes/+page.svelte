@@ -52,7 +52,7 @@
     metricUnit: "text-sm font-medium text-slate-500 ml-1",
     divider: "w-px h-10 bg-slate-200 mx-2"
   };
-
+  let promptInput: HTMLInputElement;
   // --- STATE ---
   let allRecords: BioMetricRecord[] = [];
   let clients: Client[] = [];
@@ -429,9 +429,11 @@
   const unassignCurrentRecord = () => {
       if (!currentRecord) return;
       const $t = get(t);
+      
+      // *** CAMBIO AQUÍ ***
       showConfirm(
-        $t('dashboard.detach_record_title'),
-        $t('dashboard.detach_record') + '?',
+        $t('dashboard.detach_record_title'), // Título: "Unlink Measurement"
+        $t('alerts.detach_record_confirm'),  // Nuevo texto de confirmación
         () => {
           PatientManager.unassignRecord(currentRecord.id);
           refreshClients();
@@ -686,11 +688,16 @@
   const showPrompt = (title: string, message: string, initialValue: string, onConfirm: () => void) => {
     modalTitle = title;
     modalMessage = message;
-    modalInputValue = initialValue; // Pre-llenar con el nombre actual
+    modalInputValue = initialValue; 
     modalType = 'prompt';
     modalConfirmCallback = onConfirm;
     modalCancelCallback = null;
     showModal = true;
+    
+    // Pone el foco después de que Svelte haya renderizado el modal
+    setTimeout(() => {
+      promptInput?.focus(); 
+    }, 0); 
   };
 
   const handleModalConfirm = () => {
@@ -779,10 +786,23 @@
   >
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm transition-all backdrop-blur-sm bg-white/95">
       <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
+        
         <div class="flex items-center gap-1.5 sm:gap-3">
-          <div class="bg-indigo-600 text-white px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl font-black text-lg sm:text-xl tracking-tighter shadow-md">BM</div>
+          
+          <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl shadow-md flex-shrink-0 overflow-hidden">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+               <rect x="0" y="0" width="512" height="512" rx="128" fill="#4f46e5"/>
+               
+               <g transform="translate(106, 60)">
+                 <circle cx="150" cy="50" r="45" fill="white"/>
+                 <rect x="110" y="120" width="80" height="260" rx="10" fill="white"/>
+                 <rect x="40" y="120" width="60" height="180" rx="10" fill="white" opacity="0.9" transform="rotate(30, 100, 120)"/>
+                 <rect x="200" y="120" width="60" height="180" rx="10" fill="white" opacity="0.9" transform="rotate(-30, 200, 120)"/>
+               </g>
+             </svg>
+          </div>
           <div><h1 class="text-base sm:text-xl font-bold text-slate-800 leading-none">{$t('app.title')}</h1></div>
-      </div>
+        </div>
 
       <div class="flex items-center gap-1.5 sm:gap-3">
           
@@ -1774,7 +1794,12 @@
         <!-- Global Modal Component -->
         {#if showModal}
           <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto animate-slide-up" on:keydown|stopPropagation>
+            <div 
+              class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto animate-slide-up" 
+              on:keydown|stopPropagation
+              role="dialog" 
+              aria-modal="true"
+              tabindex="-1"  >
               <div class="p-6">
                 <div class="flex items-center gap-3 mb-4">
                   {#if modalType === 'error'}
@@ -1801,10 +1826,11 @@
                     <div>
                         <input 
                             type="text" 
+                            bind:this={promptInput}
                             bind:value={modalInputValue}
                             class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
                             placeholder="{$t('dashboard.new_alias_placeholder')}" 
-                            autofocus
+                            
                             on:keydown={(e) => e.key === 'Enter' && handleModalConfirm()} 
                         />
                     </div>
