@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "BodyMetrics",
-    "subtitle": "Segmental Body Composition Analysis with total privacy.",
+    "subtitle": "Body Composition Analysis with total privacy.",
     "privacy_badge": "Local Data"
   },
   "common": {
@@ -14,7 +14,7 @@
     "percent": "%",
     "years": "years",
     "kcal": "kcal",
-    "rating": "lvl"
+    "rating": "level"
   },
   "dashboard": {
     "tabs": {
@@ -39,7 +39,7 @@
     "client_exists_title": "Creation Error",
     "client_exists_rename_title": "Renaming Error",
     "client_exists_message": "Client Code or Alias already exists, try another.",
-    "inbox_empty": "All clean! No pending measurements to link, or the SD files have not been loaded.",
+    "inbox_empty": "All caught up! No pending measurements to link, or the SD files have not been loaded.",
     "assign_btn": "Link to...",
     "create_btn": "New Client",
     "filter_placeholder": "Search client...",
@@ -48,7 +48,7 @@
     "latest_reading": "Selected Measurement",
     "client_id_placeholder": "Code or Alias",
     "evolution_chart": "Progress",
-    "detach_record": "Remove this measurement from client",
+    "detach_record": "Remove Selected Measurement",
     "detach_record_title": "Unlink Measurement",
     "no_data_client": "This client has no linked measurements yet or the SD files have not been loaded.",
     "no_data_title": "No Data",
@@ -68,17 +68,17 @@
     "starting_requirements": "Requirements",
     "starting_requirements_text": "• Modern browser (Chrome, Brave, Safari, Edge, etc).\n• SD card with files from your Tanita BC-601/602/613.\n• **No internet required** after installation (100% Offline).",
     "starting_installation": "Install as App",
-    "starting_installation_text": "To use full screen and offline, look for **'Install App'** or **'Add to Home Screen'** in your browser menu (mobile or PC).",
+    "starting_installation_text": "To use full screen and offline, look for the **'Install App'** icon in the address bar (PC) or **'Add to Home Screen'** in your browser menu (Mobile).",
     "starting_first_steps": "Daily Workflow",
-    "starting_first_steps_text": "1. **Load (Inbox):** Drag `DATA.CSV` files from SD card to the app.\n2. **Link (Inbox):** Assign new measurements to a client.\n3. **Visualize (Clients):** Go to Clients tab to analyze progress.\n\n*Note: Create the profile in Clients tab first if it's a new person.*",
+    "starting_first_steps_text": "1. **Load** (Inbox): Drag/Upload `DATA.CSV` files from SD card to the app.\n2. **Link** (Inbox): Link new measurements to a client.\n3. **Visualize** (Clients): Analyze your clients progress.\n\n*Note: Create the profile in Clients tab first if it's a new person.*",
 
     "section_clients_buttons": "👥 Clients & Physical Buttons",
     "clients_creation": "Privacy & Aliases",
     "clients_creation_text": "It is recommended to use **Codes** (e.g., `C001`) or **Aliases** (e.g., `JOHN DOE`) instead of real names. Keep a private external spreadsheet or database linking the code to the real person for maximum security.",
     "clients_buttons_logic": "Button Assignment",
-    "clients_buttons_logic_text": "The scale only has 4 memory slots. We recommend:\n\n• **Buttons 1, 2, & 3:** Use for yourself or fixed family members.\n• **Button 4 (Wildcard):** Use for multiple clients with the trick next.",
-    "clients_infinite_trick": "Trick: Infinite Clients ∞",
-    "clients_infinite_trick_text": "To use **Button 4** with hundreds of people:\n\n1. ⚠️ **REMOVE SD CARD** from the scale.\n2. Hold **SET** and choose **number 4**.\n3. Configure in this order: **Birth Date**, **Gender**, **Height**, and **Activity Level**.\n4. When asked **CLr?** (Clear), select **YES**.\n5. 💾 **INSERT SD CARD**.\n6. Step on the scale to measure.\n\n**Result:** New data is saved to `DATA4.CSV` without deleting previous ones.",
+    "clients_buttons_logic_text": "The scale only has 4 memory slots. We recommend:\n\n• **Buttons 1, 2, & 3:** Use for yourself or fixed family members.\n• **Button 4 (Wildcard):** Use for multiple as described in the next section.",
+    "clients_infinite_trick": "Multi-User Mode (Button 4)",
+    "clients_infinite_trick_text": " ⚠️ **REMOVE SD CARD** from the scale.\n2. Hold **SET** and choose **number 4**.\n3. Configure in this order: **Birth Date**, **Gender**, **Height**, and **Activity Level**.\n4. When asked **CLr?** (Clear), select **YES**.\n5. 💾 **INSERT SD CARD**.\n6. Step on the scale to measure.\n\n**Result:** New data is saved to `DATA4.CSV` without deleting previous ones.",
 
     "section_files": "📁 Files & First Load",
     "files_where": "SD Structure",
@@ -86,11 +86,11 @@
     "files_structure": "How it works",
     "files_structure_text": "The app reads `DATA.CSV` files but **does not modify the SD**. It creates a **'virtual link'** in the browser between the measurement date and the Client.",
     "files_troubleshooting": "💡 Important: Old Data",
-    "files_troubleshooting_text": "If your SD has years of data, **organize by parts**:\n1. Load only Button 1 files (`DATA1`/`DATA5`) in **Inbox**.\n2. Use **Multi-Link** to assign them to 'Mom' (e.g.).\n3. Load Button 2 files (`DATA2`/`DATA6`) and assign to another client.\n4. Repeat for all.\n\nOnce history is organized, you can **load all files together** for daily use.",
+    "files_troubleshooting_text": "If your SD has years of data, **organize in batches**:\n1. Load only Button 1 files (`DATA1`/`DATA5`) in **Inbox**.\n2. Use **Multi-Link** to assign them to 'Mom' (e.g.).\n3. Load Button 2 files (`DATA2`/`DATA6`) and assign to another client.\n4. Repeat for all.\n\nOnce history is organized, you can **load all files together** for daily use.",
 
     "section_interpretation": "📊 Interpretation",
     "interpretation_main_metrics": "Health Indicators",
-    "interpretation_main_metrics_text": "• **Fat % & BMI:** Blue (Low), Green (Healthy), Yellow (Overweight), Red (Obese).\n• **Water %:** The app uses Blue (Low), Green (Healthy), or Yellow (High). Ideal range is **45-60%** (Women) and **50-65%** (Men).\n• **Visceral Fat:** **1-12** (Healthy), **13+** (Risk).\n• **Metabolic Age:** Green if **≤ real age**. Yellow if **> real age**.",
+    "interpretation_main_metrics_text": "• **Fat % & BMI:** Blue (Low), Green (Healthy), Yellow (Overweight), Red (Obese).\n• **Water %:** The app uses Blue (Low), Green (Healthy), or Yellow (High). Ideal range is **45-60%** (Women) and **50-65%** (Men).\n• **Visceral Fat:** **1-12** (Healthy), **13+** (Risk).\n• **Metabolic Age:** Green if **≤ actual age**. Yellow if **> actual age**.",
     "interpretation_segmental": "Segmental",
     "interpretation_segmental_text": "Detect asymmetries and prevent injuries! Visualize hidden muscle imbalances (e.g., a weaker leg after recovery) or sports adaptations (e.g., dominant arm in tennis) to correct them in time.",
     "interpretation_health_states": "Dynamic Ranges",
@@ -173,7 +173,7 @@
     "title": "Data Management & Security",
     "active_clients": "Active Clients",
     "total_measurements": "Linked Measurements",
-    "section_save": "SAVE YOUR DATA",
+    "section_save": "BACK UP YOUR DATA",
     "section_restore": "RESTORE YOUR DATA",
     "drag_backup": "Drag or click",
     "danger_zone_title": "Danger Zone",
