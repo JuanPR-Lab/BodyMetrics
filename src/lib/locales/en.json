@@ -68,15 +68,15 @@
     "starting_requirements": "Requirements",
     "starting_requirements_text": "• Modern browser (Chrome, Brave, Safari, Edge, etc).\n• SD card with files from your Tanita BC-601/602/613.\n• **No internet connection needed** after installation (100% Offline).",
     "starting_installation": "Install as App",
-    "starting_installation_text": "To use full screen and offline, look for the **'Install App'** icon in the address bar (PC) or **'Add to Home Screen'** in your browser menu (Mobile).",
+    "starting_installation_text": "For full screen and offline use, look for the **'Install App'** icon in the address bar (PC) or **'Add to Home Screen'** in your browser menu (Mobile).",
     "starting_first_steps": "Daily Workflow",
-    "starting_first_steps_text": "1. **Load** (Inbox): Drag/Upload `DATA.CSV` files from SD card to the app.\n2. **Link** (Inbox): Link new measurements to a client.\n3. **Visualize** (Clients): Analyze your clients progress.\n\n*Note: Create the profile in Clients tab first if it's a new person.*",
+    "starting_first_steps_text": "1. **Load** (Inbox): Drag/Upload `DATA.CSV` files from SD card to the app.\n2. **Link** (Inbox): Link new measurements to a client.\n3. **Visualize** (Clients): Analyze your clients' progress.\n\n*Note: Create the profile in Clients tab first if it's a new person.*",
 
     "section_clients_buttons": "👥 Clients & Physical Buttons",
     "clients_creation": "Privacy & Aliases",
     "clients_creation_text": "We recommend using **Codes** (e.g., `C001`) or **Aliases** (e.g., `JUAN PR`) instead of real names. Keep a private external record (spreadsheet, notes, etc.) linking the code to the real name for maximum security.",   
     "clients_buttons_logic": "Button Assignment",
-    "clients_buttons_logic_text": "The scale only has 4 memory slots. We recommend:\n\n• **Buttons 1, 2, & 3:** Use for yourself or fixed family members.\n• **Button 4 (Wildcard):** Use for multiple clients as described in the next section.",
+    "clients_buttons_logic_text": "The scale only has 4 memory slots. We recommend:\n\n• **Buttons 1, 2, & 3:** Use for yourself or regular family members.\n• **Button 4 (Wildcard):** Use for multiple clients as described in the next section.",
     "clients_infinite_trick": "Multi-User Mode (Button 4)",
     "clients_infinite_trick_text": "1. ⚠️ **REMOVE SD CARD** from the scale.\n2. Hold **SET** and choose **number 4**.\n3. Configure in this order: **Birth Date**, **Gender**, **Height**, and **Activity Level**.\n4. When asked **CLr?** (Clear), select **YES**.\n5. 💾 **INSERT SD CARD**.\n6. Step on the scale to measure.\n\n**Result:** New data is saved to `DATA4.CSV` without deleting previous ones.",
 
@@ -94,7 +94,7 @@
     "interpretation_segmental": "Segmental",
     "interpretation_segmental_text": "Detect asymmetries and prevent injuries! Visualize hidden muscle imbalances (e.g., a weaker leg after recovery) or sports adaptations (e.g., dominant arm in tennis) to correct them in time.",
     "interpretation_health_states": "Dynamic Ranges",
-    "interpretation_health_states_text": "'Healthy' ranges are not fixed: the app calculates them automatically based on **scale's manual**, adapting to the exact age and gender for each measurement.",
+    "interpretation_health_states_text": "'Healthy' ranges are not fixed: the app calculates them automatically based on the **scale's manual**, adapting to the exact age and gender for each measurement.",
     "interpretation_export": "Export Data",
     "interpretation_export_text": "In the client profile, press **Spreadsheet** to download a formatted `ClientAlias.csv` file with the full history. Compatible with Excel, LibreOffice, or Google Sheets.",
 
@@ -106,7 +106,7 @@
     "security_backups": "Backups",
     "security_backups_text": "It is **vital** to go to Settings > **Download Backup** regularly. This generates a `bm_backup...json` file containing all links between measurements and clients.",
     "security_restoration": "Restore & Sync",
-    "security_restoration_text": "Use **Upload Backup** to recover data or switch devices.\n\n⚠️ **Manual Sync:**\nData does not sync automatically. To see on mobile what you did on PC, you need to load **TWO** things:\n1. The **Backup** (`bm_backup...json`) containing the links.\n2. The **DATA.CSV** files from the SD containing the raw data.\n\nWithout both files, you won't see any measurements.",
+    "security_restoration_text": "Use **Upload Backup** to recover data or switch devices.\n\n⚠️ **Manual Sync:**\nData does not sync automatically. To sync your PC data to mobile, you need to load **TWO** things:\n1. The **Backup** (`bm_backup...json`) containing the links.\n2. The **DATA.CSV** files from the SD containing the raw data.\n\nWithout both files, you won't see any measurements.",
 
     "section_troubleshooting": "❓ FAQ / Troubleshooting",
     "troubleshooting_common": "Which file to upload?",

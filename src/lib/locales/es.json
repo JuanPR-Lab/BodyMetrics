@@ -184,7 +184,7 @@
     "import_success_title": "Importación Exitosa",
     "import_error": "El archivo está dañado o no es válido.",
     "import_error_title": "Error de Importación",
-    "delete_all_btn": "Restablecer de fábrica"
+    "delete_all_btn": "Restablecer de Fábrica (Borrar Datos)"
   },
   "actions": {
     "save": "Guardar",
