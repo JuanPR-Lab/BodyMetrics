@@ -196,6 +196,13 @@
   
   $: chartData = displayedHistory.length > 0 ? prepareSingleChart(displayedHistory, selectedChartMetric, activeChartUnitKey) : null;
 
+    // Helper to get the REAL count from the database/JSON object
+// Independent of whether the CSV data is currently loaded
+const getClientTotalCount = (client) => {
+  if (!client) return 0;
+  // CHANGE 'recordIds' to match your JSON property if different (e.g. 'measurements')
+  return client.recordIds ? client.recordIds.length : 0; 
+};
   // --- LIFECYCLE ---
   onMount(() => {
     // --- LÓGICA DE DETECCIÓN DE IDIOMA ---
@@ -735,75 +742,78 @@
 {:else}
   
   {#if showFirstUseGuide}
-    <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 animate-fade-in">
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
+    
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto overflow-hidden flex flex-col max-h-[85vh] animate-slide-up">
       
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto overflow-hidden animate-slide-up">
-        
-        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-10 text-center relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-full bg-white/10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent opacity-50 pointer-events-none"></div>
-            
-            <div class="relative z-10 flex flex-col items-center justify-center">
-                <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md leading-tight">
-                    {$t('first_use.title')}
-                </h2>
-            </div>
+      <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-4 sm:p-8 text-center relative flex-shrink-0 transition-all">
+          <div class="hidden sm:block absolute top-0 left-0 w-full h-full bg-white/10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent opacity-50 pointer-events-none"></div>
+          
+          <div class="relative z-10 flex flex-col items-center justify-center">
+              <h2 class="text-xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md leading-tight">
+                  {$t('first_use.title')}
+              </h2>
+          </div>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto p-5 sm:p-8">
+        <div class="mb-4 sm:mb-8">
+          <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2 sticky top-0 bg-white z-10">
+              {#if guideSteps[currentGuideStep].tab === 'inbox'}<Inbox class="text-indigo-500" size={18} />{/if}
+              {#if guideSteps[currentGuideStep].tab === 'clients'}<Users class="text-indigo-500" size={18} />{/if}
+              {#if guideSteps[currentGuideStep].tab === 'settings'}<Settings class="text-indigo-500" size={18} />{/if}
+              {#if guideSteps[currentGuideStep].tab === 'help'}<CircleHelp class="text-indigo-500" size={18} />{/if}
+              {$t(guideSteps[currentGuideStep].title)}
+          </h3>
+          <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+              {$t(guideSteps[currentGuideStep].description)}
+          </p>
+        </div>
+      </div>
+
+      <div class="p-4 sm:p-6 sm:pt-0 bg-white border-t border-slate-100 sm:border-none flex-shrink-0">
+        <div class="flex justify-center gap-2 mb-4 sm:mb-6">
+          {#each guideSteps as _, i}
+              <div class="h-2 rounded-full transition-all duration-300 {i === currentGuideStep ? 'w-6 sm:w-8 bg-indigo-600' : 'w-2 bg-slate-200'}"></div>
+          {/each}
         </div>
         
-        <div class="p-6 sm:p-8">
-          <div class="mb-8">
-            <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
-                {#if guideSteps[currentGuideStep].tab === 'inbox'}<Inbox class="text-indigo-500" size={20}/>{/if}
-                {#if guideSteps[currentGuideStep].tab === 'clients'}<Users class="text-indigo-500" size={20}/>{/if}
-                {#if guideSteps[currentGuideStep].tab === 'settings'}<Settings class="text-indigo-500" size={20}/>{/if}
-                {#if guideSteps[currentGuideStep].tab === 'help'}<CircleHelp class="text-indigo-500" size={20}/>{/if}
-                {$t(guideSteps[currentGuideStep].title)}
-            </h3>
-            <p class="text-slate-600 text-base leading-relaxed">
-                {$t(guideSteps[currentGuideStep].description)}
-            </p>
-          </div>
-
-          <div class="flex justify-center gap-2 mb-8">
-            {#each guideSteps as _, i}
-                <div class="h-2.5 rounded-full transition-all duration-300 {i === currentGuideStep ? 'w-8 bg-indigo-600' : 'w-2.5 bg-slate-200'}"></div>
-            {/each}
-          </div>
+        <div class="flex justify-between items-center">
+          <button
+            on:click={skipGuide}
+            class="text-slate-400 hover:text-slate-600 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors px-2 py-2"
+          >
+            {$t('first_use.skip')}
+          </button>
           
-          <div class="flex justify-between items-center pt-4 border-t border-slate-100">
-            <button
-              on:click={skipGuide}
-              class="text-slate-400 hover:text-slate-600 text-sm font-bold uppercase tracking-wider transition-colors px-2 py-1"
-            >
-              {$t('first_use.skip')}
-            </button>
-            
-            <div class="flex gap-3 items-center">
-              {#if currentGuideStep > 0}
-                <button
-                  on:click={previousGuideStep}
-                  class="w-10 h-10 rounded-full flex items-center justify-center text-indigo-600 border border-indigo-200 hover:bg-indigo-50 transition-colors"
-                  title="{$t('first_use.previous')}"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-              {/if}
-              
+          <div class="flex gap-2 sm:gap-3 items-center">
+            {#if currentGuideStep > 0}
               <button
-                on:click={nextGuideStep}
-                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-bold shadow-md shadow-indigo-200 transition-all transform active:scale-[0.98] text-sm flex items-center gap-2"
+                on:click={previousGuideStep}
+                class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-indigo-600 border border-indigo-200 hover:bg-indigo-50 transition-colors"
+                title="{$t('first_use.previous')}"
               >
-                {#if currentGuideStep === guideSteps.length - 1}
-                  {$t('first_use.finish')} 
-                {:else}
-                  {$t('first_use.next')} <ChevronRight size={18} />
-                {/if}
+                <ChevronLeft size={18} />
               </button>
-            </div>
+            {/if}
+            
+            <button
+              on:click={nextGuideStep}
+              class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-full font-bold shadow-md shadow-indigo-200 transition-all transform active:scale-[0.98] text-sm flex items-center gap-2"
+            >
+              {#if currentGuideStep === guideSteps.length - 1}
+                {$t('first_use.finish')} 
+              {:else}
+                {$t('first_use.next')} <ChevronRight size={16} />
+              {/if}
+            </button>
           </div>
         </div>
       </div>
+      
     </div>
-  {/if}
+  </div>
+{/if}
 
   <div
     role="application"
@@ -1269,14 +1279,8 @@
           <table class="w-full text-sm text-left">
             <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase text-xs tracking-wider">
               <tr>
-                <th class="px-6 py-4 w-16 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
-                    on:change={selectAllInboxMeasurements}
-                    class="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                  />
-                </th>
+                <th class="px-6 py-4 w-16 text-center"></th>
+                
                 <th class="px-6 py-4">{$t('analysis.date')}</th>
                 <th class="px-6 py-4">{$t('metrics.weight')}</th>
                 <th class="px-6 py-4">{$t('dashboard.key_data')}</th>
@@ -1347,28 +1351,28 @@
     </div>
   </div>
 {/if}
-
         {#if currentTab === 'clients'}
           <div class="flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[800px] animate-fade-in">
             
             <div class="lg:col-span-1 flex flex-col gap-3 sm:gap-4 h-auto lg:h-full">
+  
   <div class="bg-indigo-50 p-3 sm:p-4 rounded-lg shadow-sm border border-indigo-100 flex-shrink-0">
-  <h3 class="font-bold text-indigo-900 text-xs uppercase mb-2 sm:mb-3 tracking-wide">{$t('dashboard.create_btn')}</h3>
-  <div class="space-y-2">
-    <input 
-      bind:value={newClientCodeOrAlias} 
-      placeholder="{$t('dashboard.client_id_placeholder')}" 
-      class="w-full text-sm border border-indigo-200 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-    />
-    <button 
-      on:click={createClient} 
-      disabled={!newClientCodeOrAlias} 
-      class="w-full bg-gray-800 text-white text-sm font-bold py-2 rounded hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm flex items-center justify-center gap-2"
-    >
-      <CheckCircle size={14} /> {$t('actions.save')}
-    </button>
+    <h3 class="font-bold text-indigo-900 text-xs uppercase mb-2 sm:mb-3 tracking-wide">{$t('dashboard.create_btn')}</h3>
+    <div class="space-y-2">
+      <input 
+        bind:value={newClientCodeOrAlias} 
+        placeholder="{$t('dashboard.client_id_placeholder')}" 
+        class="w-full text-sm border border-indigo-200 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+      />
+      <button 
+        on:click={createClient} 
+        disabled={!newClientCodeOrAlias} 
+        class="w-full bg-gray-800 text-white text-sm font-bold py-2 rounded hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm flex items-center justify-center gap-2"
+      >
+        <CheckCircle size={14} /> {$t('actions.save')}
+      </button>
+    </div>
   </div>
-</div>
   
   <div class="lg:hidden bg-white rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
     <button
@@ -1376,11 +1380,9 @@
         class="w-full flex items-center justify-center px-3 py-5 font-medium text-gray-700 hover:bg-gray-50 transition relative"
     >
         <Users class="text-indigo-600 absolute left-3 top-1/2 -translate-y-1/2" size={20} />
-
         <span class="text-sm font-bold text-gray-700 uppercase absolute left-1/2 -translate-x-1/2">
             {$t('dashboard.client_list_title')}
         </span>
-        
         {#if isClientListOpen}
             <ChevronDown class="text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 rotate-180 transition-transform" size={16} />
         {:else}
@@ -1393,50 +1395,38 @@
         <div class="p-2 border-b bg-gray-50">
           <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
         </div>
+        
         <div class="max-h-[300px] overflow-y-auto p-1 sm:p-2 space-y-1">
-          {#each paginatedClients as client (client.id)}
-            <button
-              on:click={() => {
-                selectedClientId = client.id;
-                isClientListOpen = false;
-              }}
-              class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}"
-            >
-              <div class="truncate pr-2 flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
-                <div class="font-semibold truncate">{client.alias}</div>
-              </div>
-              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
-                {PatientManager.getClientHistory(client.id, allRecords).length}
-              </span>
-            </button>
-          {/each}
+          {#if clients.length === 0}
+             <div class="p-4 text-center text-xs text-slate-400 italic">
+                {$t('dashboard.no_clients_created')}
+             </div>
+          {:else}
+              {#each paginatedClients as client (client.id)}
+                <button
+                  on:click={() => { selectedClientId = client.id; isClientListOpen = false; }}
+                  class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}"
+                >
+                  <div class="truncate pr-2 flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
+                    <div class="font-semibold truncate">{client.alias}</div>
+                  </div>
+                  <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
+                    {getClientTotalCount(client)}
+                  </span>
+                </button>
+              {/each}
+          {/if}
         </div>
         
         {#if filteredClients.length > clientsPerPage}
-          <div class="border-t border-gray-200 p-2 bg-gray-50 flex flex-col gap-2">
-            <div class="flex justify-between items-center">
-              <button
-                on:click={() => currentPage = Math.max(1, currentPage - 1)}
-                disabled={currentPage === 1}
-                class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              
-              <span class="text-xs text-gray-500 whitespace-nowrap">
-                {$t('dashboard.pagination.page_of', { values: { current: currentPage, total: totalPages } })}
-              </span>
-              
-              <button
-                on:click={() => currentPage = Math.min(totalPages, currentPage + 1)}
-                disabled={currentPage === totalPages}
-                class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
+           <div class="border-t border-gray-200 p-2 bg-gray-50 flex flex-col gap-2">
+             <div class="flex justify-between items-center">
+               <button on:click={() => currentPage = Math.max(1, currentPage - 1)} disabled={currentPage === 1} class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"><ChevronLeft size={16} /></button>
+               <span class="text-xs text-gray-500 whitespace-nowrap">{$t('dashboard.pagination.page_of', { values: { current: currentPage, total: totalPages } })}</span>
+               <button on:click={() => currentPage = Math.min(totalPages, currentPage + 1)} disabled={currentPage === totalPages} class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"><ChevronRight size={16} /></button>
+             </div>
+           </div>
         {/if}
       </div>
     {/if}
@@ -1446,18 +1436,28 @@
     <div class="p-2 border-b bg-gray-50">
       <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
     </div>
+    
     <div class="overflow-y-auto flex-1 p-1 sm:p-2 space-y-1">
-      {#each paginatedClients as client (client.id)}
-        <button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}">
-          <div class="truncate pr-2 flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
-            <div class="font-semibold truncate">{client.alias}</div>
-          </div>
-          <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
-             {PatientManager.getClientHistory(client.id, allRecords).length}
-          </span>
-        </button>
-      {/each}
+      {#if clients.length === 0}
+         <div class="flex flex-col items-center justify-center h-32 text-center p-4">
+            <Users size={24} class="text-slate-300 mb-2" />
+            <p class="text-xs text-slate-400 italic leading-relaxed">
+                {$t('dashboard.no_clients_created')}
+            </p>
+         </div>
+      {:else}
+          {#each paginatedClients as client (client.id)}
+            <button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}">
+              <div class="truncate pr-2 flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
+                <div class="font-semibold truncate">{client.alias}</div>
+              </div>
+              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
+                 {getClientTotalCount(client)}
+              </span>
+            </button>
+          {/each}
+      {/if}
     </div>
     
     {#if filteredClients.length > clientsPerPage}
@@ -1565,27 +1565,45 @@
                 </div>
 
                 <div class="w-full flex-shrink-0 bg-gray-50 p-2 sm:p-3 rounded-xl border border-gray-200 shadow-inner overflow-x-auto scrollbar-thin">
-                  {#if displayedHistory.length === 0}
-                    <p class="text-xs sm:text-sm text-gray-400 text-center py-2">{$t('dashboard.no_data_client')}</p>
-                  {:else}
-                    <div class="flex gap-2 sm:gap-3">
-                      {#each displayedHistory as rec (rec.id)}
-                        <button
-                          on:click={() => selectedRecordId = rec.id}
-                          class="flex-shrink-0 w-[85px] sm:w-[85px] p-2 rounded-lg border text-left transition-all touch-manipulation relative
-                          {selectedRecordId === rec.id ||
-                          (!selectedRecordId && rec === currentRecord)
-                            ? 'border-indigo-400 bg-indigo-50 shadow-md transform scale-105 z-10' 
-                            : 'bg-white border-gray-200 opacity-80 hover:opacity-100'
-                          }"
-                        >
-                           <div class="text-[12px] sm:text-[13px] text-gray-500 uppercase font-bold mb-1 leading-tight">{rec.date} <br><span class="font-normal opacity-75 text-[11px] sm:text-[12px]">{rec.time}</span></div>
-                           <div class="font-black text-gray-800 text-lg sm:text-xl">{rec.weight}<span class="text-xs sm:text-sm font-normal text-gray-400 ml-0.5">{$t('units.kg')}</span></div>
-                        </button>
-                      {/each}
-                    </div>
-                  {/if}
-                </div>
+  {#if displayedHistory.length === 0}
+    {@const currentClient = clients.find(c => c.id === selectedClientId)}
+    {@const totalLinked = getClientTotalCount(currentClient)}
+    
+    <div class="flex flex-col items-center justify-center py-4 text-center px-4 w-full h-[85px] sm:h-[105px]">
+      
+      {#if totalLinked === 0}
+        <div class="text-gray-400 flex flex-col items-center gap-1">
+            <span class="text-xs italic">{$t('dashboard.client_no_history')}</span>
+        </div>
+      
+      {:else}
+        <div class="flex items-center gap-3 text-amber-600 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200 shadow-sm animate-pulse">
+           <AlertCircle size={18} class="flex-shrink-0" />
+           <p class="text-xs font-bold text-left">
+             {$t('dashboard.client_data_missing', { count: totalLinked })}
+           </p>
+        </div>
+      {/if}
+    </div>
+  {:else}
+    <div class="flex gap-2 sm:gap-3">
+      {#each displayedHistory as rec (rec.id)}
+        <button
+          on:click={() => selectedRecordId = rec.id}
+          class="flex-shrink-0 w-[85px] sm:w-[85px] p-2 rounded-lg border text-left transition-all touch-manipulation relative
+          {selectedRecordId === rec.id ||
+          (!selectedRecordId && rec === currentRecord)
+            ? 'border-indigo-400 bg-indigo-50 shadow-md transform scale-105 z-10' 
+            : 'bg-white border-gray-200 opacity-80 hover:opacity-100'
+          }"
+        >
+           <div class="text-[12px] sm:text-[13px] text-gray-500 uppercase font-bold mb-1 leading-tight">{rec.date} <br><span class="font-normal opacity-75 text-[11px] sm:text-[12px]">{rec.time}</span></div>
+           <div class="font-black text-gray-800 text-lg sm:text-xl">{rec.weight}<span class="text-xs sm:text-sm font-normal text-gray-400 ml-0.5">{$t('units.kg')}</span></div>
+        </button>
+      {/each}
+    </div>
+  {/if}
+</div>
                 
                 {#if currentRecord}
                   <div class="flex flex-col sm:flex-row items-center sm:justify-between gap-3 sm:gap-0 -mt-2 mb-4 border-b border-gray-100 pb-3 w-full">
