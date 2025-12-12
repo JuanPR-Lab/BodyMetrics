@@ -39,7 +39,7 @@
     "client_exists_title": "Creation Error",
     "client_exists_rename_title": "Renaming Error",
     "client_exists_message": "Client Code or Alias already exists, try another.",
-    "inbox_empty": "All caught up! No pending measurements to link, or the SD files have not been loaded.",
+    "inbox_empty": "All caught up! No pending measurements to link, or the SD files have not been loaded",
     "assign_btn": "Link to...",
     "create_btn": "New Client",
     "filter_placeholder": "Search client...",
@@ -76,7 +76,7 @@
     "clients_creation": "Privacy & Aliases",
     "clients_creation_text": "It is recommended to use **Codes** (e.g., `C001`) or **Aliases** (e.g., `JOHN DOE`) instead of real names. Keep a private external spreadsheet or database linking the code to the real person for maximum security.",
     "clients_buttons_logic": "Button Assignment",
-    "clients_buttons_logic_text": "The scale only has 4 memory slots. We recommend:\n\n• **Buttons 1, 2, & 3:** Use for yourself or fixed family members.\n• **Button 4 (Wildcard):** Use for multiple as described in the next section.",
+    "clients_buttons_logic_text": "The scale only has 4 memory slots. We recommend:\n\n• **Buttons 1, 2, & 3:** Use for yourself or fixed family members.\n• **Button 4 (Wildcard):** Use for multiple clients as described in the next section.",
     "clients_infinite_trick": "Multi-User Mode (Button 4)",
     "clients_infinite_trick_text": " ⚠️ **REMOVE SD CARD** from the scale.\n2. Hold **SET** and choose **number 4**.\n3. Configure in this order: **Birth Date**, **Gender**, **Height**, and **Activity Level**.\n4. When asked **CLr?** (Clear), select **YES**.\n5. 💾 **INSERT SD CARD**.\n6. Step on the scale to measure.\n\n**Result:** New data is saved to `DATA4.CSV` without deleting previous ones.",
 
@@ -106,7 +106,7 @@
     "security_backups": "Backups",
     "security_backups_text": "It is **vital** to go to Settings > **Download Backup** regularly. This generates a `bm_backup...json` file containing all links between measurements and clients.",
     "security_restoration": "Restore & Sync",
-    "security_restoration_text": "Use **Upload Backup** to recover data or switch devices.\n\n⚠️ **Manual Sync:**\nData does not travel alone. To see on mobile what you did on PC, you need to load **TWO** things:\n1. The **Backup** (`bm_backup...json`) containing the links.\n2. The **DATA.CSV** files from the SD containing the raw data.\n\nWithout both files, you won't see any measurements.",
+    "security_restoration_text": "Use **Upload Backup** to recover data or switch devices.\n\n⚠️ **Manual Sync:**\nData does not sync automatically. To see on mobile what you did on PC, you need to load **TWO** things:\n1. The **Backup** (`bm_backup...json`) containing the links.\n2. The **DATA.CSV** files from the SD containing the raw data.\n\nWithout both files, you won't see any measurements.",
 
     "section_troubleshooting": "❓ FAQ / Troubleshooting",
     "troubleshooting_common": "Which file to upload?",
@@ -137,7 +137,7 @@
     "water": "Body Water",
     "bone_mass": "Bone Mass",
     "metabolic_age": "Metabolic Age",
-    "dci": "Daily Intake"
+    "dci": "Daily Calorie Intake"
   },
   "csv_headers": {
     "date": "Date",

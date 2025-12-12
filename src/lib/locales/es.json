@@ -39,7 +39,7 @@
     "client_exists_title": "Error al Crear",
     "client_exists_rename_title": "Error al Renombrar",
     "client_exists_message": "El Código o Alias del cliente ya existe, prueba con otro.",
-    "inbox_empty": "¡Todo al día! No hay nuevas mediciones o falta cargar los archivos de la SD.",
+    "inbox_empty": "¡Todo al día! No hay nuevas mediciones o falta cargar los archivos de la SD",
     "assign_btn": "Vincular a...",
     "create_btn": "Nuevo Cliente",
     "filter_placeholder": "Buscar cliente...",
@@ -184,7 +184,7 @@
     "import_success_title": "Importación Exitosa",
     "import_error": "El archivo está dañado o no es válido.",
     "import_error_title": "Error de Importación",
-    "delete_all_btn": "BORRAR TODOS LOS DATOS"
+    "delete_all_btn": "Restablecer de fábrica"
   },
   "actions": {
     "save": "Guardar",
