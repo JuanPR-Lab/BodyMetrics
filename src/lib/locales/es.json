@@ -74,7 +74,7 @@
 
     "section_clients_buttons": "👥 Clientes y Botones Físicos",
     "clients_creation": "Privacidad y Alias",
-    "clients_creation_text": "Se recomienda usar **Códigos** (ej: `C001`) o **Alias** (ej: `JUAN PR`) en lugar de nombres reales. Guarda un documento privado (Hoja de datos, notas, etc.) relacionando el código o alias con la persona real para máxima seguridad.",
+    "clients_creation_text": "Se recomienda usar **Códigos** (ej: `C001`) o **Alias** (ej: `JUAN PR`) en lugar de nombres reales. Guarda un documento privado (hoja de cáculo, notas, etc.) relacionando el código o alias con la persona real para máxima seguridad.",
     "clients_buttons_logic": "Asignación de Botones",
     "clients_buttons_logic_text": "La báscula solo tiene 4 memorias. Recomendamos:\n\n• **Botones 1, 2 y 3:** Úsalos para ti o familiares fijos.\n• **Botón 4 (Comodín):** Úsalo para medir a múltiples clientes como se describe en la siguiente sección.",
     "clients_infinite_trick": "Modo Multiusuario (Botón 4)",
@@ -82,11 +82,11 @@
 
     "section_files": "📁 Archivos y Primera Carga",
     "files_where": "Estructura en la SD",
-    "files_where_text": "La báscula guarda los datos en los archivos según el botón pulsado:\n• **Botón 1:** `DATA1.CSV` (y `DATA5` si llena).\n• **Botón 2:** `DATA2.CSV` (y `DATA6`).\n• **Botón 3:** `DATA3.CSV` (y `DATA7`).\n• **Botón 4:** `DATA4.CSV` (y `DATA8`).",
+    "files_where_text": "La báscula guarda los datos en los archivos según el botón pulsado:\n• **Botón 1:** `DATA1.CSV` (y `DATA5` si se llena).\n• **Botón 2:** `DATA2.CSV` (y `DATA6`).\n• **Botón 3:** `DATA3.CSV` (y `DATA7`).\n• **Botón 4:** `DATA4.CSV` (y `DATA8`).",
     "files_structure": "Cómo funciona",
     "files_structure_text": "La app lee los archivos `DATA.CSV` pero **no modifica la SD**. Crea un **'vínculo virtual'** en el navegador entre la fecha de la medición y el Cliente.",
     "files_troubleshooting": "💡 Importante: Datos Antiguos",
-    "files_troubleshooting_text": "Si tu SD tiene años de datos, **hazlo por partes** para organizarte:\n1. Carga solo los archivos del Botón 1 (`DATA1.CSV` y `DATA5.CSV`) en **Entrada**.\n2. Usa **Vinculación Múltiple** para asignarlos a 'Mamá' (ej).\n3. Carga ahora los del Botón 2 (`DATA2`/`DATA6`) y asigna a otro cliente.\n4. Repite con todos.\n\nUna vez organizado el histórico, para el día a día ya podrás **cargar todos los archivos juntos**.",
+    "files_troubleshooting_text": "Si tu SD tiene años de datos, **hazlo por partes** para organizarte:\n1. Carga solo los archivos del Botón 1 (`DATA1` y `DATA5`) en **Entrada**.\n2. Usa **Vinculación Múltiple** para asignarlos a 'Mamá' (ej.).\n3. Carga ahora los del Botón 2 (`DATA2`/`DATA6`) y asigna a otro cliente.\n4. Repite con todos.\n\nUna vez organizado el histórico, para el día a día ya podrás **cargar todos los archivos juntos**.",
 
     "section_interpretation": "📊 Interpretación",
     "interpretation_main_metrics": "Semáforos de Salud",
