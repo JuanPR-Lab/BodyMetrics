@@ -1355,123 +1355,123 @@
           <div class="flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[800px] animate-fade-in">
             
             <div class="lg:col-span-1 flex flex-col gap-3 sm:gap-4 h-auto lg:h-full">
-              <div class="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
-                <h3 class="font-bold text-gray-700 text-xs uppercase mb-2 sm:mb-3 tracking-wide">{$t('dashboard.create_btn')}</h3>
-                <div class="space-y-2">
-                  <input 
-                    bind:value={newClientCodeOrAlias} 
-                    placeholder="{$t('dashboard.client_id_placeholder')}" 
-                    class="w-full text-sm border border-gray-200 rounded px-3 py-2 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                  />
-                  <button 
-                    on:click={createClient} 
-                    disabled={!newClientCodeOrAlias} 
-                    class="w-full bg-gray-800 text-white text-sm font-bold py-2 rounded hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm flex items-center justify-center gap-2"
-                  >
-                    <CheckCircle size={14} /> {$t('actions.save')}
-                  </button>
-                </div>
-              </div>
-              
-              <div class="lg:hidden bg-white rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
-                <button
-                    on:click={() => isClientListOpen = !isClientListOpen}
-                    class="w-full flex items-center justify-center px-3 py-5 font-medium text-gray-700 hover:bg-gray-50 transition relative"
-                >
-                    <Users class="text-indigo-600 absolute left-3 top-1/2 -translate-y-1/2" size={20} />
+  <div class="bg-indigo-50 p-3 sm:p-4 rounded-lg shadow-sm border border-indigo-100 flex-shrink-0">
+  <h3 class="font-bold text-indigo-900 text-xs uppercase mb-2 sm:mb-3 tracking-wide">{$t('dashboard.create_btn')}</h3>
+  <div class="space-y-2">
+    <input 
+      bind:value={newClientCodeOrAlias} 
+      placeholder="{$t('dashboard.client_id_placeholder')}" 
+      class="w-full text-sm border border-indigo-200 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+    />
+    <button 
+      on:click={createClient} 
+      disabled={!newClientCodeOrAlias} 
+      class="w-full bg-gray-800 text-white text-sm font-bold py-2 rounded hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm flex items-center justify-center gap-2"
+    >
+      <CheckCircle size={14} /> {$t('actions.save')}
+    </button>
+  </div>
+</div>
+  
+  <div class="lg:hidden bg-white rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
+    <button
+        on:click={() => isClientListOpen = !isClientListOpen}
+        class="w-full flex items-center justify-center px-3 py-5 font-medium text-gray-700 hover:bg-gray-50 transition relative"
+    >
+        <Users class="text-indigo-600 absolute left-3 top-1/2 -translate-y-1/2" size={20} />
 
-                    <span class="text-sm font-bold text-gray-700 uppercase absolute left-1/2 -translate-x-1/2">
-                        {$t('dashboard.client_list_title')}
-                    </span>
-                    
-                    {#if isClientListOpen}
-                        <ChevronDown class="text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 rotate-180 transition-transform" size={16} />
-                    {:else}
-                        <ChevronDown class="text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 transition-transform" size={16} />
-                    {/if}
-                </button>
-                
-                {#if isClientListOpen}
-                  <div class="border-t border-gray-100">
-                    <div class="p-2 border-b bg-gray-50">
-                      <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
-                    </div>
-                    <div class="max-h-[300px] overflow-y-auto p-1 sm:p-2 space-y-1">
-                      {#each paginatedClients as client (client.id)}
-                        <button
-                          on:click={() => {
-                            selectedClientId = client.id;
-                            isClientListOpen = false;
-                          }}
-                          class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}"
-                        >
-                          <div class="truncate pr-2 flex items-center gap-2">
-                            <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
-                            <div class="font-semibold truncate">{client.alias}</div>
-                          </div>
-                          <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
-                            {PatientManager.getClientHistory(client.id, allRecords).length}
-                          </span>
-                        </button>
-                      {/each}
-                    </div>
-                    
-                    {#if filteredClients.length > clientsPerPage}
-                      <div class="border-t border-gray-200 p-2 bg-gray-50 flex flex-col gap-2">
-                        <div class="flex justify-between items-center">
-                          <button
-                            on:click={() => currentPage = Math.max(1, currentPage - 1)}
-                            disabled={currentPage === 1}
-                            class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <ChevronLeft size={16} />
-                          </button>
-                          
-                          <span class="text-xs text-gray-500 whitespace-nowrap">
-                            {$t('dashboard.pagination.page_of', { values: { current: currentPage, total: totalPages } })}
-                          </span>
-                          
-                          <button
-                            on:click={() => currentPage = Math.min(totalPages, currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <ChevronRight size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    {/if}
-                  </div>
-                {/if}
+        <span class="text-sm font-bold text-gray-700 uppercase absolute left-1/2 -translate-x-1/2">
+            {$t('dashboard.client_list_title')}
+        </span>
+        
+        {#if isClientListOpen}
+            <ChevronDown class="text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 rotate-180 transition-transform" size={16} />
+        {:else}
+            <ChevronDown class="text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 transition-transform" size={16} />
+        {/if}
+    </button>
+    
+    {#if isClientListOpen}
+      <div class="border-t border-gray-100">
+        <div class="p-2 border-b bg-gray-50">
+          <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
+        </div>
+        <div class="max-h-[300px] overflow-y-auto p-1 sm:p-2 space-y-1">
+          {#each paginatedClients as client (client.id)}
+            <button
+              on:click={() => {
+                selectedClientId = client.id;
+                isClientListOpen = false;
+              }}
+              class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}"
+            >
+              <div class="truncate pr-2 flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
+                <div class="font-semibold truncate">{client.alias}</div>
               </div>
+              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
+                {PatientManager.getClientHistory(client.id, allRecords).length}
+              </span>
+            </button>
+          {/each}
+        </div>
+        
+        {#if filteredClients.length > clientsPerPage}
+          <div class="border-t border-gray-200 p-2 bg-gray-50 flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <button
+                on:click={() => currentPage = Math.max(1, currentPage - 1)}
+                disabled={currentPage === 1}
+                class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft size={16} />
+              </button>
               
-              <div class="hidden lg:flex bg-white rounded-lg shadow-sm border border-gray-200 flex-1 overflow-hidden flex-col h-[600px]">
-                <div class="p-2 border-b bg-gray-50">
-                  <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
-                </div>
-                <div class="overflow-y-auto flex-1 p-1 sm:p-2 space-y-1">
-                  {#each paginatedClients as client (client.id)}
-                    <button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}">
-                      <div class="truncate pr-2 flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
-                        <div class="font-semibold truncate">{client.alias}</div>
-                      </div>
-                      <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
-                         {PatientManager.getClientHistory(client.id, allRecords).length}
-                      </span>
-                    </button>
-                  {/each}
-                </div>
-                
-                {#if filteredClients.length > clientsPerPage}
-                  <div class="border-t border-gray-200 p-2 bg-gray-50 flex justify-center gap-4 items-center">
-                      <button on:click={() => currentPage = Math.max(1, currentPage - 1)} disabled={currentPage === 1} class="p-1 rounded border hover:bg-gray-50 disabled:opacity-50"><ChevronLeft size={16}/></button>
-                      <span class="text-xs text-gray-500">{$t('dashboard.pagination.page_of', { values: { current: currentPage, total: totalPages } })}</span>
-                      <button on:click={() => currentPage = Math.min(totalPages, currentPage + 1)} disabled={currentPage === totalPages} class="p-1 rounded border hover:bg-gray-50 disabled:opacity-50"><ChevronRight size={16}/></button>
-                  </div>
-                {/if}
-              </div>
+              <span class="text-xs text-gray-500 whitespace-nowrap">
+                {$t('dashboard.pagination.page_of', { values: { current: currentPage, total: totalPages } })}
+              </span>
+              
+              <button
+                on:click={() => currentPage = Math.min(totalPages, currentPage + 1)}
+                disabled={currentPage === totalPages}
+                class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
+          </div>
+        {/if}
+      </div>
+    {/if}
+  </div>
+  
+  <div class="hidden lg:flex bg-white rounded-lg shadow-sm border border-gray-200 flex-1 overflow-hidden flex-col h-[600px]">
+    <div class="p-2 border-b bg-gray-50">
+      <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
+    </div>
+    <div class="overflow-y-auto flex-1 p-1 sm:p-2 space-y-1">
+      {#each paginatedClients as client (client.id)}
+        <button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}">
+          <div class="truncate pr-2 flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
+            <div class="font-semibold truncate">{client.alias}</div>
+          </div>
+          <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
+             {PatientManager.getClientHistory(client.id, allRecords).length}
+          </span>
+        </button>
+      {/each}
+    </div>
+    
+    {#if filteredClients.length > clientsPerPage}
+      <div class="border-t border-gray-200 p-2 bg-gray-50 flex justify-center gap-4 items-center">
+          <button on:click={() => currentPage = Math.max(1, currentPage - 1)} disabled={currentPage === 1} class="p-1 rounded border hover:bg-gray-50 disabled:opacity-50"><ChevronLeft size={16}/></button>
+          <span class="text-xs text-gray-500">{$t('dashboard.pagination.page_of', { values: { current: currentPage, total: totalPages } })}</span>
+          <button on:click={() => currentPage = Math.min(totalPages, currentPage + 1)} disabled={currentPage === totalPages} class="p-1 rounded border hover:bg-gray-50 disabled:opacity-50"><ChevronRight size={16}/></button>
+      </div>
+    {/if}
+  </div>
+</div>
             
             <div class="lg:col-span-3 flex flex-col gap-4 sm:gap-6 h-full lg:overflow-y-auto lg:pr-1 lg:pb-10">
               {#if !selectedClientId}
@@ -1541,13 +1541,29 @@
                         </div>
                     </div>
                     
-                    <div class="flex items-center gap-1 sm:ml-auto border rounded px-2 py-1 bg-gray-50 flex-shrink-0 mt-2 sm:mt-0">
-                       <span class="text-xs text-gray-500 font-medium whitespace-nowrap">{$t('dashboard.filters.from')}</span>
-                       <input type="date" bind:value={customDateStart} on:change={() => currentFilter = 'custom'} class="text-xs bg-transparent outline-none w-[120px]" placeholder="dd/mm/yyyy" />
-                       <span class="text-gray-400 font-bold">→</span>
-                       <span class="text-xs text-gray-500 font-medium whitespace-nowrap">{$t('dashboard.filters.to')}</span>
-                       <input type="date" bind:value={customDateEnd} on:change={() => currentFilter = 'custom'} class="text-xs bg-transparent outline-none w-[120px]" placeholder="dd/mm/yyyy" />
-                    </div>
+                    <div class="flex items-center gap-2 sm:ml-auto border border-slate-200 rounded-xl px-4 py-2 bg-white flex-shrink-0 mt-2 sm:mt-0 shadow-sm transition-colors hover:border-indigo-300">
+    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{$t('dashboard.filters.from')}</span>
+    
+    <input 
+      type="date" 
+      bind:value={customDateStart} 
+      on:change={() => currentFilter = 'custom'} 
+      class="text-xs text-gray-500 font-bold bg-transparent outline-none cursor-pointer hover:text-indigo-600 transition-colors" 
+      placeholder="dd/mm/yyyy" 
+    />
+    
+    <span class="text-slate-300 mx-1">|</span>
+    
+    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{$t('dashboard.filters.to')}</span>
+    
+    <input 
+      type="date" 
+      bind:value={customDateEnd} 
+      on:change={() => currentFilter = 'custom'} 
+      class="text-xs text-gray-500 font-bold bg-transparent outline-none cursor-pointer hover:text-indigo-600 transition-colors" 
+      placeholder="dd/mm/yyyy" 
+    />
+</div>
                   </div>
                 </div>
 
