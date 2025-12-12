@@ -62,6 +62,7 @@
   // --- STATE ---
   let allRecords: BioMetricRecord[] = [];
   let clients: Client[] = [];
+  let clientCounts: Record<string, number> = {};
   
   // UI State
   let currentTab: 'inbox' | 'clients' | 'settings' | 'help' = 'inbox';
@@ -198,10 +199,9 @@
 
     // Helper to get the REAL count from the database/JSON object
 // Independent of whether the CSV data is currently loaded
-const getClientTotalCount = (client) => {
+const getClientTotalCount = (client: Client) => {
   if (!client) return 0;
-  // CHANGE 'recordIds' to match your JSON property if different (e.g. 'measurements')
-  return client.recordIds ? client.recordIds.length : 0; 
+  return clientCounts[client.id] || 0;
 };
   // --- LIFECYCLE ---
   onMount(() => {
@@ -223,20 +223,21 @@ const getClientTotalCount = (client) => {
             locale.set('en');
         }
     }
-    refreshClients();
-    const today = new Date().toISOString().split('T')[0];
-    customDateEnd = today;
-    
-    // Check if first use (no clients and no associations)
+    function refreshClients() {
+  clients = PatientManager.getClients();
+  // Obtenemos los conteos una sola vez al refrescar
+  clientCounts = PatientManager.getClientCounts(); 
+
+  allRecords = [...allRecords];
+
+  if (showFirstUseGuide) {
     const hasClients = clients.length > 0;
     const hasAssociations = allRecords.some(r => PatientManager.getClientForRecord(r.id));
-    
-    if (!hasClients && !hasAssociations) {
-      showFirstUseGuide = true;
-      currentTab = 'inbox';
-    } else if (clients.length === 0) {
-      currentTab = 'help';
+    if (hasClients || hasAssociations) {
+      showFirstUseGuide = false;
     }
+  }
+}
   });
 
   // --- ACTIONS ---

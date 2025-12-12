@@ -92,6 +92,28 @@ export const PatientManager = {
   },
 
   /**
+   * Returns a map of record counts per client.
+   * Optimized to avoid looping through localStorage in the UI.
+   * Example: { 'client_id_1': 5, 'client_id_2': 0 }
+   */
+  getClientCounts(): Record<string, number> {
+    const db = this.loadDB();
+    const counts: Record<string, number> = {};
+
+    // Initialize all clients with 0
+    db.clients.forEach(c => counts[c.id] = 0);
+
+    // Count assignments
+    Object.values(db.assignments).forEach(clientId => {
+      if (counts[clientId] !== undefined) {
+        counts[clientId]++;
+      }
+    });
+
+    return counts;
+  },
+
+  /**
    * Creates a new client profile.
    * @returns true if created, false if ID already exists.
    */
@@ -132,8 +154,9 @@ export const PatientManager = {
     
     this.saveDB(db);
   },
+
   /**
-   * Actualiza el alias (nombre) de un cliente sin cambiar su ID.
+   * Updates a client's alias without changing their ID.
    */
   renameClient(id: string, newAlias: string): boolean {
     const db = this.loadDB();
@@ -157,13 +180,12 @@ export const PatientManager = {
     db.assignments[recordId] = clientId;
     this.saveDB(db);
   },
+
   /**
-   * Returns the total number of linked records in the database,
-   * regardless of whether the CSV data is currently loaded or not.
+   * Returns the total number of linked records in the database.
    */
   getAssignmentCount(): number {
     const db = this.loadDB();
-    // Si assignments no existe por algún motivo, devuelve 0
     return Object.keys(db.assignments || {}).length;
   },
 
@@ -198,7 +220,6 @@ export const PatientManager = {
     const clientRecords = allCsvRecords.filter(r => db.assignments[r.id] === clientId);
     
     // Sort by date descending (newest first) based on ID string comparison
-    // (Assuming ID format YYYY... or consistent date format from parser)
     return clientRecords.sort((a, b) => b.id.localeCompare(a.id));
   },
 
@@ -206,8 +227,8 @@ export const PatientManager = {
 
   /**
    * Exports the local database (clients + assignments) to a JSON file.
-   * UPDATED: Uses LOCAL SYSTEM TIME to avoid UTC offsets.
-   * Format: bodymetrics_backup_YYYY-MM-DD_HH-mm-ss.json
+   * Uses LOCAL SYSTEM TIME to avoid UTC offsets.
+   * Format: bm_backup_YYYY-MM-DD_HH-mm-ss.json
    */
   exportBackup() {
     const db = this.loadDB();
@@ -216,16 +237,14 @@ export const PatientManager = {
     // Helper to pad numbers with leading zero (e.g. 5 -> "05")
     const pad = (n: number) => n.toString().padStart(2, '0');
 
-    // Manually construct Date and Time using local getters
     const year = now.getFullYear();
     const month = pad(now.getMonth() + 1); // getMonth is 0-indexed
     const day = pad(now.getDate());
     
-    const hours = pad(now.getHours());     // getHours returns local time
+    const hours = pad(now.getHours());
     const minutes = pad(now.getMinutes());
     const seconds = pad(now.getSeconds());
     
-    // Assemble filename (colons replaced by hyphens for OS compatibility)
     const filename = `bm_backup_${year}-${month}-${day}_${hours}-${minutes}-${seconds}.json`;
     
     triggerDownload(JSON.stringify(db, null, 2), filename);
