@@ -1066,290 +1066,287 @@
       {/if}
 
       {#if currentTab === 'inbox'}
-        <div class="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
-          
-          <div class="text-center pt-4 sm:pt-8 space-y-4">
-            <h2 class="text-xl sm:text-3xl font-black text-slate-800">
-              {$t('upload.instruction_title')}
-            </h2>
-            
-            <div class="flex flex-col items-center gap-2">
-                <p class="text-sm text-slate-500 font-medium">{$t('upload.instruction_text')}</p>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-slate-100 border border-slate-200 rounded-full font-mono text-xs sm:text-sm text-slate-600 shadow-sm">
-                    <FolderOpen size={16} class="text-indigo-500" />
-                    <span class="font-bold tracking-wide">{$t('upload.instruction_path')}</span>
-                </div>
-            </div>
+  <div class="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
+    
+    <div class="text-center pt-4 sm:pt-8 space-y-4">
+      <h2 class="text-xl sm:text-3xl font-black text-slate-800">
+        {$t('upload.instruction_title')}
+      </h2>
+      
+      <div class="flex flex-col items-center gap-2">
+          <p class="text-sm text-slate-500 font-medium">{$t('upload.instruction_text')}</p>
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-slate-100 border border-slate-200 rounded-full font-mono text-xs sm:text-sm text-slate-600 shadow-sm">
+              <FolderOpen size={16} class="text-indigo-500" />
+              <span class="font-bold tracking-wide">{$t('upload.instruction_path')}</span>
           </div>
+      </div>
+    </div>
 
-          <div class="max-w-3xl mx-auto">
-            <div class="relative group">
-                <div class="border-2 border-dashed border-indigo-200 rounded-2xl p-8 sm:p-12 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer flex flex-col items-center justify-center gap-3">
-                     
-                     {#if isProcessing}
-                        <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                        <h3 class="text-sm font-bold text-indigo-600 animate-pulse">{$t('upload.processing')}...</h3>
-                     {:else}
-                        <div class="p-4 rounded-full bg-white/50 mb-2 group-hover:scale-110 transition-transform duration-300">
-                            <Upload size={40} class="text-indigo-600" strokeWidth={1.5} />
-                        </div>
-                        
-                        <div class="flex flex-col gap-1">
-                            <span class="font-bold text-lg text-indigo-700">
-                                {$t('upload.btn_load')}
-                            </span>
-                            <span class="text-sm text-indigo-400 font-medium">
-                                {$t('upload.drag_instruction')}
-                            </span>
-                        </div>
-                     {/if}
-                </div>
-
-                <input
-                    bind:this={fileInput}
-                    type="file"
-                    multiple
-                    accept=".csv,text/csv,application/vnd.ms-excel"
-                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    disabled={isProcessing}
-                    on:click={(e) => { e.currentTarget.value = ''; }}
-                    on:change={(e)=>handleFiles((e.currentTarget as HTMLInputElement).files)}
-                    on:drop|preventDefault={(e) => { isDragging = false; handleFiles(e.dataTransfer?.files || null); }}
-                    on:dragover|preventDefault={() => isDragging = true}
-                    on:dragleave|preventDefault={() => isDragging = false}
-                />
-            </div>
-
-            {#if errorMessage}
-              <div class="mt-4 sm:mt-6 mx-auto max-w-lg bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-lg animate-pulse flex items-start gap-3 shadow-sm">
-                <AlertTriangle class="text-rose-600 flex-shrink-0" size={20} />
-                <div>
-                  <h4 class="font-bold text-rose-700 text-sm">Error</h4>
-                  <p class="text-sm text-rose-600">{errorMessage}</p>
-                </div>
-              </div>
-            {/if}
-          </div>
-
-          <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[150px] sm:min-h-[200px] mt-4 sm:mt-6">
-            
-            {#if inboxRecords.length === 0}
-              <div class="p-8 text-center h-full flex flex-col justify-center items-center py-12">
-                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                  <Inbox class="text-slate-300" size={40} strokeWidth={1.5} />
-                </div>
-                <h3 class="text-slate-400 font-medium text-lg">{$t('dashboard.inbox_empty')}</h3>
-              </div>
-            {:else}
-              <div class="bg-slate-50 p-4 border-b border-slate-200 sticky top-0 z-20 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3 w-full sm:w-auto">
-                   <label class="flex items-center gap-2 cursor-pointer select-none group">
-                      <input
-                        type="checkbox"
-                        checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
-                        on:change={selectAllInboxMeasurements}
-                        class="h-5 w-5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 transition-all cursor-pointer"
-                      />
-                      <span class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">
-                        {selectedInboxMeasurements.length > 0 
-                          ? `${selectedInboxMeasurements.length} ${$t('dashboard.records_selected')}`
-                          : $t('dashboard.multi_assignment')}
-                      </span>
-                   </label>
-                </div>
+    <div class="max-w-3xl mx-auto">
+      <div class="relative group">
+          <div class="border-2 border-dashed border-indigo-200 rounded-2xl p-8 sm:p-12 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer flex flex-col items-center justify-center gap-3">
                
-                {#if selectedInboxMeasurements.length > 0}
-                  <div class="flex gap-2 w-full sm:w-auto animate-fade-in">
-                    <button
-                      on:click={() => selectedInboxMeasurements = []}
-                      class="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 border border-slate-300 hover:border-slate-400 rounded-lg bg-white transition-colors"
-                    >
-                      {$t('actions.cancel')}
-                    </button>
-                    <div class="relative flex-1 sm:w-64">
-                      <input
-                        type="text"
-                        placeholder="{$t('dashboard.assign_btn')}"
-                        class="w-full text-sm border border-indigo-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm outline-none"
-                        bind:value={bulkAssignSearch}
-                      />
-                      {#if bulkAssignSearch}
-                        <div class="absolute top-full left-0 right-0 mt-2 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-30">
-                          {#each filteredBulkClients as c}
-                            <button
-                              on:click={() => assignBulkMeasurements(c.id)}
-                              class="w-full text-left px-4 py-3 text-sm hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0 font-medium text-slate-700"
-                            >
-                              {c.alias}
-                            </button>
-                          {/each}
-                        </div>
-                      {/if}
-                    </div>
+               {#if isProcessing}
+                  <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                  <h3 class="text-sm font-bold text-indigo-600 animate-pulse">{$t('upload.processing')}...</h3>
+               {:else}
+                  <div class="p-4 rounded-full bg-white/50 mb-2 group-hover:scale-110 transition-transform duration-300">
+                      <Upload size={40} class="text-indigo-600" strokeWidth={1.5} />
                   </div>
-                {/if}
-              </div>
-
-              <div class="block lg:hidden bg-slate-50/50 p-3 space-y-3">
-                {#each inboxRecords as rec (rec.id)}
-                  <div class="bg-white p-4 rounded-xl shadow-sm border transition-all duration-200 relative
-                    {selectedInboxMeasurements.includes(rec.id) 
-                      ? 'border-indigo-500 bg-indigo-50/30 ring-1 ring-indigo-500' 
-                      : 'border-slate-200 hover:border-indigo-300'}"
-                  >
-                    <div class="flex items-start gap-4">
-                       <div class="flex-shrink-0 pt-1">
-                          <input
-                            type="checkbox"
-                            checked={selectedInboxMeasurements.includes(rec.id)}
-                            on:change={() => toggleInboxSelection(rec.id)}
-                            class="h-6 w-6 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
-                          />
-                       </div>
-
-                       <div class="flex-1 min-w-0">
-                          <div class="flex justify-between items-start gap-2 mb-2">
-                             <div>
-                               <div class="font-bold text-slate-800 text-lg leading-tight">{rec.date}</div>
-                               <div class="text-xs text-slate-500 font-mono mt-0.5 flex items-center gap-1">
-                                   <Clock size={10} /> {rec.time}
-                               </div>
-                             </div>
-                             
-                             <div class="text-right">
-                               <div class="text-2xl font-black text-slate-800 leading-none">{rec.weight}<span class="text-sm font-medium text-slate-400 ml-0.5">kg</span></div>
-                             </div>
-                          </div>
-
-                          <div class="flex flex-wrap gap-2 mb-3">
-                              <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-xs font-bold whitespace-nowrap">
-                                {rec.height}cm
-                              </span>
-                              <span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded text-xs font-medium whitespace-nowrap">
-                                {$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
-                              </span>
-                              <span class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-700 rounded text-xs font-medium whitespace-nowrap">
-                                {rec.age} {$t('units.years')}
-                              </span>
-                          </div>
-
-                          <div class="pt-3 border-t border-slate-100">
-                            {#if clients.length === 0}
-                              <div class="text-xs text-slate-400 italic text-center">{$t('dashboard.no_clients_created')}</div>
-                            {:else}
-                              <div class="relative">
-                                <input
-                                  type="text"
-                                  placeholder="{$t('dashboard.assign_btn')}"
-                                  class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors"
-                                  bind:value={assignmentSearchTerms[rec.id]}
-                                />
-                                {#if assignmentSearchTerms[rec.id]}
-                                  <div class="absolute bottom-full left-0 right-0 mb-1 max-h-40 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-10">
-                                    {#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
-                                      <button
-                                        on:click={() => { assignRecord(rec.id, c.id); assignmentSearchTerms[rec.id] = ''; }}
-                                        class="w-full text-left px-4 py-2 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0"
-                                      >
-                                        {c.alias}
-                                      </button>
-                                    {/each}
-                                  </div>
-                                {/if}
-                              </div>
-                            {/if}
-                          </div>
-                       </div>
-                    </div>
+                  
+                  <div class="flex flex-col gap-1">
+                      <span class="font-bold text-lg text-indigo-700">
+                          {$t('upload.btn_load')}
+                      </span>
+                      <span class="text-sm text-indigo-400 font-medium">
+                          {$t('upload.drag_instruction')}
+                      </span>
                   </div>
-                 {/each}
-              </div>
+               {/if}
+          </div>
 
-              <div class="hidden lg:block overflow-x-auto">
-                <table class="w-full text-sm text-left">
-                  <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase text-xs tracking-wider">
-                    <tr>
-                      <th class="px-6 py-4 w-16 text-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
-                          on:change={selectAllInboxMeasurements}
-                          class="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                        />
-                      </th>
-                      <th class="px-6 py-4">{$t('analysis.date')}</th>
-                      <th class="px-6 py-4">{$t('metrics.weight')}</th>
-                      <th class="px-6 py-4">{$t('dashboard.key_data')}</th>
-                      <th class="px-6 py-4 text-right w-64">{$t('dashboard.action')}</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-slate-100">
-                    {#each inboxRecords as rec (rec.id)}
-                      <tr class="hover:bg-slate-50/80 transition-colors {selectedInboxMeasurements.includes(rec.id) ? 'bg-indigo-50/40' : ''}">
-                        <td class="px-6 py-4 text-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedInboxMeasurements.includes(rec.id)}
-                            on:change={() => toggleInboxSelection(rec.id)}
-                            class="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
-                          />
-                        </td>
-                        <td class="px-6 py-4">
-                           <div class="font-bold text-slate-700">{rec.date}</div>
-                           <div class="text-xs text-slate-400 font-mono mt-0.5">{rec.time}</div>
-                        </td>
-                        <td class="px-6 py-4">
-                           <span class="text-lg font-black text-slate-800">{rec.weight}</span> 
-                           <span class="text-xs text-slate-500">kg</span>
-                        </td>
-                        <td class="px-6 py-4">
-                           <div class="flex flex-wrap gap-2 text-xs">
-                             <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded font-bold">
-                               {rec.height}cm
-                             </span>
-                             <span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded font-medium">
-                               {$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
-                             </span>
-                             <span class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-700 rounded font-medium">
-                               {rec.age} {$t('units.years')}
-                             </span>
-                           </div>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                          {#if clients.length === 0}
-                            <span class="text-xs text-slate-400 italic pr-2">{$t('dashboard.no_clients_created')}</span>
-                          {:else}
-                            <div class="relative w-56 ml-auto">
-                              <input
-                                type="text"
-                                placeholder="{$t('dashboard.assign_btn')}"
-                                class="w-full text-xs border border-slate-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
-                                bind:value={assignmentSearchTerms[rec.id]}
-                              />
-                              {#if assignmentSearchTerms[rec.id]}
-                                <div class="absolute top-full right-0 w-full mt-1 max-h-40 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-xl z-50 text-left">
-                                  {#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
-                                    <button
-                                      on:click={() => { assignRecord(rec.id, c.id); assignmentSearchTerms[rec.id] = ''; }}
-                                      class="w-full text-left px-4 py-2 text-xs hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0"
-                                    >
-                                      {c.alias}
-                                    </button>
-                                  {/each}
-                                </div>
-                              {/if}
-                            </div>
-                          {/if}
-                        </td>
-                      </tr>
-                    {/each}
-                  </tbody>
-                </table>
-              </div>
-            {/if}
+          <input
+              bind:this={fileInput}
+              type="file"
+              multiple
+              accept=".csv,text/csv,application/vnd.ms-excel"
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              disabled={isProcessing}
+              on:click={(e) => { e.currentTarget.value = ''; }}
+              on:change={(e)=>handleFiles((e.currentTarget as HTMLInputElement).files)}
+              on:drop|preventDefault={(e) => { isDragging = false; handleFiles(e.dataTransfer?.files || null); }}
+              on:dragover|preventDefault={() => isDragging = true}
+              on:dragleave|preventDefault={() => isDragging = false}
+          />
+      </div>
+
+      {#if errorMessage}
+        <div class="mt-4 sm:mt-6 mx-auto max-w-lg bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-lg animate-pulse flex items-start gap-3 shadow-sm">
+          <AlertTriangle class="text-rose-600 flex-shrink-0" size={20} />
+          <div>
+            <h4 class="font-bold text-rose-700 text-sm">Error</h4>
+            <p class="text-sm text-rose-600">{errorMessage}</p>
           </div>
         </div>
       {/if}
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[150px] sm:min-h-[200px] mt-4 sm:mt-6">
+      
+      {#if inboxRecords.length === 0}
+        <div class="p-8 text-center h-full flex flex-col justify-center items-center py-12">
+          <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+            <Inbox class="text-slate-300" size={40} strokeWidth={1.5} />
+          </div>
+          <h3 class="text-slate-400 font-medium text-lg">{$t('dashboard.inbox_empty')}</h3>
+        </div>
+      {:else}
+        
+        <div class="bg-slate-50 p-4 border-b border-slate-200 sticky top-0 z-20 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+             <label class="flex items-center gap-2 cursor-pointer select-none group">
+                <input
+                  type="checkbox"
+                  checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
+                  on:change={selectAllInboxMeasurements}
+                  class="h-5 w-5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 transition-all cursor-pointer"
+                />
+                <span class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">
+                  {selectedInboxMeasurements.length > 0 
+                    ? `${selectedInboxMeasurements.length} ${$t('dashboard.records_selected')}`
+                    : $t('dashboard.multi_assignment')}
+                </span>
+             </label>
+          </div>
+         
+          {#if selectedInboxMeasurements.length > 0}
+            <div class="flex gap-2 w-full sm:w-auto animate-fade-in">
+              <button
+                on:click={() => selectedInboxMeasurements = []}
+                class="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 border border-slate-300 hover:border-slate-400 rounded-lg bg-white transition-colors"
+              >
+                {$t('actions.cancel')}
+              </button>
+              
+              <div class="relative flex-1 sm:w-64">
+                <input
+                  type="text"
+                  disabled={clients.length === 0}
+                  placeholder={clients.length === 0 ? $t('dashboard.no_clients_created') : $t('dashboard.assign_btn')}
+                  class="w-full text-sm border border-indigo-300 rounded-lg px-3 py-2 shadow-sm outline-none {clients.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed italic' : 'bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'}"
+                  bind:value={bulkAssignSearch}
+                />
+                {#if bulkAssignSearch && clients.length > 0}
+                  <div class="absolute top-full left-0 right-0 mt-2 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-30">
+                    {#each filteredBulkClients as c}
+                      <button
+                        on:click={() => assignBulkMeasurements(c.id)}
+                        class="w-full text-left px-4 py-3 text-sm hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0 font-medium text-slate-700"
+                      >
+                        {c.alias}
+                      </button>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            </div>
+          {/if}
+        </div>
+
+        <div class="block lg:hidden bg-slate-50/50 p-3 space-y-3">
+          {#each inboxRecords as rec (rec.id)}
+            <div class="bg-white p-4 rounded-xl shadow-sm border transition-all duration-200 relative
+              {selectedInboxMeasurements.includes(rec.id) 
+                ? 'border-indigo-500 bg-indigo-50/30 ring-1 ring-indigo-500' 
+                : 'border-slate-200 hover:border-indigo-300'}"
+            >
+              <div class="flex items-start gap-4">
+                 <div class="flex-shrink-0 pt-1">
+                    <input
+                      type="checkbox"
+                      checked={selectedInboxMeasurements.includes(rec.id)}
+                      on:change={() => toggleInboxSelection(rec.id)}
+                      class="h-6 w-6 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+                    />
+                 </div>
+
+                 <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-start gap-2 mb-2">
+                       <div>
+                         <div class="font-bold text-slate-800 text-lg leading-tight">{rec.date}</div>
+                         <div class="text-xs text-slate-500 font-mono mt-0.5 flex items-center gap-1">
+                             <Clock size={10} /> {rec.time}
+                         </div>
+                       </div>
+                       
+                       <div class="text-right">
+                         <div class="text-2xl font-black text-slate-800 leading-none">{rec.weight}<span class="text-sm font-medium text-slate-400 ml-0.5">kg</span></div>
+                       </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-xs font-bold whitespace-nowrap">
+                          {rec.height}cm
+                        </span>
+                        <span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded text-xs font-medium whitespace-nowrap">
+                          {$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
+                        </span>
+                        <span class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-700 rounded text-xs font-medium whitespace-nowrap">
+                          {rec.age} {$t('units.years')}
+                        </span>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100">
+                        <div class="relative">
+                          <input
+                            type="text"
+                            disabled={clients.length === 0}
+                            placeholder={clients.length === 0 ? $t('dashboard.no_clients_created') : $t('dashboard.assign_btn')}
+                            class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none transition-colors {clients.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed italic' : 'bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'}"
+                            bind:value={assignmentSearchTerms[rec.id]}
+                          />
+                          {#if assignmentSearchTerms[rec.id] && clients.length > 0}
+                            <div class="absolute bottom-full left-0 right-0 mb-1 max-h-40 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-10">
+                              {#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
+                                <button
+                                  on:click={() => { assignRecord(rec.id, c.id); assignmentSearchTerms[rec.id] = ''; }}
+                                  class="w-full text-left px-4 py-2 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0"
+                                >
+                                  {c.alias}
+                                </button>
+                              {/each}
+                            </div>
+                          {/if}
+                        </div>
+                    </div>
+                 </div>
+              </div>
+            </div>
+           {/each}
+        </div>
+
+        <div class="hidden lg:block overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase text-xs tracking-wider">
+              <tr>
+                <th class="px-6 py-4 w-16 text-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
+                    on:change={selectAllInboxMeasurements}
+                    class="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                  />
+                </th>
+                <th class="px-6 py-4">{$t('analysis.date')}</th>
+                <th class="px-6 py-4">{$t('metrics.weight')}</th>
+                <th class="px-6 py-4">{$t('dashboard.key_data')}</th>
+                <th class="px-6 py-4 text-right w-64">{$t('dashboard.action')}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              {#each inboxRecords as rec (rec.id)}
+                <tr class="hover:bg-slate-50/80 transition-colors {selectedInboxMeasurements.includes(rec.id) ? 'bg-indigo-50/40' : ''}">
+                  <td class="px-6 py-4 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedInboxMeasurements.includes(rec.id)}
+                      on:change={() => toggleInboxSelection(rec.id)}
+                      class="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+                    />
+                  </td>
+                  <td class="px-6 py-4">
+                     <div class="font-bold text-slate-700">{rec.date}</div>
+                     <div class="text-xs text-slate-400 font-mono mt-0.5">{rec.time}</div>
+                  </td>
+                  <td class="px-6 py-4">
+                     <span class="text-lg font-black text-slate-800">{rec.weight}</span> 
+                     <span class="text-xs text-slate-500">kg</span>
+                  </td>
+                  <td class="px-6 py-4">
+                     <div class="flex flex-wrap gap-2 text-xs">
+                       <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded font-bold">
+                         {rec.height}cm
+                       </span>
+                       <span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded font-medium">
+                         {$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
+                       </span>
+                       <span class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-700 rounded font-medium">
+                         {rec.age} {$t('units.years')}
+                       </span>
+                     </div>
+                  </td>
+                  <td class="px-6 py-4 text-right">
+                      <div class="relative w-56 ml-auto">
+                        <input
+                          type="text"
+                          disabled={clients.length === 0}
+                          placeholder={clients.length === 0 ? $t('dashboard.no_clients_created') : $t('dashboard.assign_btn')}
+                          class="w-full text-xs border border-slate-300 rounded-lg px-3 py-1.5 outline-none transition-shadow {clients.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed italic' : 'bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'}"
+                          bind:value={assignmentSearchTerms[rec.id]}
+                        />
+                        {#if assignmentSearchTerms[rec.id] && clients.length > 0}
+                          <div class="absolute top-full right-0 w-full mt-1 max-h-40 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-xl z-50 text-left">
+                            {#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
+                              <button
+                                on:click={() => { assignRecord(rec.id, c.id); assignmentSearchTerms[rec.id] = ''; }}
+                                class="w-full text-left px-4 py-2 text-xs hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0"
+                              >
+                                {c.alias}
+                              </button>
+                            {/each}
+                          </div>
+                        {/if}
+                      </div>
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {/if}
+    </div>
+  </div>
+{/if}
 
         {#if currentTab === 'clients'}
           <div class="flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[800px] animate-fade-in">
@@ -1623,88 +1620,88 @@
   
                   <div class="flex flex-col gap-3 sm:gap-4 xl:col-span-1"> 
                     <div class="grid grid-cols-2 gap-3 sm:gap-4">
-                      
-                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-800 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-                          <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.weight')}</span>
-                          <div class="flex justify-between items-end w-full">
-                              <Scale size={24} class="text-slate-300 mb-1" strokeWidth={2} />
-                              <span class="text-3xl font-black text-slate-800 leading-none">
-                                {currentRecord.weight}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
-                              </span>
-                          </div>
-                      </div>
+  
+  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-800 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.weight')}</span>
+      <div class="flex justify-between items-end w-full">
+          <Scale size={24} class="text-slate-400 mb-1" strokeWidth={2} />
+          <span class="text-3xl font-black text-slate-800 leading-none">
+            {currentRecord.weight}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
+          </span>
+      </div>
+  </div>
 
-                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-                          <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.bmi')}</span>
-                          <div class="flex justify-between items-end w-full">
-                              <Activity size={24} class="text-slate-300 mb-1" strokeWidth={2} />
-                              <span class="text-3xl font-black leading-none {getStatusColor('bmi', currentRecord.bmi).replace('bg-', 'text-').replace('-100', '-600')}">
-                                {currentRecord.bmi}
-                              </span>
-                          </div>
-                      </div>
+  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.bmi')}</span>
+      <div class="flex justify-between items-end w-full">
+          <Activity size={24} class="text-slate-400 mb-1" strokeWidth={2} />
+          <span class="text-3xl font-black leading-none {getStatusColor('bmi', currentRecord.bmi).replace('bg-', 'text-').replace('-100', '-600')}">
+            {currentRecord.bmi}
+          </span>
+      </div>
+  </div>
 
-                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-amber-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-                          <span class="text-xs font-black text-amber-600/80 uppercase tracking-widest truncate">{$t('metrics.body_fat')}</span>
-                          <div class="flex justify-between items-end w-full">
-                              <Droplets size={24} class="text-amber-200 mb-1" strokeWidth={2} />
-                              <span class="text-3xl font-black text-slate-800 leading-none">
-                                {currentRecord.bodyFat}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.percent')}</span>
-                              </span>
-                          </div>
-                      </div>
+  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-amber-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.body_fat')}</span>
+      <div class="flex justify-between items-end w-full">
+          <Droplets size={24} class="text-amber-400 mb-1" strokeWidth={2} />
+          <span class="text-3xl font-black text-slate-800 leading-none">
+            {currentRecord.bodyFat}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.percent')}</span>
+          </span>
+      </div>
+  </div>
 
-                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-                          <span class="text-xs font-black text-indigo-600/80 uppercase tracking-widest truncate">{$t('metrics.muscle_mass')}</span>
-                          <div class="flex justify-between items-end w-full">
-                              <Dumbbell size={24} class="text-indigo-200 mb-1" strokeWidth={2} />
-                              <span class="text-3xl font-black text-slate-800 leading-none">
-                                {currentRecord.muscleMass}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
-                              </span>
-                          </div>
-                      </div>
+  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.muscle_mass')}</span>
+      <div class="flex justify-between items-end w-full">
+          <Dumbbell size={24} class="text-indigo-400 mb-1" strokeWidth={2} />
+          <span class="text-3xl font-black text-slate-800 leading-none">
+            {currentRecord.muscleMass}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
+          </span>
+      </div>
+  </div>
 
-                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-cyan-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-                          <span class="text-xs font-black text-cyan-600/80 uppercase tracking-widest truncate">{$t('metrics.water')}</span>
-                          <div class="flex justify-between items-end w-full">
-                              <Droplets size={24} class="text-cyan-200 mb-1" strokeWidth={2} />
-                              <span class="text-3xl font-black text-slate-800 leading-none">
-                                {currentRecord.waterPercentage}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.percent')}</span>
-                              </span>
-                          </div>
-                      </div>
+  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-cyan-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.water')}</span>
+      <div class="flex justify-between items-end w-full">
+          <Droplets size={24} class="text-cyan-400 mb-1" strokeWidth={2} />
+          <span class="text-3xl font-black leading-none {getStatusColor('water', currentRecord.waterPercentage).replace('bg-', 'text-').replace('-100', '-600')}">
+            {currentRecord.waterPercentage}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.percent')}</span>
+          </span>
+      </div>
+  </div>
 
-                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-gray-400 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-                          <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.bone_mass')}</span>
-                          <div class="flex justify-between items-end w-full">
-                              <Bone size={24} class="text-slate-300 mb-1" strokeWidth={2} />
-                              <span class="text-3xl font-black text-slate-800 leading-none">
-                                {currentRecord.boneMass}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
-                              </span>
-                          </div>
-                      </div>
+  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-gray-400 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.bone_mass')}</span>
+      <div class="flex justify-between items-end w-full">
+          <Bone size={24} class="text-slate-400 mb-1" strokeWidth={2} />
+          <span class="text-3xl font-black text-slate-800 leading-none">
+            {currentRecord.boneMass}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
+          </span>
+      </div>
+  </div>
 
-                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-                          <span class="text-xs font-black text-emerald-600/80 uppercase tracking-widest truncate">{$t('metrics.dci')}</span>
-                          <div class="flex justify-between items-end w-full">
-                              <Flame size={24} class="text-emerald-200 mb-1" strokeWidth={2} />
-                              <span class="text-3xl font-black text-slate-800 leading-none">
-                                {currentRecord.dci}<span class="text-sm font-bold text-slate-400 ml-0.5">kcal</span>
-                              </span>
-                          </div>
-                      </div>
+  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.dci')}</span>
+      <div class="flex justify-between items-end w-full">
+          <Flame size={24} class="text-emerald-400 mb-1" strokeWidth={2} />
+          <span class="text-3xl font-black text-slate-800 leading-none">
+            {currentRecord.dci}<span class="text-sm font-bold text-slate-400 ml-0.5">kcal</span>
+          </span>
+      </div>
+  </div>
 
-                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-                          <span class="text-xs font-black text-purple-600/80 uppercase tracking-widest truncate">{$t('metrics.metabolic_age')}</span>
-                          <div class="flex justify-between items-end w-full">
-                              <Clock size={24} class="text-purple-200 mb-1" strokeWidth={2} />
-                              <span class="text-3xl font-black leading-none {getStatusColor('meta', currentRecord.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">
-                                {currentRecord.metabolicAge}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.years')}</span>
-                              </span>
-                          </div>
-                      </div>
+  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.metabolic_age')}</span>
+      <div class="flex justify-between items-end w-full">
+          <Clock size={24} class="text-purple-400 mb-1" strokeWidth={2} />
+          <span class="text-3xl font-black leading-none {getStatusColor('meta', currentRecord.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">
+            {currentRecord.metabolicAge}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.years')}</span>
+          </span>
+      </div>
+  </div>
 
-                    </div>
+</div>
                   </div>
 
                   <div class="xl:col-span-2 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
