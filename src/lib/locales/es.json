@@ -63,32 +63,28 @@
   },
   "help": {
     "page_title": "Manual de Usuario",
-    
-    "section_starting": "🚀 Primeros Pasos",
+    "section_starting": "Primeros Pasos",
     "starting_requirements": "Requisitos",
     "starting_requirements_text": "• Navegador moderno (Chrome, Brave, Safari, Edge, etc).\n• Tarjeta SD con archivos de tu Tanita BC-601/602/613.\n• **No requiere internet** tras la instalación (100% Offline).",
     "starting_installation": "Instalar como App",
     "starting_installation_text": "Para usarla a pantalla completa y sin conexión, busca el icono **'Instalar aplicación'** en la barra de direcciones (PC) o la opción **'Añadir a pantalla de inicio'** en el menú de tu navegador (Móvil).",
     "starting_first_steps": "Flujo de trabajo diario",
     "starting_first_steps_text": "1. **Cargar** (Entrada): Arrastra/Carga los archivos `DATA.CSV` de la SD a la app.\n2. **Vincular** (Entrada): Vincula las nuevas mediciones a un cliente.\n3. **Visualizar** (Clientes): Analizar el progreso de tus clientes.\n\n*Nota: Si es un cliente nuevo, créalo primero en la pestaña Clientes.*",
-
-    "section_clients_buttons": "👥 Clientes y Botones Físicos",
+    "section_clients_buttons": "Clientes y Botones Físicos",
     "clients_creation": "Privacidad y Alias",
     "clients_creation_text": "Se recomienda usar **Códigos** (ej: `C001`) o **Alias** (ej: `JUAN PR`) en lugar de nombres reales. Guarda un documento privado (hoja de cálculo, notas, etc.) relacionando el código o alias con el nombre real para máxima seguridad.",
     "clients_buttons_logic": "Asignación de Botones",
     "clients_buttons_logic_text": "La báscula solo tiene 4 memorias. Recomendamos:\n\n• **Botones 1, 2 y 3:** Úsalos para ti o familiares fijos.\n• **Botón 4 (Comodín):** Úsalo para medir a múltiples clientes como se describe en la siguiente sección.",
     "clients_infinite_trick": "Modo Multiusuario (Botón 4)",
-    "clients_infinite_trick_text": "1. ⚠️ **SACA LA TARJETA SD** de la báscula.\n2. Mantén pulsado **SET** y elige el **número 4**.\n3. Configura en este orden: **Fecha de Nacimiento**, **Sexo**, **Altura** y **Nivel de Actividad**.\n4. Cuando pregunte **CLr?** (Borrar), selecciona **YES**.\n5. 💾 **INSERTA LA SD**.\n6. Súbete a la báscula para realizar la medición.\n\n**Resultado:** Se guarda el nuevo dato en `DATA4.CSV` sin borrar los anteriores.",
-
-    "section_files": "📁 Archivos y Primera Carga",
+    "clients_infinite_trick_text": "1. **SACA LA TARJETA SD** de la báscula.\n2. Mantén pulsado **SET** y elige el **número 4**.\n3. Configura en este orden: **Fecha de Nacimiento**, **Sexo**, **Altura** y **Nivel de Actividad**.\n4. Cuando pregunte **CLr?** (Borrar), selecciona **YES**.\n5. **INSERTA LA SD**.\n6. Súbete a la báscula para realizar la medición.\n\n**Resultado:** Se guarda el nuevo dato en `DATA4.CSV` sin borrar los anteriores.",
+    "section_files": "Archivos y Primera Carga",
     "files_where": "Estructura en la SD",
     "files_where_text": "La báscula guarda los datos en los archivos según el botón pulsado:\n• **Botón 1:** `DATA1.CSV` (y `DATA5` si se llena).\n• **Botón 2:** `DATA2.CSV` (y `DATA6`).\n• **Botón 3:** `DATA3.CSV` (y `DATA7`).\n• **Botón 4:** `DATA4.CSV` (y `DATA8`).",
     "files_structure": "Cómo funciona",
     "files_structure_text": "La app lee los archivos `DATA.CSV` pero **no modifica la SD**. Crea un **'vínculo virtual'** en el navegador entre la fecha de la medición y el Cliente.",
-    "files_troubleshooting": "💡 Importante: Datos Antiguos",
+    "files_troubleshooting": "Importante: Datos Antiguos",
     "files_troubleshooting_text": "Si tu SD tiene años de datos, **procésalo por lotes** para organizarte:\n1. Carga solo los archivos del Botón 1 (`DATA1` y `DATA5`) en **Entrada**.\n2. Usa **Vinculación Múltiple** para asignarlos a 'Mamá' (ej.).\n3. Carga ahora los del Botón 2 (`DATA2`/`DATA6`) y asigna a otro cliente.\n4. Repite con todos.\n\nUna vez organizado el histórico, para el día a día ya podrás **cargar todos los archivos juntos**.",
-
-    "section_interpretation": "📊 Interpretación",
+    "section_interpretation": "Interpretación",
     "interpretation_main_metrics": "Semáforos de Salud",
     "interpretation_main_metrics_text": "• **% Grasa e IMC:** Azul (Bajo), Verde (Sano), Amarillo (Sobrepeso), Rojo (Obesidad).\n• **% Agua:** La app indicará si está bajo (Azul), sano (Verde) o alto (Amarillo). Lo ideal es **45-60%** (Mujeres) y **50-65%** (Hombres).\n• **Visceral:** **1-12** (Sano), **13+** (Riesgo).\n• **Edad Metabólica:** Verde si es **≤ edad actual**. Amarillo si es **> edad actual**.",
     "interpretation_segmental": "Segmental",
@@ -97,8 +93,7 @@
     "interpretation_health_states_text": "Los rangos de 'Saludable' no son fijos: la app los calcula automáticamente siguiendo el **manual de la báscula**, adaptándose a la edad y género exactos en cada medición.",
     "interpretation_export": "Exportar Datos",
     "interpretation_export_text": "En la ficha de cliente pulsa **Hoja de Cálculo** para descargar un archivo `AliasCliente.csv` limpio con todo el historial. Compatible con Excel, LibreOffice o Google Sheets.",
-
-    "section_security": "🔒 Seguridad",
+    "section_security": "Seguridad",
     "security_local_data": "Privacidad Local",
     "security_local_data_text": "BodyMetrics no tiene servidor ni nube. **Tus datos nunca salen de tu dispositivo**.",
     "security_link": "El Vínculo (Caché)",
@@ -106,9 +101,9 @@
     "security_backups": "Copias de Seguridad",
     "security_backups_text": "Es **vital** ir a Ajustes > **Descargar Copia** regularmente. Esto genera un archivo `bm_backup...json` con todos los vínculos entre mediciones y clientes.",
     "security_restoration": "Restaurar y Sincronizar",
-    "security_restoration_text": "Usa **Cargar Copia** para recuperar datos o cambiar de dispositivo.\n\n⚠️ **Sincronización Manual:**\nLos datos no se sincronizan automáticamente. Para ver en tu móvil lo que hiciste en el PC, necesitas cargar **DOS** cosas:\n1. La **Copia de Seguridad** (`bm_backup...json`) con los vínculos.\n2. Los archivos **DATA.CSV** de la SD con los datos brutos.\n\nSin ambos archivos, no verás las mediciones.",
-
-    "section_troubleshooting": "❓ Dudas Frecuentes",
+    "security_restoration_intro": "Usa **Cargar Copia** para recuperar datos o cambiar de dispositivo.",
+    "security_warning_sync": "**Sincronización Manual:**\nLos datos no se sincronizan automáticamente. Para pasar datos de PC a Móvil, necesitas cargar **DOS** cosas:\n1. La **Copia de Seguridad** (.json) con los vínculos.\n2. Los archivos **DATA.CSV** de la SD con los datos brutos.\n\nSin ambos archivos, no verás las mediciones.",
+    "section_troubleshooting": "Dudas Frecuentes",
     "troubleshooting_common": "¿Qué archivo subo?",
     "troubleshooting_common_text": "• Para nuevas mediciones: Los `DATA.CSV` de la SD.\n• Para restaurar o sincronizar la app: El archivo `bm_backup...json`.",
     "troubleshooting_missing_data": "¿No hay datos?",
@@ -207,23 +202,19 @@
     "detach_record_confirm": "¿Estás seguro de que quieres desvincular esta medición? El registro volverá a la bandeja de Entrada y podrá ser vinculado a otro cliente."
   },
   "first_use": {
-    "title": "Bienvenido a BodyMetrics",
+    "title": "Te damos la bienvenida a BodyMetrics",
     "step_counter": "Paso {current} de {total}",
     "skip": "Saltar tutorial",
     "previous": "Anterior",
     "next": "Siguiente",
     "finish": "Comenzar", 
-    
-    "step_inbox_title": "📥 Entrada",
+    "step_inbox_title": "Entrada",
     "step_inbox_description": "Aquí cargas los archivos de la tarjeta SD y vinculas las mediciones pendientes a los clientes que vayas creando.",
-    
-    "step_clients_title": "👥 Clientes",
+    "step_clients_title": "Clientes",
     "step_clients_description": "Crea y gestiona tus clientes. Podrás analizar su evolución con gráficas y descargar sus datos en una hoja de cálculo.",
-    
-    "step_settings_title": "⚙️ Gestión de Datos",
+    "step_settings_title": "Ajustes",
     "step_settings_description": "Consulta tus estadísticas, guarda o restaura copias de seguridad de tu trabajo y borra todos los datos si necesitas empezar de cero.",
-    
-    "step_help_title": "ℹ️ Ayuda",
+    "step_help_title": "Ayuda",
     "step_help_description": "Este es el apartado más importante. Léelo detenidamente ahora para entender cómo funciona la aplicación."
   },
   "upload": {

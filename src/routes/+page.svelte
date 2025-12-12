@@ -16,6 +16,12 @@
   import { PatientManager, type Client } from '$lib/utils/patientManager';
   import BodyMap from '$lib/components/BodyMap.svelte';
   import '$lib/i18n';
+  import { 
+    Inbox, Users, Settings, CircleHelp, Lock, UploadCloud, FolderOpen, AlertTriangle, 
+    CheckCircle, Info, Edit, Trash2, FileSpreadsheet, Undo2, Save, Download, 
+    Upload, Rocket, BarChart3, Target, ChevronDown, ChevronLeft, ChevronRight, 
+    XCircle, Scale, Activity, Droplets, Dumbbell, Flame, Bone, Clock, Search, Sparkles
+  } from 'lucide-svelte';
 
   // --- STATIC CONFIG ---
   const CHART_OPTIONS = [
@@ -722,52 +728,74 @@
 </script>
 
 {#if $isLocaleLoading}
-  <div class="flex items-center justify-center h-screen text-gray-500 font-mono animate-pulse">Loading BodyMetrics...</div>
+  <div class="flex flex-col items-center justify-center h-screen bg-slate-50 text-slate-400 gap-3">
+    <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+    <span class="font-mono text-xs uppercase tracking-widest font-bold">Cargando...</span>
+  </div>
 {:else}
+  
   {#if showFirstUseGuide}
-    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-auto">
-        <div class="p-6">
-          <div class="text-center mb-4">
-            <div class="text-4xl mb-2">🎯</div>
-            <h2 class="text-xl font-bold text-gray-800 mb-2">{$t('first_use.title')}</h2>
+    <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 animate-fade-in">
+      
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto overflow-hidden animate-slide-up">
+        
+        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-10 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full bg-white/10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent opacity-50 pointer-events-none"></div>
             
-            <p class="text-gray-600 text-sm">
-               {$t('first_use.step_counter', { values: { current: currentGuideStep + 1, total: guideSteps.length } })}
+            <div class="relative z-10 flex flex-col items-center justify-center">
+                <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md leading-tight">
+                    {$t('first_use.title')}
+                </h2>
+            </div>
+        </div>
+        
+        <div class="p-6 sm:p-8">
+          <div class="mb-8">
+            <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                {#if guideSteps[currentGuideStep].tab === 'inbox'}<Inbox class="text-indigo-500" size={20}/>{/if}
+                {#if guideSteps[currentGuideStep].tab === 'clients'}<Users class="text-indigo-500" size={20}/>{/if}
+                {#if guideSteps[currentGuideStep].tab === 'settings'}<Settings class="text-indigo-500" size={20}/>{/if}
+                {#if guideSteps[currentGuideStep].tab === 'help'}<CircleHelp class="text-indigo-500" size={20}/>{/if}
+                {$t(guideSteps[currentGuideStep].title)}
+            </h3>
+            <p class="text-slate-600 text-base leading-relaxed">
+                {$t(guideSteps[currentGuideStep].description)}
             </p>
           </div>
-          
-          <div class="mb-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">{$t(guideSteps[currentGuideStep].title)}</h3>
-            <p class="text-gray-600 text-sm leading-relaxed">{$t(guideSteps[currentGuideStep].description)}</p>
+
+          <div class="flex justify-center gap-2 mb-8">
+            {#each guideSteps as _, i}
+                <div class="h-2.5 rounded-full transition-all duration-300 {i === currentGuideStep ? 'w-8 bg-indigo-600' : 'w-2.5 bg-slate-200'}"></div>
+            {/each}
           </div>
           
-          <div class="flex justify-between items-center mt-8">
+          <div class="flex justify-between items-center pt-4 border-t border-slate-100">
             <button
               on:click={skipGuide}
-              class="text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors"
+              class="text-slate-400 hover:text-slate-600 text-sm font-bold uppercase tracking-wider transition-colors px-2 py-1"
             >
               {$t('first_use.skip')}
             </button>
             
-            <div class="flex gap-3">
+            <div class="flex gap-3 items-center">
               {#if currentGuideStep > 0}
                 <button
                   on:click={previousGuideStep}
-                  class="px-4 py-2 rounded-lg font-bold text-indigo-600 border border-indigo-200 hover:bg-indigo-50 transition-colors"
+                  class="w-10 h-10 rounded-full flex items-center justify-center text-indigo-600 border border-indigo-200 hover:bg-indigo-50 transition-colors"
+                  title="{$t('first_use.previous')}"
                 >
-                  {$t('first_use.previous')}
+                  <ChevronLeft size={20} />
                 </button>
               {/if}
               
               <button
                 on:click={nextGuideStep}
-                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-bold shadow-md shadow-indigo-200 transition-all transform active:scale-[0.98]"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-bold shadow-md shadow-indigo-200 transition-all transform active:scale-[0.98] text-sm flex items-center gap-2"
               >
                 {#if currentGuideStep === guideSteps.length - 1}
-                  {$t('first_use.finish')}
+                  {$t('first_use.finish')} 
                 {:else}
-                  {$t('first_use.next')}
+                  {$t('first_use.next')} <ChevronRight size={18} />
                 {/if}
               </button>
             </div>
@@ -788,11 +816,9 @@
       <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
         
         <div class="flex items-center gap-1.5 sm:gap-3">
-          
           <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl shadow-md flex-shrink-0 overflow-hidden">
              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                <rect x="0" y="0" width="512" height="512" rx="128" fill="#4f46e5"/>
-               
                <g transform="translate(106, 60)">
                  <circle cx="150" cy="50" r="45" fill="white"/>
                  <rect x="110" y="120" width="80" height="260" rx="10" fill="white"/>
@@ -807,7 +833,7 @@
       <div class="flex items-center gap-1.5 sm:gap-3">
           
           <span class="px-2 sm:px-3 py-1 bg-emerald-50 text-emerald-700 text-xs uppercase tracking-wider rounded-full font-semibold border border-emerald-200 shadow-sm flex items-center gap-1">
-            <span>🔒</span>
+            <Lock size={12} />
             <span class="hidden sm:inline">{$t('app.privacy_badge')}</span>
           </span>
 
@@ -831,19 +857,19 @@
       
       <div class="max-w-7xl mx-auto px-4 sm:px-6 flex gap-0 sm:gap-8 overflow-x-auto no-scrollbar border-t border-slate-100">
         <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'inbox' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'inbox'}>
-          📥 {$t('dashboard.tabs.inbox')}
+          <Inbox size={18} /> {$t('dashboard.tabs.inbox')}
           {#if inboxRecords.length > 0}
             <span class="bg-red-500 text-white text-[10px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded-full font-bold shadow-sm animate-pulse">{inboxRecords.length}</span>
           {/if}
         </button>
         <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'clients' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'clients'}>
-          👥 {$t('dashboard.tabs.clients')}
+          <Users size={18} /> {$t('dashboard.tabs.clients')}
         </button>
         <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'settings' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'settings'}>
-          ⚙️ {$t('dashboard.tabs.settings')}
+          <Settings size={18} /> {$t('dashboard.tabs.settings')}
         </button>
         <button class="flex-1 text-center py-3 sm:py-3 border-b-2 font-medium text-sm sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors touch-manipulation {currentTab === 'help' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" on:click={() => currentTab = 'help'}>
-          ℹ️ {$t('dashboard.tabs.help')}
+          <CircleHelp size={18} /> {$t('dashboard.tabs.help')}
         </button>
       </div>
     </header>
@@ -860,8 +886,8 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
-                    {$t('help.section_starting')}
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center flex items-center justify-center gap-2">
+                    <Rocket class="text-indigo-600" /> {$t('help.section_starting')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
@@ -880,30 +906,42 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
-                    {$t('help.section_clients_buttons')}
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center flex items-center justify-center gap-2">
+                    <Users class="text-indigo-600" /> {$t('help.section_clients_buttons')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.clients_creation')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_creation_text'))}</p>
                     </div>
+                    
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.clients_buttons_logic')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_buttons_logic_text'))}</p>
                     </div>
+                    
                     <div class="space-y-3">
-                        <div class="bg-amber-50 border border-amber-100 p-4 rounded-xl">
-                            <h4 class="font-bold text-amber-700 text-sm uppercase tracking-wider mb-2">{$t('help.clients_infinite_trick')}</h4>
-                            <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_infinite_trick_text'))}</p>
+                        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
+                            <div class="flex items-center gap-2 mb-2">
+                                <AlertTriangle class="text-amber-600" size={20} />
+                                <h4 class="font-bold text-amber-800 text-sm uppercase tracking-wider">
+                                    {$t('help.clients_infinite_trick')}
+                                </h4>
+                            </div>
+                            <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                                {@html formatText($t('help.clients_infinite_trick_text'))}
+                            </p>
                         </div>
                     </div>
+
                 </div>
             </div>
 
+
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
-                    {$t('help.section_files')}
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center flex items-center justify-center gap-2">
+                    <FolderOpen class="text-indigo-600" /> {$t('help.section_files')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
@@ -922,8 +960,8 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
-                    {$t('help.section_interpretation')}
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center flex items-center justify-center gap-2">
+                    <BarChart3 class="text-indigo-600" /> {$t('help.section_interpretation')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="space-y-3">
@@ -946,32 +984,51 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
-                    {$t('help.section_security')}
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center flex items-center justify-center gap-2">
+                    <Lock class="text-indigo-600" /> {$t('help.section_security')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_local_data')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_local_data_text'))}</p>
+                    
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_local_data')}</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_local_data_text'))}</p>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_link')}</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_link_text'))}</p>
+                        </div>
                     </div>
-                    <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_link')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_link_text'))}</p>
+
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_backups')}</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_backups_text'))}</p>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_restoration')}</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                {@html formatText($t('help.security_restoration_intro'))}
+                            </p>
+                            
+                            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
+                                <div class="flex items-start gap-3">
+                                    <AlertTriangle class="text-amber-600 flex-shrink-0 mt-0.5" size={18} />
+                                    <div class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                                        {@html formatText($t('help.security_warning_sync'))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_backups')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_backups_text'))}</p>
-                    </div>
-                    <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_restoration')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_restoration_text'))}</p>
-                    </div>
+
                 </div>
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center">
-                    {$t('help.section_troubleshooting')}
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center flex items-center justify-center gap-2">
+                    <CircleHelp class="text-indigo-600" /> {$t('help.section_troubleshooting')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
@@ -1019,14 +1076,13 @@
             <div class="flex flex-col items-center gap-2">
                 <p class="text-sm text-slate-500 font-medium">{$t('upload.instruction_text')}</p>
                 <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-slate-100 border border-slate-200 rounded-full font-mono text-xs sm:text-sm text-slate-600 shadow-sm">
-                    <span class="text-lg">📂</span>
+                    <FolderOpen size={16} class="text-indigo-500" />
                     <span class="font-bold tracking-wide">{$t('upload.instruction_path')}</span>
                 </div>
             </div>
           </div>
 
           <div class="max-w-3xl mx-auto">
-            
             <div class="relative group">
                 <div class="border-2 border-dashed border-indigo-200 rounded-2xl p-8 sm:p-12 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer flex flex-col items-center justify-center gap-3">
                      
@@ -1034,15 +1090,18 @@
                         <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                         <h3 class="text-sm font-bold text-indigo-600 animate-pulse">{$t('upload.processing')}...</h3>
                      {:else}
-                        <span class="text-4xl sm:text-5xl transition-transform group-hover:scale-110 mb-2">📥</span>
+                        <div class="p-4 rounded-full bg-white/50 mb-2 group-hover:scale-110 transition-transform duration-300">
+                            <Upload size={40} class="text-indigo-600" strokeWidth={1.5} />
+                        </div>
                         
-                        <span class="font-bold text-base sm:text-lg text-indigo-700">
-                            {$t('upload.btn_load')}
-                        </span>
-                        
-                        <span class="text-xs sm:text-sm text-indigo-400 font-normal">
-                            {$t('upload.drag_instruction')}
-                        </span>
+                        <div class="flex flex-col gap-1">
+                            <span class="font-bold text-lg text-indigo-700">
+                                {$t('upload.btn_load')}
+                            </span>
+                            <span class="text-sm text-indigo-400 font-medium">
+                                {$t('upload.drag_instruction')}
+                            </span>
+                        </div>
                      {/if}
                 </div>
 
@@ -1054,7 +1113,7 @@
                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     disabled={isProcessing}
                     on:click={(e) => { e.currentTarget.value = ''; }}
-                    on:change={(e)=>handleFiles((e.target as HTMLInputElement).files)}
+                    on:change={(e)=>handleFiles((e.currentTarget as HTMLInputElement).files)}
                     on:drop|preventDefault={(e) => { isDragging = false; handleFiles(e.dataTransfer?.files || null); }}
                     on:dragover|preventDefault={() => isDragging = true}
                     on:dragleave|preventDefault={() => isDragging = false}
@@ -1062,11 +1121,11 @@
             </div>
 
             {#if errorMessage}
-              <div class="mt-4 sm:mt-6 mx-auto max-w-lg bg-rose-50 border-l-4 border-rose-500 p-3 sm:p-4 rounded-r-lg animate-pulse flex items-start gap-3 shadow-sm">
-                <span class="text-lg sm:text-xl">⚠️</span>
+              <div class="mt-4 sm:mt-6 mx-auto max-w-lg bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-lg animate-pulse flex items-start gap-3 shadow-sm">
+                <AlertTriangle class="text-rose-600 flex-shrink-0" size={20} />
                 <div>
-                  <h4 class="font-bold text-rose-700 text-xs sm:text-sm">Error</h4>
-                  <p class="text-xs sm:text-sm text-rose-600">{errorMessage}</p>
+                  <h4 class="font-bold text-rose-700 text-sm">Error</h4>
+                  <p class="text-sm text-rose-600">{errorMessage}</p>
                 </div>
               </div>
             {/if}
@@ -1075,38 +1134,35 @@
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[150px] sm:min-h-[200px] mt-4 sm:mt-6">
             
             {#if inboxRecords.length === 0}
-              <div class="p-4 sm:p-8 text-center h-full flex flex-col justify-center items-center py-6 sm:py-12">
-                
-                <div class="w-12 h-12 sm:w-20 sm:h-20 bg-slate-50 rounded-full flex items-center justify-center mb-2 sm:mb-4">
-                  <span class="text-xl sm:text-4xl opacity-30 grayscale">📭</span>
+              <div class="p-8 text-center h-full flex flex-col justify-center items-center py-12">
+                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                  <Inbox class="text-slate-300" size={40} strokeWidth={1.5} />
                 </div>
-                
-                <h3 class="text-slate-400 font-medium text-xs sm:text-lg">{$t('dashboard.inbox_empty')}</h3>
+                <h3 class="text-slate-400 font-medium text-lg">{$t('dashboard.inbox_empty')}</h3>
               </div>
             {:else}
-              
-              <div class="bg-slate-50 p-3 sm:p-4 border-b border-slate-200 sticky top-0 z-20 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+              <div class="bg-slate-50 p-4 border-b border-slate-200 sticky top-0 z-20 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3 w-full sm:w-auto">
-                   <label class="flex items-center gap-2 cursor-pointer select-none">
+                   <label class="flex items-center gap-2 cursor-pointer select-none group">
                       <input
                         type="checkbox"
                         checked={selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0}
                         on:change={selectAllInboxMeasurements}
                         class="h-5 w-5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 transition-all cursor-pointer"
                       />
-                      <span class="text-xs sm:text-sm font-bold text-slate-700">
+                      <span class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">
                         {selectedInboxMeasurements.length > 0 
                           ? `${selectedInboxMeasurements.length} ${$t('dashboard.records_selected')}`
                           : $t('dashboard.multi_assignment')}
                       </span>
                    </label>
                 </div>
-                
+               
                 {#if selectedInboxMeasurements.length > 0}
                   <div class="flex gap-2 w-full sm:w-auto animate-fade-in">
                     <button
                       on:click={() => selectedInboxMeasurements = []}
-                      class="px-3 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 border border-slate-300 hover:border-slate-400 rounded-lg bg-white transition-colors"
+                      class="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 border border-slate-300 hover:border-slate-400 rounded-lg bg-white transition-colors"
                     >
                       {$t('actions.cancel')}
                     </button>
@@ -1134,15 +1190,14 @@
                 {/if}
               </div>
 
-              <div class="block lg:hidden bg-slate-50/50 p-2 sm:p-3 space-y-2 sm:space-y-3">
+              <div class="block lg:hidden bg-slate-50/50 p-3 space-y-3">
                 {#each inboxRecords as rec (rec.id)}
-                  <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border transition-all duration-200 relative
+                  <div class="bg-white p-4 rounded-xl shadow-sm border transition-all duration-200 relative
                     {selectedInboxMeasurements.includes(rec.id) 
                       ? 'border-indigo-500 bg-indigo-50/30 ring-1 ring-indigo-500' 
                       : 'border-slate-200 hover:border-indigo-300'}"
                   >
-                    <div class="flex items-start gap-6">
-                       
+                    <div class="flex items-start gap-4">
                        <div class="flex-shrink-0 pt-1">
                           <input
                             type="checkbox"
@@ -1153,50 +1208,48 @@
                        </div>
 
                        <div class="flex-1 min-w-0">
-                          <div class="flex justify-between items-center gap-2">
+                          <div class="flex justify-between items-start gap-2 mb-2">
+                             <div>
+                               <div class="font-bold text-slate-800 text-lg leading-tight">{rec.date}</div>
+                               <div class="text-xs text-slate-500 font-mono mt-0.5 flex items-center gap-1">
+                                   <Clock size={10} /> {rec.time}
+                               </div>
+                             </div>
                              
-                             <div class="flex-shrink-0 text-left">
-                               <div class="font-bold text-slate-700 text-base leading-tight">{rec.date}</div>
-                               <div class="text-xs text-slate-500 font-mono mt-0.5">{rec.time}</div>
-                             </div>
-
-                             <div class="flex items-baseline gap-0.5 flex-shrink-0 mx-auto">
-                               <span class="text-xl font-black text-slate-800">{rec.weight}</span>
-                               <span class="text-xs text-slate-500 font-medium">kg</span>
-                             </div>
-
-                             <div class="flex flex-col items-end gap-1 flex-shrink-0">
-                                  <span class="px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-xs font-bold whitespace-nowrap">
-                                    {rec.height}cm
-                                  </span>
-                                  
-                                  <span class="px-2 py-0.5 bg-white border border-slate-200 text-slate-600 rounded text-xs font-medium whitespace-nowrap">
-                                    {$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
-                                  </span>
-                                  
-                                  <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-700 rounded text-xs font-medium whitespace-nowrap">
-                                    {rec.age} {$t('units.years')}
-                                  </span>
+                             <div class="text-right">
+                               <div class="text-2xl font-black text-slate-800 leading-none">{rec.weight}<span class="text-sm font-medium text-slate-400 ml-0.5">kg</span></div>
                              </div>
                           </div>
 
-                          <div class="mt-2 pt-2 border-t border-slate-100">
+                          <div class="flex flex-wrap gap-2 mb-3">
+                              <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-xs font-bold whitespace-nowrap">
+                                {rec.height}cm
+                              </span>
+                              <span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded text-xs font-medium whitespace-nowrap">
+                                {$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
+                              </span>
+                              <span class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-700 rounded text-xs font-medium whitespace-nowrap">
+                                {rec.age} {$t('units.years')}
+                              </span>
+                          </div>
+
+                          <div class="pt-3 border-t border-slate-100">
                             {#if clients.length === 0}
-                              <div class="text-xs text-slate-400 italic text-center py-1">{$t('dashboard.no_clients_created')}</div>
+                              <div class="text-xs text-slate-400 italic text-center">{$t('dashboard.no_clients_created')}</div>
                             {:else}
                               <div class="relative">
                                 <input
                                   type="text"
                                   placeholder="{$t('dashboard.assign_btn')}"
-                                  class="w-full text-xs sm:text-sm border border-slate-200 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors"
+                                  class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors"
                                   bind:value={assignmentSearchTerms[rec.id]}
                                 />
                                 {#if assignmentSearchTerms[rec.id]}
-                                  <div class="absolute bottom-full left-0 right-0 mb-1 max-h-32 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-10">
+                                  <div class="absolute bottom-full left-0 right-0 mb-1 max-h-40 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-10">
                                     {#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
                                       <button
                                         on:click={() => { assignRecord(rec.id, c.id); assignmentSearchTerms[rec.id] = ''; }}
-                                        class="w-full text-left px-3 py-2 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+                                        class="w-full text-left px-4 py-2 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0"
                                       >
                                         {c.alias}
                                       </button>
@@ -1211,6 +1264,7 @@
                   </div>
                  {/each}
               </div>
+
               <div class="hidden lg:block overflow-x-auto">
                 <table class="w-full text-sm text-left">
                   <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase text-xs tracking-wider">
@@ -1225,9 +1279,7 @@
                       </th>
                       <th class="px-6 py-4">{$t('analysis.date')}</th>
                       <th class="px-6 py-4">{$t('metrics.weight')}</th>
-                      
                       <th class="px-6 py-4">{$t('dashboard.key_data')}</th>
-                      
                       <th class="px-6 py-4 text-right w-64">{$t('dashboard.action')}</th>
                     </tr>
                   </thead>
@@ -1255,11 +1307,9 @@
                              <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded font-bold">
                                {rec.height}cm
                              </span>
-                             
                              <span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded font-medium">
                                {$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
                              </span>
-
                              <span class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-700 rounded font-medium">
                                {rec.age} {$t('units.years')}
                              </span>
@@ -1302,54 +1352,56 @@
       {/if}
 
         {#if currentTab === 'clients'}
-          <div class="flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[800px]">
+          <div class="flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[800px] animate-fade-in">
             
             <div class="lg:col-span-1 flex flex-col gap-3 sm:gap-4 h-auto lg:h-full">
-              <!-- Create New Client Form - Always visible -->
               <div class="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
                 <h3 class="font-bold text-gray-700 text-xs uppercase mb-2 sm:mb-3 tracking-wide">{$t('dashboard.create_btn')}</h3>
                 <div class="space-y-2">
-                  <input bind:value={newClientCodeOrAlias} placeholder="{$t('dashboard.client_id_placeholder')}" class="w-full text-sm border border-gray-200 rounded px-3 py-2 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"/>
-                  <button on:click={createClient} disabled={!newClientCodeOrAlias} class="w-full bg-gray-800 text-white text-sm sm:text-sm font-bold py-2 sm:py-2 rounded hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm touch-manipulation">{$t('actions.save')}</button>
+                  <input 
+                    bind:value={newClientCodeOrAlias} 
+                    placeholder="{$t('dashboard.client_id_placeholder')}" 
+                    class="w-full text-sm border border-gray-200 rounded px-3 py-2 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                  />
+                  <button 
+                    on:click={createClient} 
+                    disabled={!newClientCodeOrAlias} 
+                    class="w-full bg-gray-800 text-white text-sm font-bold py-2 rounded hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle size={14} /> {$t('actions.save')}
+                  </button>
                 </div>
               </div>
               
-              <!-- Mobile: Accordion Client List -->
               <div class="lg:hidden bg-white rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
- <button
-    on:click={() => isClientListOpen = !isClientListOpen}
-    class="w-full flex items-center justify-center px-3 py-5 font-medium text-gray-700 hover:bg-gray-50 transition relative"
->
-    <span class="text-indigo-600 text-lg absolute left-3 top-1/2 -translate-y-1/2">
-        👥
-    </span>
+                <button
+                    on:click={() => isClientListOpen = !isClientListOpen}
+                    class="w-full flex items-center justify-center px-3 py-5 font-medium text-gray-700 hover:bg-gray-50 transition relative"
+                >
+                    <Users class="text-indigo-600 absolute left-3 top-1/2 -translate-y-1/2" size={20} />
 
-    <span class="text-sm font-bold text-gray-700 uppercase absolute left-1/2 -translate-x-1/2">
-        {$t('dashboard.client_list_title')}
-    </span>
-    
-    <span 
-        class="text-gray-400 flex-shrink-0 transition-transform duration-300 absolute right-3 top-1/2 -translate-y-1/2 
-        {isClientListOpen ? 'rotate-180' : ''}"
-    >
-        ▼
-    </span>
-</button>
-  
-
-   
+                    <span class="text-sm font-bold text-gray-700 uppercase absolute left-1/2 -translate-x-1/2">
+                        {$t('dashboard.client_list_title')}
+                    </span>
+                    
+                    {#if isClientListOpen}
+                        <ChevronDown class="text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 rotate-180 transition-transform" size={16} />
+                    {:else}
+                        <ChevronDown class="text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 transition-transform" size={16} />
+                    {/if}
+                </button>
                 
                 {#if isClientListOpen}
                   <div class="border-t border-gray-100">
                     <div class="p-2 border-b bg-gray-50">
-                      <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 sm:py-1.5 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
+                      <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
                     </div>
                     <div class="max-h-[300px] overflow-y-auto p-1 sm:p-2 space-y-1">
                       {#each paginatedClients as client (client.id)}
                         <button
                           on:click={() => {
                             selectedClientId = client.id;
-                            isClientListOpen = false; // Auto-collapse on selection
+                            isClientListOpen = false;
                           }}
                           class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}"
                         >
@@ -1364,7 +1416,6 @@
                       {/each}
                     </div>
                     
-                    <!-- Mobile Pagination Controls -->
                     {#if filteredClients.length > clientsPerPage}
                       <div class="border-t border-gray-200 p-2 bg-gray-50 flex flex-col gap-2">
                         <div class="flex justify-between items-center">
@@ -1373,7 +1424,7 @@
                             disabled={currentPage === 1}
                             class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {$t('dashboard.pagination.previous')}
+                            <ChevronLeft size={16} />
                           </button>
                           
                           <span class="text-xs text-gray-500 whitespace-nowrap">
@@ -1385,60 +1436,38 @@
                             disabled={currentPage === totalPages}
                             class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {$t('dashboard.pagination.next')}
+                            <ChevronRight size={16} />
                           </button>
                         </div>
-                        
                       </div>
                     {/if}
                   </div>
                 {/if}
               </div>
               
-              <!-- Desktop: Fixed Height Sidebar with Scroll -->
               <div class="hidden lg:flex bg-white rounded-lg shadow-sm border border-gray-200 flex-1 overflow-hidden flex-col h-[600px]">
                 <div class="p-2 border-b bg-gray-50">
-                  <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm sm:text-sm border rounded px-3 sm:px-3 py-2 sm:py-1.5 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
+                  <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
                 </div>
                 <div class="overflow-y-auto flex-1 p-1 sm:p-2 space-y-1">
                   {#each paginatedClients as client (client.id)}
-                    <button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 sm:px-3 py-3 sm:py-3 rounded-lg text-sm sm:text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}">
+                    <button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}">
                       <div class="truncate pr-2 flex items-center gap-2">
                         <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
                         <div class="font-semibold truncate">{client.alias}</div>
                       </div>
-                      <span class="text-[10px] sm:text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
+                      <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
                          {PatientManager.getClientHistory(client.id, allRecords).length}
                       </span>
                     </button>
                   {/each}
                 </div>
                 
-                <!-- Pagination Controls -->
                 {#if filteredClients.length > clientsPerPage}
-                  <div class="border-t border-gray-200 p-2 bg-gray-50 flex flex-col gap-2">
-                    <div class="flex justify-between items-center">
-                      <button
-                        on:click={() => currentPage = Math.max(1, currentPage - 1)}
-                        disabled={currentPage === 1}
-                        class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {$t('dashboard.pagination.previous')}
-                      </button>
-                      
-                      <span class="text-xs text-gray-500 whitespace-nowrap">
-                        {$t('dashboard.pagination.page_of', { values: { current: currentPage, total: totalPages } })}
-                      </span>
-                      
-                      <button
-                        on:click={() => currentPage = Math.min(totalPages, currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {$t('dashboard.pagination.next')}
-                      </button>
-                    </div>
-                    
+                  <div class="border-t border-gray-200 p-2 bg-gray-50 flex justify-center gap-4 items-center">
+                      <button on:click={() => currentPage = Math.max(1, currentPage - 1)} disabled={currentPage === 1} class="p-1 rounded border hover:bg-gray-50 disabled:opacity-50"><ChevronLeft size={16}/></button>
+                      <span class="text-xs text-gray-500">{$t('dashboard.pagination.page_of', { values: { current: currentPage, total: totalPages } })}</span>
+                      <button on:click={() => currentPage = Math.min(totalPages, currentPage + 1)} disabled={currentPage === totalPages} class="p-1 rounded border hover:bg-gray-50 disabled:opacity-50"><ChevronRight size={16}/></button>
                   </div>
                 {/if}
               </div>
@@ -1447,8 +1476,10 @@
             <div class="lg:col-span-3 flex flex-col gap-4 sm:gap-6 h-full lg:overflow-y-auto lg:pr-1 lg:pb-10">
               {#if !selectedClientId}
                 <div class="h-full flex flex-col items-center justify-center text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-200 py-12 px-4 text-center">
-                  <p class="text-4xl mb-4 opacity-50">👤</p>
-                  <p class="max-w-xs">{$t('dashboard.select_client_prompt')}</p>
+                  <div class="bg-gray-50 p-6 rounded-full mb-4">
+                     <Users class="text-slate-300" size={48} strokeWidth={1.5} />
+                  </div>
+                  <p class="max-w-xs font-medium text-slate-500">{$t('dashboard.select_client_prompt')}</p>
                 </div>
               {:else}
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4 flex-shrink-0">
@@ -1468,7 +1499,7 @@
                         class="col-span-2 sm:w-auto justify-center text-emerald-600 hover:text-white border border-emerald-200 hover:bg-emerald-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
                         title="{$t('actions.export_csv')}"
                       >
-                        <span>📊</span> 
+                        <FileSpreadsheet size={16} />
                         <span>{$t('actions.export_csv')}</span>
                       </button>
 
@@ -1477,7 +1508,7 @@
                         class="col-span-1 sm:w-auto justify-center text-indigo-600 hover:text-white border border-indigo-200 hover:bg-indigo-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
                         title="{$t('actions.rename')}"
                       >
-                        <span>✏️</span> 
+                        <Edit size={16} />
                         <span>{$t('actions.rename')}</span>
                       </button>
 
@@ -1486,7 +1517,7 @@
                         class="col-span-1 sm:w-auto justify-center text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
                         title="{$t('actions.delete')}"
                       >
-                        <span>🗑</span> 
+                        <Trash2 size={16} />
                         <span>{$t('actions.delete')}</span>
                       </button>
                       
@@ -1527,16 +1558,16 @@
                     <div class="flex gap-2 sm:gap-3">
                       {#each displayedHistory as rec (rec.id)}
                         <button
-  on:click={() => selectedRecordId = rec.id}
-  class="flex-shrink-0 w-[85px] sm:w-[85px] p-2 rounded-lg border text-left transition-all touch-manipulation relative
-  {selectedRecordId === rec.id ||
-  (!selectedRecordId && rec === currentRecord)
-    ? 'border-indigo-400 bg-indigo-50 shadow-md transform scale-105 z-10' 
-    : 'bg-white border-gray-200 opacity-80 hover:opacity-100'
-  }"
->
+                          on:click={() => selectedRecordId = rec.id}
+                          class="flex-shrink-0 w-[85px] sm:w-[85px] p-2 rounded-lg border text-left transition-all touch-manipulation relative
+                          {selectedRecordId === rec.id ||
+                          (!selectedRecordId && rec === currentRecord)
+                            ? 'border-indigo-400 bg-indigo-50 shadow-md transform scale-105 z-10' 
+                            : 'bg-white border-gray-200 opacity-80 hover:opacity-100'
+                          }"
+                        >
                            <div class="text-[12px] sm:text-[13px] text-gray-500 uppercase font-bold mb-1 leading-tight">{rec.date} <br><span class="font-normal opacity-75 text-[11px] sm:text-[12px]">{rec.time}</span></div>
-<div class="font-black text-gray-800 text-lg sm:text-xl">{rec.weight}<span class="text-xs sm:text-sm font-normal text-gray-400 ml-0.5">{$t('units.kg')}</span></div>
+                           <div class="font-black text-gray-800 text-lg sm:text-xl">{rec.weight}<span class="text-xs sm:text-sm font-normal text-gray-400 ml-0.5">{$t('units.kg')}</span></div>
                         </button>
                       {/each}
                     </div>
@@ -1567,93 +1598,117 @@
                       on:click={unassignCurrentRecord} 
                       class="text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
                     >
-                      <span>↩️</span> {$t('dashboard.detach_record')}
+                      <Undo2 size={16} />
+                      <span>{$t('dashboard.detach_record')}</span>
                     </button>
                   </div>
 
-               
-
-<div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+               <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
   
-  <div class="flex flex-col gap-3 sm:gap-4 xl:col-span-1"> 
-    
-    <div class="grid grid-cols-2 gap-3 sm:gap-4">
-      
-      <div class="{STYLES.cardMetric} border-slate-800">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.weight')}</span>
-          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
-            {currentRecord.weight}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.kg')}</span>
-          </span>
-      </div>
+                  <div class="flex flex-col gap-3 sm:gap-4 xl:col-span-1"> 
+                    <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                      
+                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-800 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+                          <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.weight')}</span>
+                          <div class="flex justify-between items-end w-full">
+                              <Scale size={24} class="text-slate-300 mb-1" strokeWidth={2} />
+                              <span class="text-3xl font-black text-slate-800 leading-none">
+                                {currentRecord.weight}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
+                              </span>
+                          </div>
+                      </div>
 
-      <div class="{STYLES.cardMetric} border-slate-500">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.bmi')}</span>
-          <span class="text-xl font-black leading-none self-end mt-1 {getStatusColor('bmi', currentRecord.bmi).replace('bg-', 'text-').replace('-100', '-600')}">
-            {currentRecord.bmi}
-          </span>
-      </div>
+                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+                          <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.bmi')}</span>
+                          <div class="flex justify-between items-end w-full">
+                              <Activity size={24} class="text-slate-300 mb-1" strokeWidth={2} />
+                              <span class="text-3xl font-black leading-none {getStatusColor('bmi', currentRecord.bmi).replace('bg-', 'text-').replace('-100', '-600')}">
+                                {currentRecord.bmi}
+                              </span>
+                          </div>
+                      </div>
 
-      <div class="{STYLES.cardMetric} border-amber-500">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.body_fat')}</span>
-          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
-            {currentRecord.bodyFat}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.percent')}</span>
-          </span>
-      </div>
+                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-amber-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+                          <span class="text-xs font-black text-amber-600/80 uppercase tracking-widest truncate">{$t('metrics.body_fat')}</span>
+                          <div class="flex justify-between items-end w-full">
+                              <Droplets size={24} class="text-amber-200 mb-1" strokeWidth={2} />
+                              <span class="text-3xl font-black text-slate-800 leading-none">
+                                {currentRecord.bodyFat}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.percent')}</span>
+                              </span>
+                          </div>
+                      </div>
 
-      <div class="{STYLES.cardMetric} border-indigo-500">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.muscle_mass')}</span>
-          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
-            {currentRecord.muscleMass}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.kg')}</span>
-          </span>
-      </div>
+                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+                          <span class="text-xs font-black text-indigo-600/80 uppercase tracking-widest truncate">{$t('metrics.muscle_mass')}</span>
+                          <div class="flex justify-between items-end w-full">
+                              <Dumbbell size={24} class="text-indigo-200 mb-1" strokeWidth={2} />
+                              <span class="text-3xl font-black text-slate-800 leading-none">
+                                {currentRecord.muscleMass}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
+                              </span>
+                          </div>
+                      </div>
 
-      <div class="{STYLES.cardMetric} border-cyan-500">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.water')}</span>
-          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
-            {currentRecord.waterPercentage}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.percent')}</span>
-          </span>
-      </div>
+                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-cyan-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+                          <span class="text-xs font-black text-cyan-600/80 uppercase tracking-widest truncate">{$t('metrics.water')}</span>
+                          <div class="flex justify-between items-end w-full">
+                              <Droplets size={24} class="text-cyan-200 mb-1" strokeWidth={2} />
+                              <span class="text-3xl font-black text-slate-800 leading-none">
+                                {currentRecord.waterPercentage}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.percent')}</span>
+                              </span>
+                          </div>
+                      </div>
 
-      <div class="{STYLES.cardMetric} border-gray-400">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.bone_mass')}</span>
-          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
-            {currentRecord.boneMass}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.kg')}</span>
-          </span>
-      </div>
+                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-gray-400 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+                          <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.bone_mass')}</span>
+                          <div class="flex justify-between items-end w-full">
+                              <Bone size={24} class="text-slate-300 mb-1" strokeWidth={2} />
+                              <span class="text-3xl font-black text-slate-800 leading-none">
+                                {currentRecord.boneMass}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
+                              </span>
+                          </div>
+                      </div>
 
-      <div class="{STYLES.cardMetric} border-emerald-500">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider self-start">{$t('metrics.dci')}</span>
-          <span class="text-xl font-black text-slate-800 leading-none self-end mt-1">
-            {currentRecord.dci}<span class="text-xs font-normal text-slate-400 ml-0.5">kcal</span>
-          </span>
-      </div>
+                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+                          <span class="text-xs font-black text-emerald-600/80 uppercase tracking-widest truncate">{$t('metrics.dci')}</span>
+                          <div class="flex justify-between items-end w-full">
+                              <Flame size={24} class="text-emerald-200 mb-1" strokeWidth={2} />
+                              <span class="text-3xl font-black text-slate-800 leading-none">
+                                {currentRecord.dci}<span class="text-sm font-bold text-slate-400 ml-0.5">kcal</span>
+                              </span>
+                          </div>
+                      </div>
 
-      <div class="{STYLES.cardMetric} border-purple-500">
-          <div class="flex justify-between items-start">
-             <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{$t('metrics.metabolic_age')}</span>
-          </div>
-          <span class="text-xl font-black leading-none self-end mt-1 {getStatusColor('meta', currentRecord.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">
-            {currentRecord.metabolicAge}<span class="text-xs font-normal text-slate-400 ml-0.5">{$t('units.years')}</span>
-          </span>
-      </div>
+                      <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
+                          <span class="text-xs font-black text-purple-600/80 uppercase tracking-widest truncate">{$t('metrics.metabolic_age')}</span>
+                          <div class="flex justify-between items-end w-full">
+                              <Clock size={24} class="text-purple-200 mb-1" strokeWidth={2} />
+                              <span class="text-3xl font-black leading-none {getStatusColor('meta', currentRecord.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">
+                                {currentRecord.metabolicAge}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.years')}</span>
+                              </span>
+                          </div>
+                      </div>
 
-    </div>
-  </div>
+                    </div>
+                  </div>
 
-  <div class="xl:col-span-2 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
-    <BodyMap record={currentRecord} />
-  </div>
+                  <div class="xl:col-span-2 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
+                    <BodyMap record={currentRecord} />
+                  </div>
 
-</div>
+                </div>
 
                   {#if chartData}
                     <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm mt-4 sm:mt-6">
                       <div class="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-2">
-                         <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{$t('dashboard.evolution_chart')} ({chartData.pointsData.length})</h3>
+                         <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                            <BarChart3 size={16} class="text-indigo-600" />
+                            {$t('dashboard.evolution_chart')} ({chartData.pointsData.length})
+                         </h3>
                          <select bind:value={selectedChartMetric} class="w-full sm:w-auto min-w-[200px] sm:min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-xs sm:text-sm font-medium bg-white hover:border-indigo-500 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 outline-none cursor-pointer shadow-sm">
-  {#each CHART_OPTIONS as option}<option value={option.key}>{$t(option.label)}</option>{/each}
-</select>
+                            {#each CHART_OPTIONS as option}<option value={option.key}>{$t(option.label)}</option>{/each}
+                         </select>
                       </div>
+                      
                       <div role="img" aria-label="Evolution Chart" class="h-48 sm:h-64 md:h-72 w-full relative group" on:mouseleave={() => { hoveredIndex = null; hoveredPointData = null; }}>
                         <svg viewBox="-12 -5 115 120" preserveAspectRatio="none" class="w-full h-full overflow-visible font-sans">
                           <defs><linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color={activeChartColor} stop-opacity="0.2"/><stop offset="100%" stop-color={activeChartColor} stop-opacity="0"/></linearGradient></defs>
@@ -1697,33 +1752,35 @@
                <h2 class="text-2xl sm:text-3xl font-black text-slate-800">
                  {$t('settings.title')}
                </h2>
-               </div>
+            </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center">
-                    <span class="text-3xl mb-1">👥</span>
-                    <span class="text-2xl font-black text-indigo-600">{clients.length}</span>
-                    <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">{$t('settings.active_clients')}</span>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center transition-transform hover:scale-[1.02]">
+                    <div class="mb-3 p-3 rounded-full bg-indigo-50 text-indigo-600">
+                        <Users size={28} />
+                    </div>
+                    <span class="text-2xl font-black text-slate-800 leading-none">{clients.length}</span>
+                    <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">{$t('settings.active_clients')}</span>
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center">
-                    <span class="text-3xl mb-1">📊</span>
-                    
-                    <span class="text-2xl font-black text-indigo-600">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center transition-transform hover:scale-[1.02]">
+                    <div class="mb-3 p-3 rounded-full bg-emerald-50 text-emerald-600">
+                        <BarChart3 size={28} />
+                    </div>
+                    <span class="text-2xl font-black text-slate-800 leading-none">
                         {PatientManager.getAssignmentCount()}
                     </span>
-                    
-                    <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">{$t('settings.total_measurements')}</span>
+                    <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">{$t('settings.total_measurements')}</span>
                 </div>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-slate-50 px-6 py-4 border-b border-slate-100">
                     <h3 class="font-bold text-slate-700 flex items-center gap-2">
-                        <span>💾</span> {$t('settings.backup_section')}
+                        <Save size={18} class="text-indigo-600" /> {$t('settings.backup_section')}
                     </h3>
                 </div>
                 
-                <div class="p-6 sm:p-8 space-y-6">
+                <div class="p-6 sm:p-8 space-y-8">
                     
                     <div>
                         <div class="relative flex py-2 items-center mb-4">
@@ -1736,9 +1793,9 @@
 
                         <button 
                             on:click={() => PatientManager.exportBackup()} 
-                            class="flex items-center justify-center gap-2 w-full bg-indigo-600 text-white py-3 sm:py-4 rounded-xl hover:bg-indigo-700 transition-all font-bold shadow-md shadow-indigo-200 active:scale-[0.98]"
+                            class="flex items-center justify-center gap-3 w-full bg-indigo-600 text-white py-3 sm:py-4 rounded-xl hover:bg-indigo-700 transition-all font-bold shadow-md shadow-indigo-200 active:scale-[0.98]"
                         >
-                            <span class="text-lg">⬇️</span> {$t('settings.btn_export')}
+                            <Download size={20} /> {$t('settings.btn_export')}
                         </button>
                     </div>
 
@@ -1752,13 +1809,15 @@
                         </div>
 
                         <div class="relative group">
-                            <div class="border-2 border-dashed border-indigo-200 rounded-xl p-6 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer">
-                                 <div class="flex flex-col items-center gap-2 text-indigo-600 group-hover:text-indigo-700">
-                                     <span class="text-3xl transition-transform group-hover:scale-110">📂</span>
-                                     <span class="font-bold text-sm">{$t('settings.btn_import')}</span>
-                                     <span class="text-xs text-indigo-400 font-normal">
-                                        {$t('settings.drag_backup')}
-                                     </span>
+                            <div class="border-2 border-dashed border-indigo-200 rounded-xl p-8 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer">
+                                 <div class="flex flex-col items-center gap-3 text-indigo-600 group-hover:text-indigo-700">
+                                     <Upload size={32} class="transition-transform group-hover:scale-110" />
+                                     <div class="flex flex-col">
+                                        <span class="font-bold text-sm">{$t('settings.btn_import')}</span>
+                                        <span class="text-xs text-indigo-400 font-normal mt-1">
+                                            {$t('settings.drag_backup')}
+                                        </span>
+                                     </div>
                                  </div>
                             </div>
                             <input 
@@ -1777,13 +1836,15 @@
             <div class="bg-rose-50/50 rounded-xl shadow-sm border border-rose-100 overflow-hidden">
                  <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                      <div class="text-center sm:text-left">
-                         <h4 class="text-rose-700 font-bold text-sm uppercase">{$t('settings.danger_zone_title')}</h4>
+                         <h4 class="text-rose-700 font-bold text-sm uppercase flex items-center gap-2 justify-center sm:justify-start">
+                            <AlertTriangle size={16} /> {$t('settings.danger_zone_title')}
+                         </h4>
                      </div>
                      <button 
                         on:click={handleFactoryReset} 
-                        class="flex-shrink-0 bg-white border border-rose-200 text-rose-600 text-xs sm:text-sm font-bold px-5 py-3 rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm whitespace-nowrap"
+                        class="flex-shrink-0 flex items-center gap-2 bg-white border border-rose-200 text-rose-600 text-xs sm:text-sm font-bold px-5 py-3 rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm whitespace-nowrap"
                      >
-                        🗑️ {$t('settings.delete_all_btn')}
+                        <Trash2 size={16} /> {$t('settings.delete_all_btn')}
                      </button>
                  </div>
             </div>
@@ -1800,20 +1861,29 @@
               role="dialog" 
               aria-modal="true"
               tabindex="-1"  >
+              
               <div class="p-6">
                 <div class="flex items-center gap-3 mb-4">
                   {#if modalType === 'error'}
-                    <div class="bg-rose-100 text-rose-600 p-2 rounded-lg"><span class="text-xl">⚠️</span></div>
+                    <div class="bg-rose-100 text-rose-600 p-2 rounded-lg flex-shrink-0">
+                        <AlertTriangle size={24} />
+                    </div>
                   {:else if modalType === 'success'}
-                    <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg"><span class="text-xl">✅</span></div>
+                    <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg flex-shrink-0">
+                        <CheckCircle size={24} />
+                    </div>
                   {:else if modalType === 'confirm'}
-                    <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg"><span class="text-xl">❓</span></div>
-                  
+                    <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg flex-shrink-0">
+                        <CircleHelp size={24} />
+                    </div>
                   {:else if modalType === 'prompt'}
-                    <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg"><span class="text-xl">✏️</span></div>
-                  
+                    <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg flex-shrink-0">
+                        <Edit size={24} />
+                    </div>
                   {:else}
-                    <div class="bg-slate-100 text-slate-600 p-2 rounded-lg"><span class="text-xl">ℹ️</span></div>
+                    <div class="bg-slate-100 text-slate-600 p-2 rounded-lg flex-shrink-0">
+                        <Info size={24} />
+                    </div>
                   {/if}
                   
                   <h3 class="text-lg font-bold text-slate-800">{modalTitle}</h3>
@@ -1830,7 +1900,6 @@
                             bind:value={modalInputValue}
                             class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
                             placeholder="{$t('dashboard.new_alias_placeholder')}" 
-                            
                             on:keydown={(e) => e.key === 'Enter' && handleModalConfirm()} 
                         />
                     </div>

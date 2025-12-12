@@ -63,32 +63,28 @@
   },
   "help": {
     "page_title": "User Manual",
-    
-    "section_starting": "🚀 Getting Started",
+    "section_starting": "Getting Started",
     "starting_requirements": "Requirements",
     "starting_requirements_text": "• Modern browser (Chrome, Brave, Safari, Edge, etc).\n• SD card with files from your Tanita BC-601/602/613.\n• **No internet connection needed** after installation (100% Offline).",
     "starting_installation": "Install as App",
     "starting_installation_text": "For full screen and offline use, look for the **'Install App'** icon in the address bar (PC) or **'Add to Home Screen'** in your browser menu (Mobile).",
     "starting_first_steps": "Daily Workflow",
     "starting_first_steps_text": "1. **Load** (Inbox): Drag/Upload `DATA.CSV` files from SD card to the app.\n2. **Link** (Inbox): Link new measurements to a client.\n3. **Visualize** (Clients): Analyze your clients' progress.\n\n*Note: Create the profile in Clients tab first if it's a new person.*",
-
-    "section_clients_buttons": "👥 Clients & Physical Buttons",
+    "section_clients_buttons": "Clients & Physical Buttons",
     "clients_creation": "Privacy & Aliases",
-    "clients_creation_text": "We recommend using **Codes** (e.g., `C001`) or **Aliases** (e.g., `JUAN PR`) instead of real names. Keep a private external record (spreadsheet, notes, etc.) linking the code to the real name for maximum security.",   
+    "clients_creation_text": "We recommend using **Codes** (e.g., `C001`) or **Aliases** (e.g., `JUAN PR`) instead of real names. Keep a private external record (spreadsheet, notes, etc.) linking the code to the real name for maximum security.",
     "clients_buttons_logic": "Button Assignment",
     "clients_buttons_logic_text": "The scale only has 4 memory slots. We recommend:\n\n• **Buttons 1, 2, & 3:** Use for yourself or regular family members.\n• **Button 4 (Wildcard):** Use for multiple clients as described in the next section.",
     "clients_infinite_trick": "Multi-User Mode (Button 4)",
-    "clients_infinite_trick_text": "1. ⚠️ **REMOVE SD CARD** from the scale.\n2. Hold **SET** and choose **number 4**.\n3. Configure in this order: **Birth Date**, **Gender**, **Height**, and **Activity Level**.\n4. When asked **CLr?** (Clear), select **YES**.\n5. 💾 **INSERT SD CARD**.\n6. Step on the scale to measure.\n\n**Result:** New data is saved to `DATA4.CSV` without deleting previous ones.",
-
-    "section_files": "📁 Files & First Load",
+    "clients_infinite_trick_text": "1. **REMOVE SD CARD** from the scale.\n2. Hold **SET** and choose **number 4**.\n3. Configure in this order: **Birth Date**, **Gender**, **Height**, and **Activity Level**.\n4. When asked **CLr?** (Clear), select **YES**.\n5. **INSERT SD CARD**.\n6. Step on the scale to measure.\n\n**Result:** New data is saved to `DATA4.CSV` without deleting previous ones.",
+    "section_files": "Files & First Load",
     "files_where": "SD Structure",
     "files_where_text": "The scale creates files based on the button pressed:\n• **Button 1:** `DATA1.CSV` (and `DATA5` if full).\n• **Button 2:** `DATA2.CSV` (and `DATA6`).\n• **Button 3:** `DATA3.CSV` (and `DATA7`).\n• **Button 4:** `DATA4.CSV` (and `DATA8`).",
     "files_structure": "How it works",
     "files_structure_text": "The app reads `DATA.CSV` files but **does not modify the SD**. It creates a **'virtual link'** within your browser between the measurement date and the Client.",
-    "files_troubleshooting": "💡 Important: Old Data",
+    "files_troubleshooting": "Important: Old Data",
     "files_troubleshooting_text": "If your SD has years of data, **process in batches**:\n1. Load only Button 1 files (`DATA1`/`DATA5`) in **Inbox**.\n2. Use **Multi-Link** to assign them to 'Mom' (e.g.).\n3. Load Button 2 files (`DATA2`/`DATA6`) and assign to another client.\n4. Repeat for all.\n\nOnce history is organized, you can **load all files together** for daily use.",
-
-    "section_interpretation": "📊 Interpretation",
+    "section_interpretation": "Interpretation",
     "interpretation_main_metrics": "Health Indicators",
     "interpretation_main_metrics_text": "• **Fat % & BMI:** Blue (Low), Green (Healthy), Yellow (Overweight), Red (Obese).\n• **Water %:** The app uses Blue (Low), Green (Healthy), or Yellow (High). Ideal range is **45-60%** (Women) and **50-65%** (Men).\n• **Visceral Fat:** **1-12** (Healthy), **13+** (Risk).\n• **Metabolic Age:** Green if **≤ actual age**. Yellow if **> actual age**.",
     "interpretation_segmental": "Segmental",
@@ -97,8 +93,7 @@
     "interpretation_health_states_text": "'Healthy' ranges are not fixed: the app calculates them automatically based on the **scale's manual**, adapting to the exact age and gender for each measurement.",
     "interpretation_export": "Export Data",
     "interpretation_export_text": "In the client profile, press **Spreadsheet** to download a formatted `ClientAlias.csv` file with the full history. Compatible with Excel, LibreOffice, or Google Sheets.",
-
-    "section_security": "🔒 Security",
+    "section_security": "Security",
     "security_local_data": "Local Privacy",
     "security_local_data_text": "BodyMetrics has no server or cloud. **Your data never leaves your device**.",
     "security_link": "Browser Cache (Links)",
@@ -106,9 +101,9 @@
     "security_backups": "Backups",
     "security_backups_text": "It is **vital** to go to Settings > **Download Backup** regularly. This generates a `bm_backup...json` file containing all links between measurements and clients.",
     "security_restoration": "Restore & Sync",
-    "security_restoration_text": "Use **Upload Backup** to recover data or switch devices.\n\n⚠️ **Manual Sync:**\nData does not sync automatically. To sync your PC data to mobile, you need to load **TWO** things:\n1. The **Backup** (`bm_backup...json`) containing the links.\n2. The **DATA.CSV** files from the SD containing the raw data.\n\nWithout both files, you won't see any measurements.",
-
-    "section_troubleshooting": "❓ FAQ / Troubleshooting",
+    "security_restoration_intro": "Use **Upload Backup** to recover data or switch devices.",
+    "security_warning_sync": "**Manual Sync:**\nData does not sync automatically. To transfer data from PC to Mobile, you must load **TWO** things:\n1. The **Backup** file (.json) containing the links.\n2. The **DATA.CSV** files from the SD containing the raw data.\n\nWithout both files, you won't see any measurements.",
+    "section_troubleshooting": "FAQ / Troubleshooting",
     "troubleshooting_common": "Which file to upload?",
     "troubleshooting_common_text": "• For new measurements: The `DATA.CSV` files from the SD.\n• To restore or sync the app: The `bm_backup...json` file.",
     "troubleshooting_missing_data": "No data shown?",
@@ -213,17 +208,13 @@
     "previous": "Previous",
     "next": "Next",
     "finish": "Get Started",
-
-    "step_inbox_title": "📥 Inbox",
+    "step_inbox_title": "Inbox",
     "step_inbox_description": "Here you load files from the SD card and link pending measurements to the clients you create.",
-
-    "step_clients_title": "👥 Clients",
+    "step_clients_title": "Clients",
     "step_clients_description": "Manage your clients. You can analyze their progress with charts and download their data as a spreadsheet.",
-
-    "step_settings_title": "⚙️ Data Management",
+    "step_settings_title": "Settings",
     "step_settings_description": "Check your stats, save or restore backups of your work, and delete all data if you need to start over.",
-
-    "step_help_title": "ℹ️ Help",
+    "step_help_title": "Help",
     "step_help_description": "This is the most important section. Please read it carefully now to understand how the app works."
   },
   "upload": {
