@@ -20,57 +20,51 @@
     Inbox, Users, Settings, CircleHelp, Lock, UploadCloud, FolderOpen, AlertTriangle, 
     CheckCircle, Info, Edit, Trash2, FileSpreadsheet, Undo2, Save, Download, 
     Upload, Rocket, BarChart3, Target, ChevronDown, ChevronLeft, ChevronRight, 
-    XCircle, Scale, Activity, Droplets, Dumbbell, Flame, Bone, Clock, Search, Sparkles
+    XCircle, Scale, Activity, Droplets, Dumbbell, Flame, Bone, Clock, Search, Sparkles, AlertCircle
   } from 'lucide-svelte';
 
   // --- STATIC CONFIG ---
   const CHART_OPTIONS = [
-    { key: 'weight', label: 'metrics.weight', color: '#475569', unitKey: 'kg' }, // Slate-600
-    { key: 'bmi', label: 'metrics.bmi', color: '#64748b', unitKey: '' },         // Slate-500
-    { key: 'bodyFat', label: 'metrics.body_fat', color: '#f59e0b', unitKey: 'percent' }, // Amber-500
-    { key: 'muscleMass', label: 'metrics.muscle_mass', color: '#6366f1', unitKey: 'kg' }, // Indigo-500
-    { key: 'waterPercentage', label: 'metrics.water', color: '#0ea5e9', unitKey: 'percent' }, // Sky-500
-    { key: 'boneMass', label: 'metrics.bone_mass', color: '#94a3b8', unitKey: 'kg' },      // Gray-400
-    { key: 'dci', label: 'metrics.dci', color: '#10b981', unitKey: 'kcal' }, // Emerald-500
-    { key: 'metabolicAge', label: 'metrics.metabolic_age', color: '#8b5cf6', unitKey: 'years' }, // Violet-500
-    { key: 'visceralFat', label: 'metrics.visceral_fat', color: '#d97706', unitKey: 'rating' } // Orange-600 (para destacarlo)
+    { key: 'weight', label: 'metrics.weight', color: '#475569', unitKey: 'kg' },
+    { key: 'bmi', label: 'metrics.bmi', color: '#64748b', unitKey: '' },
+    { key: 'bodyFat', label: 'metrics.body_fat', color: '#f59e0b', unitKey: 'percent' },
+    { key: 'muscleMass', label: 'metrics.muscle_mass', color: '#6366f1', unitKey: 'kg' },
+    { key: 'waterPercentage', label: 'metrics.water', color: '#0ea5e9', unitKey: 'percent' },
+    { key: 'boneMass', label: 'metrics.bone_mass', color: '#94a3b8', unitKey: 'kg' },
+    { key: 'dci', label: 'metrics.dci', color: '#10b981', unitKey: 'kcal' },
+    { key: 'metabolicAge', label: 'metrics.metabolic_age', color: '#8b5cf6', unitKey: 'years' },
+    { key: 'visceralFat', label: 'metrics.visceral_fat', color: '#d97706', unitKey: 'rating' }
   ] as const;
 
- 
   const STYLES = {
-    // Quitamos el hover del fondo blanco, y ponemos texto blanco en el activo
     filterBtn: "px-3 py-1 text-[11px] font-semibold rounded-lg border border-slate-200 transition-all bg-white text-slate-500 hover:text-slate-700 hover:border-slate-300 uppercase tracking-wide cursor-pointer shadow-sm",
-    // Hacemos el estilo activo más simple y fuerte
     filterBtnActive: "!bg-indigo-600 !text-white !border-indigo-700 font-bold shadow-md", 
-    // ...
-    // Metric cards
-    // Metric cards
-// ELIMINAMOS el color de borde inicial (border-slate-100)
     cardMetric: "bg-white p-4 rounded-xl shadow-sm border-l-4 flex flex-col justify-between min-h-[80px] transition-all hover:shadow-md",   
-    // Metric labels and values
     metricLabel: "text-[10px] font-bold text-slate-500 uppercase tracking-wider self-start",
     metricValueCard: "text-2xl font-black text-slate-800 leading-none self-end mt-1",
-    
-    // Main metric display
     metricColMain: "flex flex-col items-center justify-center px-3",
     metricValueLg: "text-3xl font-black text-slate-800 leading-none",
     metricValueMd: "text-2xl font-black leading-none",
     metricUnit: "text-sm font-medium text-slate-500 ml-1",
     divider: "w-px h-10 bg-slate-200 mx-2"
   };
+
   let promptInput: HTMLInputElement;
+  
   // --- STATE ---
   let allRecords: BioMetricRecord[] = [];
   let clients: Client[] = [];
-  let clientCounts: Record<string, number> = {};
   
+  // *** NUEVO: Estado para guardar los contadores de cada cliente ***
+  let clientCounts: Record<string, number> = {}; 
+
   // UI State
   let currentTab: 'inbox' | 'clients' | 'settings' | 'help' = 'inbox';
   let isProcessing = false;
   let errorMessage = '';
   let isDragging = false;
   let fileInput: HTMLInputElement;
-  let isClientListOpen = false; // State for accordion
+  let isClientListOpen = false;
 
   // Selection & Filters
   let selectedClientId: string = '';
@@ -88,6 +82,7 @@
   // Assignment search state
   let assignmentSearchTerms: Record<string, string> = {};
   let bulkAssignSearch = '';
+  
   $: filteredAssignmentClients = (searchTerm: string) => {
     if (!searchTerm) return [];
     const term = searchTerm.toLowerCase().trim();
@@ -99,7 +94,7 @@
   let currentFilter: FilterMode = 'all';
   let customDateStart = '';
   let customDateEnd = '';
-
+  
   // Chart State
   // @ts-ignore
   let selectedChartMetric: keyof BioMetricRecord = 'weight';
@@ -108,8 +103,7 @@
   
   // Forms
   let newClientCodeOrAlias = '';
-
-
+  
   // Modal state
   let showModal = false;
   let modalTitle = '';
@@ -118,6 +112,7 @@
   let modalConfirmCallback: (() => void) | null = null;
   let modalCancelCallback: (() => void) | null = null;
   let modalInputValue = '';
+  
   // First-use guide
   let showFirstUseGuide = false;
   let currentGuideStep = 0;
@@ -144,32 +139,25 @@
   $: inboxRecords = allRecords
       .filter(r => !PatientManager.getClientForRecord(r.id))
       .sort((a, b) => getTimestamp(b.date, b.time) - getTimestamp(a.date, a.time));
+      
   $: filteredClients = clients.filter(c => {
     if (!clientSearchTerm) return true;
     const term = clientSearchTerm.toLowerCase().trim();
     return c.alias.toLowerCase().includes(term);
   }).sort((a, b) => {
-    // Sort by alias alphabetically, numbers first
     const aAlias = a.alias.toLowerCase();
     const bAlias = b.alias.toLowerCase();
+    const aIsNumber = !isNaN(aAlias as any) && !isNaN(parseFloat(aAlias));
+    const bIsNumber = !isNaN(bAlias as any) && !isNaN(parseFloat(bAlias));
     
-    // Check if both are numbers
-    const aIsNumber = !isNaN(aAlias) && !isNaN(parseFloat(aAlias));
-    const bIsNumber = !isNaN(bAlias) && !isNaN(parseFloat(bAlias));
-    
-    // Numbers come before text
     if (aIsNumber && !bIsNumber) return -1;
     if (!aIsNumber && bIsNumber) return 1;
-    
-    // If both are numbers, sort numerically
     if (aIsNumber && bIsNumber) {
       return parseFloat(aAlias) - parseFloat(bAlias);
     }
-    
-    // Otherwise sort alphabetically
     return aAlias.localeCompare(bAlias);
   });
-  
+
   // Paginated clients
   $: {
     totalPages = Math.max(1, Math.ceil(filteredClients.length / clientsPerPage));
@@ -186,67 +174,62 @@
         return getTimestamp(b.date, b.time) - getTimestamp(a.date, a.time);
       })
     : [];
-
+    
   $: displayedHistory = filterHistory(clientHistory, currentFilter, customDateStart, customDateEnd);
   
   $: currentRecord = displayedHistory.find(r => r.id === selectedRecordId) || displayedHistory[0] || null;
-
+  
   $: activeChartOption = CHART_OPTIONS.find(o => o.key === selectedChartMetric);
   $: activeChartColor = activeChartOption?.color || '#1f2937';
-  $: activeChartUnitKey = activeChartOption?.unitKey || ''; 
+  $: activeChartUnitKey = activeChartOption?.unitKey || '';
   
   $: chartData = displayedHistory.length > 0 ? prepareSingleChart(displayedHistory, selectedChartMetric, activeChartUnitKey) : null;
 
-    // Helper to get the REAL count from the database/JSON object
-// Independent of whether the CSV data is currently loaded
-const getClientTotalCount = (client: Client) => {
-  if (!client) return 0;
-  return clientCounts[client.id] || 0;
-};
+  // *** CORREGIDO: Helper para obtener el conteo desde el mapa ***
+  const getClientTotalCount = (client: Client) => {
+    if (!client) return 0;
+    return clientCounts[client.id] || 0; 
+  };
+
   // --- LIFECYCLE ---
   onMount(() => {
-    // --- LÓGICA DE DETECCIÓN DE IDIOMA ---
     const savedLocale = localStorage.getItem('user_locale');
     
     if (savedLocale) {
-        // 1. Si el usuario ya eligió un idioma antes, lo respetamos
         locale.set(savedLocale);
     } else {
-        // 2. Si es la primera vez, detectamos el navegador
-        // 'navigator.language' devuelve cosas como "es-ES", "es-MX", "en-US", "fr-FR"
         const browserLang = navigator.language || 'en';
-        
-        // Si empieza por 'es' (cualquier variante), ponemos español. Si no, inglés por defecto.
         if (browserLang.toLowerCase().startsWith('es')) {
             locale.set('es');
         } else {
             locale.set('en');
         }
     }
-    function refreshClients() {
-  clients = PatientManager.getClients();
-  // Obtenemos los conteos una sola vez al refrescar
-  clientCounts = PatientManager.getClientCounts(); 
-
-  allRecords = [...allRecords];
-
-  if (showFirstUseGuide) {
+ 
+    refreshClients();
+    const today = new Date().toISOString().split('T')[0];
+    customDateEnd = today;
+    
     const hasClients = clients.length > 0;
     const hasAssociations = allRecords.some(r => PatientManager.getClientForRecord(r.id));
-    if (hasClients || hasAssociations) {
-      showFirstUseGuide = false;
+    if (!hasClients && !hasAssociations) {
+      showFirstUseGuide = true;
+      currentTab = 'inbox';
+    } else if (clients.length === 0) {
+      currentTab = 'help';
     }
-  }
-}
   });
 
   // --- ACTIONS ---
 
   function refreshClients() {
     clients = PatientManager.getClients();
-    allRecords = [...allRecords];
     
-    // Check if we should hide the first-use guide
+    // *** NUEVO: Actualizamos los contadores usando el nuevo método ***
+    clientCounts = PatientManager.getClientCounts();
+    
+    allRecords = [...allRecords];
+
     if (showFirstUseGuide) {
       const hasClients = clients.length > 0;
       const hasAssociations = allRecords.some(r => PatientManager.getClientForRecord(r.id));
@@ -258,15 +241,11 @@ const getClientTotalCount = (client: Client) => {
 
   function nextGuideStep() {
     if (currentGuideStep < guideSteps.length - 1) {
-      // Avanzar paso normal
       currentGuideStep++;
       currentTab = guideSteps[currentGuideStep].tab as any;
     } else {
-      // AL FINALIZAR:
-      showFirstUseGuide = false; // 1. Cierra el modal
-      currentTab = 'help';       // 2. Fuerza ir a Ayuda
-      
-      // Opcional: Hacer scroll arriba del todo para que empiecen a leer desde el principio
+      showFirstUseGuide = false;
+      currentTab = 'help';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
@@ -300,19 +279,15 @@ const getClientTotalCount = (client: Client) => {
     } catch (err) {
       console.error(err);
       const $t = get(t);
-      
-      // ANTES: errorMessage = $t('upload.error');
-      // AHORA: Usamos el modal unificado
       showAlert(
           $t('upload.error_title'), 
           $t('upload.error'), 
           'error'
       );
-      
     } finally {
       isProcessing = false;
       isDragging = false;
-      if(fileInput) fileInput.value = ''; 
+      if(fileInput) fileInput.value = '';
     }
   };
 
@@ -322,7 +297,6 @@ const getClientTotalCount = (client: Client) => {
 
     const now = new Date();
     let cutoffTime = 0;
-
     if (mode === '1m') cutoffTime = new Date(now.setMonth(now.getMonth() - 1)).getTime();
     else if (mode === '3m') cutoffTime = new Date(now.setMonth(now.getMonth() - 3)).getTime();
     else if (mode === '6m') cutoffTime = new Date(now.setMonth(now.getMonth() - 6)).getTime();
@@ -340,19 +314,12 @@ const getClientTotalCount = (client: Client) => {
 
   // --- CRUD OPERATIONS ---
   const createClient = () => {
-      // 1. Limpiamos espacios
       const newAlias = newClientCodeOrAlias ? newClientCodeOrAlias.trim() : '';
-      
       if (!newAlias) return;
 
-      const $t = get(t); 
-
-      // 2. VALIDACIÓN DE DUPLICADOS (NUEVO)
-      // Buscamos si ya existe alguien con ese mismo nombre (ignorando mayúsculas/minúsculas)
+      const $t = get(t);
       const isTaken = clients.some(c => c.alias.toLowerCase() === newAlias.toLowerCase());
-
       if (isTaken) {
-          // Si existe, lanzamos el error y paramos
           showAlert(
               $t('dashboard.client_exists_title'), 
               $t('dashboard.client_exists_message'), 
@@ -361,8 +328,7 @@ const getClientTotalCount = (client: Client) => {
           return; 
       }
 
-      // 3. Si no está repetido, creamos el cliente con ID único
-      const uniqueId = Date.now().toString(); 
+      const uniqueId = Date.now().toString();
       const success = PatientManager.addClient(uniqueId, newAlias);
 
       if (success) {
@@ -371,7 +337,6 @@ const getClientTotalCount = (client: Client) => {
         clientSearchTerm = '';
         currentTab = 'clients';
       } else {
-        // Fallback de seguridad (por si fallara la escritura en disco, raro)
         showAlert($t('dashboard.client_exists_title'), $t('dashboard.client_exists_message'), 'error');
       }
     };
@@ -395,35 +360,27 @@ const getClientTotalCount = (client: Client) => {
     if (!client) return;
 
     const $t = get(t);
-    
     showPrompt(
       $t('actions.rename'),
       '', 
       '', 
       () => {
         const newAlias = modalInputValue ? modalInputValue.trim() : '';
-        
-        // 1. Si está vacío, no hacemos nada (silencioso)
         if (!newAlias) return;
-
-        // 2. VALIDACIÓN DE DUPLICADOS (Estricta)
-        // Busca si el nombre existe en CUALQUIER cliente (incluido él mismo)
+        
         const isTaken = clients.some(c => c.alias.toLowerCase() === newAlias.toLowerCase());
 
         if (isTaken) {
-            // Usamos setTimeout para esperar a que cierre el modal de escritura
             setTimeout(() => {
                 showAlert(
-                    $t('dashboard.client_exists_rename_title'), // TÍTULO NUEVO: "Error al Renombrar"
-                    $t('dashboard.client_exists_message'),      // MENSAJE COMÚN
-                    'error'                                     // ICONO: 'error' (Rojo) para todo
+                    $t('dashboard.client_exists_rename_title'),
+                    $t('dashboard.client_exists_message'),
+                    'error'
                 );
             }, 100);
-            
             return; 
         }
 
-        // 3. Ejecutar renombrado si no hay conflictos
         PatientManager.renameClient(selectedClientId, newAlias);
         refreshClients();
       }
@@ -443,41 +400,34 @@ const getClientTotalCount = (client: Client) => {
   const unassignCurrentRecord = () => {
       if (!currentRecord) return;
       const $t = get(t);
-      
-      // *** CAMBIO AQUÍ ***
       showConfirm(
-        $t('dashboard.detach_record_title'), // Título: "Unlink Measurement"
-        $t('alerts.detach_record_confirm'),  // Nuevo texto de confirmación
+        $t('dashboard.detach_record_title'),
+        $t('alerts.detach_record_confirm'),
         () => {
           PatientManager.unassignRecord(currentRecord.id);
           refreshClients();
           selectedRecordId = '';
         }
       );
-    };
+  };
   
     const toggleMultiSelectMode = () => {
       isMultiSelectMode = !isMultiSelectMode;
-      // Clear selections when toggling mode
       selectedRecordIds = [];
     };
-  
+
     const toggleRecordSelection = (recordId: string) => {
       if (!isMultiSelectMode) return;
-      
       const index = selectedRecordIds.indexOf(recordId);
       if (index === -1) {
-        // Add to selection
         selectedRecordIds = [...selectedRecordIds, recordId];
       } else {
-        // Remove from selection
         selectedRecordIds = selectedRecordIds.filter(id => id !== recordId);
       }
     };
   
     const unassignSelectedRecords = () => {
       if (selectedRecordIds.length === 0) return;
-      
       const $t = get(t);
       showConfirm(
         $t('dashboard.detach_record_title'),
@@ -486,7 +436,6 @@ const getClientTotalCount = (client: Client) => {
           selectedRecordIds.forEach(recordId => {
             PatientManager.unassignRecord(recordId);
           });
-          
           refreshClients();
           selectedRecordIds = [];
         }
@@ -494,13 +443,13 @@ const getClientTotalCount = (client: Client) => {
     };
 
     const assignSelectedRecords = (clientId: string) => {
-    if (!clientId) return;
-    selectedRecordIds.forEach(recordId => assignRecord(recordId, clientId, true));
-    refreshClients();
-    selectedRecordIds = [];
-    const $t = get(t);
-    showAlert($t('alerts.success_title'), $t('alerts.link_multiple_success').replace('{n}', selectedRecordIds.length.toString()), 'success');
-  };
+        if (!clientId) return;
+        selectedRecordIds.forEach(recordId => assignRecord(recordId, clientId, true));
+        refreshClients();
+        selectedRecordIds = [];
+        const $t = get(t);
+        showAlert($t('alerts.success_title'), $t('alerts.link_multiple_success').replace('{n}', selectedRecordIds.length.toString()), 'success');
+    };
 
     const toggleInboxSelection = (recordId: string) => {
       const index = selectedInboxMeasurements.indexOf(recordId);
@@ -520,36 +469,29 @@ const getClientTotalCount = (client: Client) => {
     };
 
     const assignBulkMeasurements = (clientId: string) => {
-    if (!clientId) return;
-    const count = selectedInboxMeasurements.length;
-    selectedInboxMeasurements.forEach(recordId => assignRecord(recordId, clientId, true));
-    
-    refreshClients();
-    selectedInboxMeasurements = [];
-    bulkAssignSearch = '';
-    const $t = get(t);
-    showAlert($t('alerts.success_title'), $t('alerts.link_multiple_success').replace('{n}', count.toString()), 'success');
-  };
+        if (!clientId) return;
+        const count = selectedInboxMeasurements.length;
+        selectedInboxMeasurements.forEach(recordId => assignRecord(recordId, clientId, true));
+        
+        refreshClients();
+        selectedInboxMeasurements = [];
+        bulkAssignSearch = '';
+        const $t = get(t);
+        showAlert($t('alerts.success_title'), $t('alerts.link_multiple_success').replace('{n}', count.toString()), 'success');
+    };
 
-  // Función corregida para el reseteo de fábrica
   const handleFactoryReset = () => {
     const $t = get(t);
     showConfirm(
       $t('alerts.reset_title'),
       $t('alerts.reset_confirm'),
       () => {
-        // CORRECCIÓN AQUÍ: Llamamos al nombre real del método en PatientManager
         PatientManager.deleteAllData();
-        
-        // Limpiamos el estado local
         clients = [];
+        clientCounts = {}; // Resetear contadores
         selectedClientId = '';
         selectedRecordId = '';
-        
-        // Refrescamos la interfaz
         refreshClients();
-        
-        // Confirmamos éxito
         showAlert($t('alerts.success_title'), $t('alerts.reset_success'), 'success');
       }
     );
@@ -557,14 +499,13 @@ const getClientTotalCount = (client: Client) => {
 
   const exportClientData = () => {
     const $t = get(t);
-    // Verificación de datos vacíos
     if (!clientHistory || clientHistory.length === 0) {
       showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client'), 'error');
       return;
     }
 
     const client = clients.find(c => c.id === selectedClientId);
-    const dateStr = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
+    const dateStr = new Date().toISOString().split('T')[0];
     const filename = client ? `${client.alias.replace(/\s/g, '_')}_${dateStr}.csv` : `export_${dateStr}.csv`;
     
     const headersMap = {
@@ -610,16 +551,13 @@ const getClientTotalCount = (client: Client) => {
       const maxVal = Math.max(...values);
 
       let rawRange = maxVal - minVal;
-      if (rawRange === 0) rawRange = 1; 
-      
+      if (rawRange === 0) rawRange = 1;
       const roughStep = rawRange / 4;
       const niceSteps = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100];
       let step = niceSteps.find(s => s >= roughStep) || roughStep;
       if (step > 100) step = Math.pow(10, Math.floor(Math.log10(rawRange)));
-
       let axisMin = Math.floor(minVal / step) * step;
       let axisMax = Math.ceil(maxVal / step) * step;
-
       if (minVal - axisMin < step * 0.1) axisMin -= step;
       if (axisMax - maxVal < step * 0.1) axisMax += step;
 
@@ -647,7 +585,6 @@ const getClientTotalCount = (client: Client) => {
 
         return { x, y, val: val.toFixed(1), date: d.date, showLabel, unitKey, isRightSide, isTop };
       });
-
       const polyline = sorted.length > 1 ? pointsData.map(p => `${p.x},${p.y}`).join(' ') : '';
       const areaPath = sorted.length > 1 ? `0,120 ${polyline} 100,120` : '';
 
@@ -659,7 +596,6 @@ const getClientTotalCount = (client: Client) => {
 
   const switchLang = (lang: string) => {
       locale.set(lang);
-      // Guardamos la preferencia para el futuro
       localStorage.setItem('user_locale', lang); 
   };
   const getStatusColor = (type: string, val: number) => {
@@ -673,12 +609,10 @@ const getClientTotalCount = (client: Client) => {
     } catch (e) { return STATUS_COLORS.unknown; }
     return STATUS_COLORS.unknown;
   };
-
   const handleDrop = (e: DragEvent) => {
     isDragging = false;
     if(e.dataTransfer?.files) handleFiles(e.dataTransfer.files);
   };
-
   // Modal functions
   const showAlert = (title: string, message: string, type: 'alert' | 'error' | 'success' = 'alert') => {
     modalTitle = title;
@@ -688,7 +622,6 @@ const getClientTotalCount = (client: Client) => {
     modalCancelCallback = null;
     showModal = true;
   };
-
   const showConfirm = (title: string, message: string, onConfirm: () => void, onCancel?: () => void) => {
     modalTitle = title;
     modalMessage = message;
@@ -697,8 +630,6 @@ const getClientTotalCount = (client: Client) => {
     modalCancelCallback = onCancel || null;
     showModal = true;
   };
-
-  // Función para mostrar un modal con campo de texto
   const showPrompt = (title: string, message: string, initialValue: string, onConfirm: () => void) => {
     modalTitle = title;
     modalMessage = message;
@@ -707,29 +638,24 @@ const getClientTotalCount = (client: Client) => {
     modalConfirmCallback = onConfirm;
     modalCancelCallback = null;
     showModal = true;
-    
-    // Pone el foco después de que Svelte haya renderizado el modal
     setTimeout(() => {
       promptInput?.focus(); 
-    }, 0); 
+    }, 0);
   };
 
   const handleModalConfirm = () => {
     if (modalConfirmCallback) modalConfirmCallback();
     showModal = false;
   };
-
   const handleModalCancel = () => {
     if (modalCancelCallback) modalCancelCallback();
     showModal = false;
   };
-  // --- HELPER: SIMPLE MARKDOWN FORMATTING ---
+  
   const formatText = (text: string) => {
     if (!text) return '';
     return text
-      // 1. Reemplaza **texto** por negrita
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
-      // 2. Reemplaza `texto` por estilo de código/archivo
       .replace(/`(.*?)`/g, '<code class="bg-gray-100 text-pink-600 px-1.5 py-0.5 rounded font-mono text-xs border border-gray-200">$1</code>');
   };
 
@@ -784,7 +710,7 @@ const getClientTotalCount = (client: Client) => {
             on:click={skipGuide}
             class="text-slate-400 hover:text-slate-600 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors px-2 py-2"
           >
-            {$t('first_use.skip')}
+             {$t('first_use.skip')}
           </button>
           
           <div class="flex gap-2 sm:gap-3 items-center">
@@ -889,7 +815,6 @@ const getClientTotalCount = (client: Client) => {
       
       {#if currentTab === 'help'}
         <div class="max-w-6xl mx-auto space-y-8 animate-fade-in pb-12">
-            
             <div class="text-center pt-4 sm:pt-8">
                 <h2 class="text-2xl sm:text-4xl font-black text-slate-800">
                     {$t('help.page_title')}
@@ -921,17 +846,14 @@ const getClientTotalCount = (client: Client) => {
                     <Users class="text-indigo-600" /> {$t('help.section_clients_buttons')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.clients_creation')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_creation_text'))}</p>
                     </div>
-                    
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.clients_buttons_logic')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_buttons_logic_text'))}</p>
                     </div>
-                    
                     <div class="space-y-3">
                         <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
                             <div class="flex items-center gap-2 mb-2">
@@ -945,10 +867,8 @@ const getClientTotalCount = (client: Client) => {
                             </p>
                         </div>
                     </div>
-
                 </div>
             </div>
-
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
                 <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center flex items-center justify-center gap-2">
@@ -999,7 +919,6 @@ const getClientTotalCount = (client: Client) => {
                     <Lock class="text-indigo-600" /> {$t('help.section_security')}
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    
                     <div class="space-y-6">
                         <div class="space-y-2">
                             <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_local_data')}</h4>
@@ -1010,19 +929,16 @@ const getClientTotalCount = (client: Client) => {
                             <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_link_text'))}</p>
                         </div>
                     </div>
-
                     <div class="space-y-6">
                         <div class="space-y-2">
                             <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_backups')}</h4>
                             <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_backups_text'))}</p>
                         </div>
-                        
                         <div class="space-y-3">
                             <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_restoration')}</h4>
                             <p class="text-sm text-slate-600 leading-relaxed">
                                 {@html formatText($t('help.security_restoration_intro'))}
                             </p>
-                            
                             <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
                                 <div class="flex items-start gap-3">
                                     <AlertTriangle class="text-amber-600 flex-shrink-0 mt-0.5" size={18} />
@@ -1033,7 +949,6 @@ const getClientTotalCount = (client: Client) => {
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -1065,12 +980,10 @@ const getClientTotalCount = (client: Client) => {
                     <span class="bg-slate-800 px-3 py-1 rounded-full border border-slate-700">{$t('about.license')}</span>
                     <span class="bg-slate-800 px-3 py-1 rounded-full border border-slate-700">{$t('about.developer')}</span>
                 </div>
-                
                 <a href="https://github.com/JuanPR-Lab/BodyMetrics" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white text-slate-900 px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors shadow-md">
                     <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                     {$t('about.github_btn')}
                 </a>
-                
                 <p class="text-[10px] mt-8 opacity-30 uppercase tracking-widest">{$t('about.disclaimer')}</p>
             </div>
         </div>
@@ -1096,7 +1009,6 @@ const getClientTotalCount = (client: Client) => {
     <div class="max-w-3xl mx-auto">
       <div class="relative group">
           <div class="border-2 border-dashed border-indigo-200 rounded-2xl p-8 sm:p-12 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer flex flex-col items-center justify-center gap-3">
-               
                {#if isProcessing}
                   <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                   <h3 class="text-sm font-bold text-indigo-600 animate-pulse">{$t('upload.processing')}...</h3>
@@ -1104,7 +1016,6 @@ const getClientTotalCount = (client: Client) => {
                   <div class="p-4 rounded-full bg-white/50 mb-2 group-hover:scale-110 transition-transform duration-300">
                       <Upload size={40} class="text-indigo-600" strokeWidth={1.5} />
                   </div>
-                  
                   <div class="flex flex-col gap-1">
                       <span class="font-bold text-lg text-indigo-700">
                           {$t('upload.btn_load')}
@@ -1145,7 +1056,7 @@ const getClientTotalCount = (client: Client) => {
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[150px] sm:min-h-[200px] mt-4 sm:mt-6">
       
       {#if inboxRecords.length === 0}
-        <div class="p-8 text-center h-full flex flex-col justify-center items-center py-12">
+          <div class="p-8 text-center h-full flex flex-col justify-center items-center py-12">
           <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
             <Inbox class="text-slate-300" size={40} strokeWidth={1.5} />
           </div>
@@ -1224,19 +1135,19 @@ const getClientTotalCount = (client: Client) => {
                  <div class="flex-1 min-w-0">
                     <div class="flex justify-between items-start gap-2 mb-2">
                        <div>
-                         <div class="font-bold text-slate-800 text-lg leading-tight">{rec.date}</div>
+                          <div class="font-bold text-slate-800 text-lg leading-tight">{rec.date}</div>
                          <div class="text-xs text-slate-500 font-mono mt-0.5 flex items-center gap-1">
                              <Clock size={10} /> {rec.time}
                          </div>
                        </div>
                        
                        <div class="text-right">
-                         <div class="text-2xl font-black text-slate-800 leading-none">{rec.weight}<span class="text-sm font-medium text-slate-400 ml-0.5">kg</span></div>
+                          <div class="text-2xl font-black text-slate-800 leading-none">{rec.weight}<span class="text-sm font-medium text-slate-400 ml-0.5">kg</span></div>
                        </div>
                     </div>
 
                     <div class="flex flex-wrap gap-2 mb-3">
-                        <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-xs font-bold whitespace-nowrap">
+                      <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-xs font-bold whitespace-nowrap">
                           {rec.height}cm
                         </span>
                         <span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded text-xs font-medium whitespace-nowrap">
@@ -1249,7 +1160,7 @@ const getClientTotalCount = (client: Client) => {
 
                     <div class="pt-3 border-t border-slate-100">
                         <div class="relative">
-                          <input
+                           <input
                             type="text"
                             disabled={clients.length === 0}
                             placeholder={clients.length === 0 ? $t('dashboard.no_clients_created') : $t('dashboard.assign_btn')}
@@ -1266,7 +1177,7 @@ const getClientTotalCount = (client: Client) => {
                                   {c.alias}
                                 </button>
                               {/each}
-                            </div>
+                             </div>
                           {/if}
                         </div>
                     </div>
@@ -1300,16 +1211,16 @@ const getClientTotalCount = (client: Client) => {
                     />
                   </td>
                   <td class="px-6 py-4">
-                     <div class="font-bold text-slate-700">{rec.date}</div>
+                      <div class="font-bold text-slate-700">{rec.date}</div>
                      <div class="text-xs text-slate-400 font-mono mt-0.5">{rec.time}</div>
                   </td>
                   <td class="px-6 py-4">
-                     <span class="text-lg font-black text-slate-800">{rec.weight}</span> 
+                      <span class="text-lg font-black text-slate-800">{rec.weight}</span> 
                      <span class="text-xs text-slate-500">kg</span>
                   </td>
                   <td class="px-6 py-4">
                      <div class="flex flex-wrap gap-2 text-xs">
-                       <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded font-bold">
+                        <span class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded font-bold">
                          {rec.height}cm
                        </span>
                        <span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded font-medium">
@@ -1322,7 +1233,7 @@ const getClientTotalCount = (client: Client) => {
                   </td>
                   <td class="px-6 py-4 text-right">
                       <div class="relative w-56 ml-auto">
-                        <input
+                         <input
                           type="text"
                           disabled={clients.length === 0}
                           placeholder={clients.length === 0 ? $t('dashboard.no_clients_created') : $t('dashboard.assign_btn')}
@@ -1540,28 +1451,28 @@ const getClientTotalCount = (client: Client) => {
                     </div>
                     
                     <div class="flex items-center gap-2 sm:ml-auto border border-slate-200 rounded-xl px-4 py-2 bg-white flex-shrink-0 mt-2 sm:mt-0 shadow-sm transition-colors hover:border-indigo-300">
-    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{$t('dashboard.filters.from')}</span>
-    
-    <input 
-      type="date" 
-      bind:value={customDateStart} 
-      on:change={() => currentFilter = 'custom'} 
-      class="text-xs text-gray-500 font-bold bg-transparent outline-none cursor-pointer hover:text-indigo-600 transition-colors" 
-      placeholder="dd/mm/yyyy" 
-    />
-    
-    <span class="text-slate-300 mx-1">|</span>
-    
-    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{$t('dashboard.filters.to')}</span>
-    
-    <input 
-      type="date" 
-      bind:value={customDateEnd} 
-      on:change={() => currentFilter = 'custom'} 
-      class="text-xs text-gray-500 font-bold bg-transparent outline-none cursor-pointer hover:text-indigo-600 transition-colors" 
-      placeholder="dd/mm/yyyy" 
-    />
-</div>
+                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{$t('dashboard.filters.from')}</span>
+                      
+                      <input 
+                        type="date" 
+                        bind:value={customDateStart} 
+                        on:change={() => currentFilter = 'custom'} 
+                        class="text-xs text-gray-500 font-bold bg-transparent outline-none cursor-pointer hover:text-indigo-600 transition-colors" 
+                        placeholder="dd/mm/yyyy" 
+                      />
+                      
+                      <span class="text-slate-300 mx-1">|</span>
+                      
+                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{$t('dashboard.filters.to')}</span>
+                      
+                      <input 
+                        type="date" 
+                        bind:value={customDateEnd} 
+                        on:change={() => currentFilter = 'custom'} 
+                        class="text-xs text-gray-500 font-bold bg-transparent outline-none cursor-pointer hover:text-indigo-600 transition-colors" 
+                        placeholder="dd/mm/yyyy" 
+                      />
+                  </div>
                   </div>
                 </div>
 
@@ -1592,8 +1503,7 @@ const getClientTotalCount = (client: Client) => {
         <button
           on:click={() => selectedRecordId = rec.id}
           class="flex-shrink-0 w-[85px] sm:w-[85px] p-2 rounded-lg border text-left transition-all touch-manipulation relative
-          {selectedRecordId === rec.id ||
-          (!selectedRecordId && rec === currentRecord)
+          {selectedRecordId === rec.id || (!selectedRecordId && rec === currentRecord)
             ? 'border-indigo-400 bg-indigo-50 shadow-md transform scale-105 z-10' 
             : 'bg-white border-gray-200 opacity-80 hover:opacity-100'
           }"
@@ -1637,7 +1547,7 @@ const getClientTotalCount = (client: Client) => {
 
                <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
   
-                  <div class="flex flex-col gap-3 sm:gap-4 xl:col-span-1"> 
+                   <div class="flex flex-col gap-3 sm:gap-4 xl:col-span-1"> 
                     <div class="grid grid-cols-2 gap-3 sm:gap-4">
   
   <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-800 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
@@ -1796,11 +1706,11 @@ const getClientTotalCount = (client: Client) => {
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center transition-transform hover:scale-[1.02]">
                     <div class="mb-3 p-3 rounded-full bg-emerald-50 text-emerald-600">
-                        <BarChart3 size={28} />
+                         <BarChart3 size={28} />
                     </div>
                     <span class="text-2xl font-black text-slate-800 leading-none">
                         {PatientManager.getAssignmentCount()}
-                    </span>
+                      </span>
                     <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">{$t('settings.total_measurements')}</span>
                 </div>
             </div>
@@ -1819,7 +1729,7 @@ const getClientTotalCount = (client: Client) => {
                             <div class="flex-grow border-t border-slate-200"></div>
                             <span class="flex-shrink-0 mx-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
                                 {$t('settings.section_save')}
-                            </span>
+                             </span>
                             <div class="flex-grow border-t border-slate-200"></div>
                         </div>
 
@@ -1842,15 +1752,15 @@ const getClientTotalCount = (client: Client) => {
 
                         <div class="relative group">
                             <div class="border-2 border-dashed border-indigo-200 rounded-xl p-8 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer">
-                                 <div class="flex flex-col items-center gap-3 text-indigo-600 group-hover:text-indigo-700">
+                              <div class="flex flex-col items-center gap-3 text-indigo-600 group-hover:text-indigo-700">
                                      <Upload size={32} class="transition-transform group-hover:scale-110" />
                                      <div class="flex flex-col">
-                                        <span class="font-bold text-sm">{$t('settings.btn_import')}</span>
+                                         <span class="font-bold text-sm">{$t('settings.btn_import')}</span>
                                         <span class="text-xs text-indigo-400 font-normal mt-1">
                                             {$t('settings.drag_backup')}
                                         </span>
                                      </div>
-                                 </div>
+                              </div>
                             </div>
                             <input 
                                 type="file" 
@@ -1884,7 +1794,6 @@ const getClientTotalCount = (client: Client) => {
           </div>
         {/if}
 
-        <!-- Global Modal Component -->
         {#if showModal}
           <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
             <div 
@@ -1913,7 +1822,7 @@ const getClientTotalCount = (client: Client) => {
                         <Edit size={24} />
                     </div>
                   {:else}
-                    <div class="bg-slate-100 text-slate-600 p-2 rounded-lg flex-shrink-0">
+                     <div class="bg-slate-100 text-slate-600 p-2 rounded-lg flex-shrink-0">
                         <Info size={24} />
                     </div>
                   {/if}
@@ -1953,7 +1862,7 @@ const getClientTotalCount = (client: Client) => {
                       {$t('actions.confirm')}
                     </button>
                   {:else}
-                    <button
+                     <button
                       on:click={() => showModal = false}
                       class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors shadow-sm"
                     >
@@ -1970,14 +1879,12 @@ const getClientTotalCount = (client: Client) => {
 {/if}
 
 <style>
-  /* Scrollbar Minimalista (CSS Válido, no usa @apply) */
   .scrollbar-thin::-webkit-scrollbar { height: 6px; }
   .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
   .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 20px; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* Animations */
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
