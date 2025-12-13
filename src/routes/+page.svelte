@@ -817,8 +817,8 @@
         <div class="max-w-6xl mx-auto space-y-8 animate-fade-in pb-12">
             <div class="text-center pt-4 sm:pt-8">
                 <h2 class="text-2xl sm:text-4xl font-black text-slate-800">
-                    {$t('help.page_title')}
-                </h2>
+  {$t('help.page_title')}
+</h2>
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
@@ -993,9 +993,9 @@
   <div class="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
     
     <div class="text-center pt-4 sm:pt-8 space-y-4">
-      <h2 class="text-xl sm:text-3xl font-black text-slate-800">
-        {$t('upload.instruction_title')}
-      </h2>
+      <h2 class="text-2xl sm:text-4xl font-black text-slate-800">
+  {$t('upload.instruction_title')}
+</h2>
       
       <div class="flex flex-col items-center gap-2">
           <p class="text-sm text-slate-500 font-medium">{$t('upload.instruction_text')}</p>
@@ -1478,26 +1478,26 @@
 
                 <div class="w-full flex-shrink-0 bg-gray-50 p-2 sm:p-3 rounded-xl border border-gray-200 shadow-inner overflow-x-auto scrollbar-thin">
   {#if displayedHistory.length === 0}
-    {@const currentClient = clients.find(c => c.id === selectedClientId)}
-    {@const totalLinked = getClientTotalCount(currentClient)}
+  {@const currentClient = clients.find(c => c.id === selectedClientId)}
+  {@const totalLinked = getClientTotalCount(currentClient)}
+  
+  <div class="flex flex-col items-center justify-center py-4 text-center px-4 w-full h-[85px] sm:h-[105px]">
     
-    <div class="flex flex-col items-center justify-center py-4 text-center px-4 w-full h-[85px] sm:h-[105px]">
-      
-      {#if totalLinked === 0}
-        <div class="text-gray-400 flex flex-col items-center gap-1">
-            <span class="text-xs italic">{$t('dashboard.client_no_history')}</span>
-        </div>
-      
-      {:else}
+    {#if totalLinked === 0}
+      <div class="text-gray-400 flex flex-col items-center gap-1">
+          <span class="text-xs italic">{$t('dashboard.client_no_history')}</span>
+      </div>
+    
+    {:else}
         <div class="flex items-center gap-3 text-amber-600 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200 shadow-sm animate-pulse">
            <AlertCircle size={18} class="flex-shrink-0" />
            <p class="text-xs font-bold text-left">
-             {$t('dashboard.client_data_missing', { count: totalLinked })}
+             {$t('dashboard.client_data_missing_short')}
            </p>
         </div>
       {/if}
-    </div>
-  {:else}
+  </div>
+{:else}
     <div class="flex gap-2 sm:gap-3">
       {#each displayedHistory as rec (rec.id)}
         <button
@@ -1691,9 +1691,9 @@
           <div class="max-w-2xl mx-auto space-y-6 animate-fade-in pb-12">
             
             <div class="text-center pt-4 sm:pt-8 mb-4">
-               <h2 class="text-2xl sm:text-3xl font-black text-slate-800">
-                 {$t('settings.title')}
-               </h2>
+               <h2 class="text-2xl sm:text-4xl font-black text-slate-800">
+  {$t('settings.title')}
+</h2>
             </div>
 
             <div class="grid grid-cols-2 gap-4">

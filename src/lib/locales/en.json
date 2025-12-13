@@ -50,7 +50,7 @@
     "evolution_chart": "Progress",
     "detach_record": "Unlink Measurement",
     "detach_record_title": "Unlink Measurement",
-    "client_data_missing": "This client has {count} measurements, but SD data has not been loaded yet",
+    "client_data_missing_short": "This client has measurements, but the SD card data has not been loaded",
     "client_no_history": "This client has no linked measurements yet",
     "no_data_title": "No Data",
     "no_clients_created": "You haven't created any clients yet",

@@ -50,7 +50,7 @@
     "evolution_chart": "Progreso",
     "detach_record": "Desvincular medición",
     "detach_record_title": "Desvincular medición",
-    "client_data_missing": "Este cliente tiene {count} mediciones, pero aún no se han cargado los datos de la SD",
+    "client_data_missing_short": "Este cliente tiene mediciones, pero los datos de la SD no se han cargado",
     "client_no_history": "Este cliente aún no tiene mediciones vinculadas",
     "no_data_title": "Sin Datos",
     "no_clients_created": "Aún no has creado ningún cliente",
