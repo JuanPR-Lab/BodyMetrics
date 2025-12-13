@@ -683,7 +683,7 @@ const getButtonKey = (fileName: string): string => {
     if (!text) return '';
     return text
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
-      .replace(/`(.*?)`/g, '<code class="bg-gray-100 text-pink-600 px-1.5 py-0.5 rounded font-mono text-xs border border-gray-200">$1</code>');
+      .replace(/`(.*?)`/g, '<code class="bg-gray-100 text-purple-600 px-1.5 py-0.5 rounded font-mono text-xs border border-gray-200">$1</code>');
   };
 
 </script>
@@ -844,8 +844,8 @@ const getButtonKey = (fileName: string): string => {
         <div class="max-w-6xl mx-auto space-y-8 animate-fade-in pb-12">
             <div class="text-center pt-4 sm:pt-8">
                 <h2 class="text-2xl sm:text-4xl font-black text-slate-800">
-  {$t('help.page_title')}
-</h2>
+                    {$t('help.page_title')}
+                </h2>
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
@@ -854,15 +854,15 @@ const getButtonKey = (fileName: string): string => {
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.starting_requirements')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.starting_requirements')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_requirements_text'))}</p>
                     </div>
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.starting_installation')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.starting_installation')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_installation_text'))}</p>
                     </div>
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.starting_first_steps')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.starting_first_steps')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_first_steps_text'))}</p>
                     </div>
                 </div>
@@ -874,11 +874,11 @@ const getButtonKey = (fileName: string): string => {
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.clients_creation')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.clients_creation')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_creation_text'))}</p>
                     </div>
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.clients_buttons_logic')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.clients_buttons_logic')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_buttons_logic_text'))}</p>
                     </div>
                     <div class="space-y-3">
@@ -903,15 +903,15 @@ const getButtonKey = (fileName: string): string => {
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.files_where')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.files_where')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_where_text'))}</p>
                     </div>
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.files_structure')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.files_structure')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_structure_text'))}</p>
                     </div>
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.files_troubleshooting')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.files_troubleshooting')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_troubleshooting_text'))}</p>
                     </div>
                 </div>
@@ -923,19 +923,19 @@ const getButtonKey = (fileName: string): string => {
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.interpretation_main_metrics')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.interpretation_main_metrics')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_main_metrics_text'))}</p>
                     </div>
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.interpretation_segmental')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.interpretation_segmental')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_segmental_text'))}</p>
                     </div>
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.interpretation_health_states')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.interpretation_health_states')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_health_states_text'))}</p>
                     </div>
                     <div class="space-y-3">
-                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.interpretation_export')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.interpretation_export')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_export_text'))}</p>
                     </div>
                 </div>
@@ -948,34 +948,40 @@ const getButtonKey = (fileName: string): string => {
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="space-y-6">
                         <div class="space-y-2">
-                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_local_data')}</h4>
+                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.security_local_data')}</h4>
                             <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_local_data_text'))}</p>
                         </div>
                         <div class="space-y-2">
-                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_link')}</h4>
+                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.security_link')}</h4>
                             <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_link_text'))}</p>
                         </div>
-                    </div>
-                    <div class="space-y-6">
                         <div class="space-y-2">
-                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_backups')}</h4>
+                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.security_backups')}</h4>
                             <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_backups_text'))}</p>
                         </div>
-                        <div class="space-y-3">
-                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider">{$t('help.security_restoration')}</h4>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.security_restoration')}</h4>
                             <p class="text-sm text-slate-600 leading-relaxed">
                                 {@html formatText($t('help.security_restoration_intro'))}
                             </p>
-                            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
-                                <div class="flex items-start gap-3">
-                                    <AlertTriangle class="text-amber-600 flex-shrink-0 mt-0.5" size={18} />
-                                    <div class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-                                        {@html formatText($t('help.security_warning_sync'))}
-                                    </div>
+                        </div>
+                        
+                        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
+                            <div class="flex items-start gap-3">
+                                <AlertTriangle class="text-amber-600 flex-shrink-0 mt-0.5" size={18} />
+                                <div class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                                    <h4 class="font-bold text-amber-800 text-sm uppercase tracking-wider mb-2">
+                                        {$t('help.security_manual_sync_title')}
+                                    </h4>
+                                    {@html formatText($t('help.security_warning_sync'))}
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        </div>
+
                 </div>
             </div>
 
@@ -985,15 +991,15 @@ const getButtonKey = (fileName: string): string => {
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
-                        <h4 class="font-bold text-rose-600 text-sm uppercase tracking-wider">{$t('help.troubleshooting_common')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.troubleshooting_common')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_common_text'))}</p>
                     </div>
                     <div class="space-y-3">
-                        <h4 class="font-bold text-rose-600 text-sm uppercase tracking-wider">{$t('help.troubleshooting_missing_data')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.troubleshooting_missing_data')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_missing_data_text'))}</p>
                     </div>
                     <div class="space-y-3">
-                        <h4 class="font-bold text-rose-600 text-sm uppercase tracking-wider">{$t('help.troubleshooting_date')}</h4>
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.troubleshooting_date')}</h4>
                         <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_date_text'))}</p>
                     </div>
                 </div>
@@ -1015,7 +1021,6 @@ const getButtonKey = (fileName: string): string => {
             </div>
         </div>
       {/if}
-
      {#if currentTab === 'inbox'}
   <div class="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
     

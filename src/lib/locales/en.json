@@ -109,6 +109,7 @@
     "security_backups_text": "It is **vital** to go to Settings > **Download Backup** regularly. This generates a `bm_backup...json` file containing all links between measurements and clients.",
     "security_restoration": "Restore & Sync",
     "security_restoration_intro": "Use **Upload Backup** to recover data or switch devices.",
+    "security_manual_sync_title": "Manual Sync",
     "security_warning_sync": "**Manual Sync:**\nData does not sync automatically. To transfer data from PC to Mobile, you must load **TWO** things:\n1. The **Backup** file (.json) containing the links.\n2. The **DATA.CSV** files from the SD containing the raw data.\n\nWithout both files, you won't see any measurements.",
     "section_troubleshooting": "FAQ / Troubleshooting",
     "troubleshooting_common": "Which file to upload?",

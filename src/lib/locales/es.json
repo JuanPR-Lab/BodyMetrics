@@ -109,6 +109,7 @@
     "security_backups_text": "Es **vital** ir a Ajustes > **Descargar Copia** regularmente. Esto genera un archivo `bm_backup...json` con todos los vínculos entre mediciones y clientes.",
     "security_restoration": "Restaurar y Sincronizar",
     "security_restoration_intro": "Usa **Cargar Copia** para recuperar datos o cambiar de dispositivo.",
+    "security_manual_sync_title": "Sincronización Manual",
     "security_warning_sync": "**Sincronización Manual:**\nLos datos no se sincronizan automáticamente. Para pasar datos de PC a Móvil, necesitas cargar **DOS** cosas:\n1. La **Copia de Seguridad** (.json) con los vínculos.\n2. Los archivos **DATA.CSV** de la SD con los datos brutos.\n\nSin ambos archivos, no verás las mediciones.",
     "section_troubleshooting": "Dudas Frecuentes",
     "troubleshooting_common": "¿Qué archivo subo?",
