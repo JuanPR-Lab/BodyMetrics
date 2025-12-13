@@ -49,32 +49,39 @@
     divider: "w-px h-10 bg-slate-200 mx-2"
   };
 
-  // --- STATIC CONFIG (Añadir debajo de CHART_OPTIONS o STYLES) ---
-
-// Mapeo de archivos CSV a identificadores de botón/usuario.
-const CSV_BUTTON_MAP: Record<string, string> = {
-    'data1.csv': 'BUTTON_1',
-    'data5.csv': 'BUTTON_1',
-    'data2.csv': 'BUTTON_2',
-    'data6.csv': 'BUTTON_2',
-    'data3.csv': 'BUTTON_3',
-    'data7.csv': 'BUTTON_3',
-    'data4.csv': 'BUTTON_4',
-    'data8.csv': 'BUTTON_4',
-};
-
-// Helper para obtener el ID del botón a partir del nombre del archivo
-const getButtonKey = (fileName: string): string => {
-    return CSV_BUTTON_MAP[fileName.toLowerCase()] || 'UNKNOWN_SOURCE';
-};
-
   let promptInput: HTMLInputElement;
+  
+  // MAPPING: File Name -> Button Key (in UPPECASE, matching the JSON key but capitalized)
+  const CSV_BUTTON_MAP: Record<string, string> = {
+      'data1.csv': 'BUTTON_1',
+      'data5.csv': 'BUTTON_1',
+      'data2.csv': 'BUTTON_2',
+      'data6.csv': 'BUTTON_2',
+      'data3.csv': 'BUTTON_3',
+      'data7.csv': 'BUTTON_3',
+      'data4.csv': 'BUTTON_4',
+      'data8.csv': 'BUTTON_4',
+  };
+
+/**
+ * Helper to get the full translation key for a button/user ID based on the file name.
+ * @param fileName The name of the CSV file (e.g., 'data1.csv').
+ * @returns The full translation key (e.g., 'dashboard.button_1').
+ */
+const getButtonKey = (fileName: string): string => {
+    // 1. Get the internal key (e.g., BUTTON_1, UNKNOWN_SOURCE) from the mapping.
+    const internalKey = CSV_BUTTON_MAP[fileName.toLowerCase()] || 'UNKNOWN_SOURCE';
+    
+    // 2. Return the key prefixed with the JSON category and converted to lowercase.
+    // This ensures '$t' finds the nested key like "dashboard.button_1".
+    return `dashboard.${internalKey.toLowerCase()}`;
+};
   
   // --- STATE ---
   let allRecords: BioMetricRecord[] = [];
   let clients: Client[] = [];
   
-  // *** NUEVO: Estado para guardar los contadores de cada cliente ***
+  // State for client record counts (fixed bug)
   let clientCounts: Record<string, number> = {}; 
 
   // UI State
@@ -204,7 +211,7 @@ const getButtonKey = (fileName: string): string => {
   
   $: chartData = displayedHistory.length > 0 ? prepareSingleChart(displayedHistory, selectedChartMetric, activeChartUnitKey) : null;
 
-  // *** CORREGIDO: Helper para obtener el conteo desde el mapa ***
+  // Helper to get the pre-calculated count from the map
   const getClientTotalCount = (client: Client) => {
     if (!client) return 0;
     return clientCounts[client.id] || 0; 
@@ -244,7 +251,7 @@ const getButtonKey = (fileName: string): string => {
   function refreshClients() {
     clients = PatientManager.getClients();
     
-    // *** NUEVO: Actualizamos los contadores usando el nuevo método ***
+    // Update client counts (fix)
     clientCounts = PatientManager.getClientCounts();
     
     allRecords = [...allRecords];
@@ -286,6 +293,7 @@ const getButtonKey = (fileName: string): string => {
     errorMessage = '';
     
     try {
+      // Note: parseScaleFiles now injects 'sourceFile' property
       const parsedData = await parseScaleFiles(files);
       if (parsedData.length === 0) throw new Error('No valid records found.');
       
@@ -507,7 +515,7 @@ const getButtonKey = (fileName: string): string => {
       () => {
         PatientManager.deleteAllData();
         clients = [];
-        clientCounts = {}; // Resetear contadores
+        clientCounts = {}; // Reset counts
         selectedClientId = '';
         selectedRecordId = '';
         refreshClients();
