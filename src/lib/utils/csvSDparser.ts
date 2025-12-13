@@ -1,6 +1,5 @@
 import Papa from 'papaparse';
 
-// Renamed from TanitaRecord to BioMetricRecord to be generic
 export interface BioMetricRecord {
   id: string;
   date: string;
@@ -31,6 +30,9 @@ export interface BioMetricRecord {
   muscleLegR: number;   // mR
   muscleLegL: number;   // mL
   muscleTrunk: number;  // mT
+  
+  // NEW PROPERTY: Source file name
+  sourceFile: string;
 }
 
 const cleanStr = (val: any) => String(val || '').trim();
@@ -113,6 +115,9 @@ const parseSingleFile = (file: File): Promise<BioMetricRecord[]> => {
             muscleLegR: safeFloat(getValue(KEYS.MUS_R_LEG)),
             muscleLegL: safeFloat(getValue(KEYS.MUS_L_LEG)),
             muscleTrunk: safeFloat(getValue(KEYS.MUS_TRUNK)),
+
+            // Assign source file name
+            sourceFile: file.name,
           });
         });
 

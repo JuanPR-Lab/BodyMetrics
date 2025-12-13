@@ -33,6 +33,12 @@
       "from": "Del:",
       "to": "Al:"
     },
+    "source_file": "Archivo Fuente",
+    "button_1": "Botón 1",
+    "button_2": "Botón 2",
+    "button_3": "Botón 3",
+    "button_4": "Botón 4",
+    "unknown_source": "Fuente Desconocida",
     "key_data": "Datos Clave",
     "action": "Acción",
     "new_alias_placeholder": "Introduce Código o Alias",

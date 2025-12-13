@@ -49,6 +49,25 @@
     divider: "w-px h-10 bg-slate-200 mx-2"
   };
 
+  // --- STATIC CONFIG (Añadir debajo de CHART_OPTIONS o STYLES) ---
+
+// Mapeo de archivos CSV a identificadores de botón/usuario.
+const CSV_BUTTON_MAP: Record<string, string> = {
+    'data1.csv': 'BUTTON_1',
+    'data5.csv': 'BUTTON_1',
+    'data2.csv': 'BUTTON_2',
+    'data6.csv': 'BUTTON_2',
+    'data3.csv': 'BUTTON_3',
+    'data7.csv': 'BUTTON_3',
+    'data4.csv': 'BUTTON_4',
+    'data8.csv': 'BUTTON_4',
+};
+
+// Helper para obtener el ID del botón a partir del nombre del archivo
+const getButtonKey = (fileName: string): string => {
+    return CSV_BUTTON_MAP[fileName.toLowerCase()] || 'UNKNOWN_SOURCE';
+};
+
   let promptInput: HTMLInputElement;
   
   // --- STATE ---
@@ -989,13 +1008,13 @@
         </div>
       {/if}
 
-      {#if currentTab === 'inbox'}
+     {#if currentTab === 'inbox'}
   <div class="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
     
     <div class="text-center pt-4 sm:pt-8 space-y-4">
       <h2 class="text-2xl sm:text-4xl font-black text-slate-800">
-  {$t('upload.instruction_title')}
-</h2>
+        {$t('upload.instruction_title')}
+      </h2>
       
       <div class="flex flex-col items-center gap-2">
           <p class="text-sm text-slate-500 font-medium">{$t('upload.instruction_text')}</p>
@@ -1157,7 +1176,15 @@
                           {rec.age} {$t('units.years')}
                         </span>
                     </div>
-
+                    
+                    <div class="mb-3">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                           {$t('dashboard.source_file')}
+                        </span>
+                        <div class="text-sm font-bold text-indigo-700 bg-indigo-50 p-2 rounded-lg mt-1 truncate">
+   {$t(getButtonKey(rec.sourceFile).toLowerCase())}
+</div>
+                    </div>
                     <div class="pt-3 border-t border-slate-100">
                         <div class="relative">
                            <input
@@ -1196,6 +1223,7 @@
                 <th class="px-6 py-4">{$t('analysis.date')}</th>
                 <th class="px-6 py-4">{$t('metrics.weight')}</th>
                 <th class="px-6 py-4">{$t('dashboard.key_data')}</th>
+                <th class="px-6 py-4">{$t('dashboard.source_file')}</th>
                 <th class="px-6 py-4 text-right w-64">{$t('dashboard.action')}</th>
               </tr>
             </thead>
@@ -1231,6 +1259,10 @@
                        </span>
                      </div>
                   </td>
+                  
+                  <td class="px-6 py-4 text-sm font-bold text-indigo-700 max-w-[150px]">
+    {$t(getButtonKey(rec.sourceFile).toLowerCase())}
+</td>
                   <td class="px-6 py-4 text-right">
                       <div class="relative w-56 ml-auto">
                          <input

@@ -33,6 +33,12 @@
       "from": "From:",
       "to": "To:"
     },
+    "source_file": "Source File",
+    "button_1": "Button 1",
+    "button_2": "Button 2",
+    "button_3": "Button 3",
+    "button_4": "Button 4",
+    "unknown_source": "Unknown Source",
     "key_data": "Key Data",
     "action": "Action",
     "new_alias_placeholder": "Enter Code or Alias",
