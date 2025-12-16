@@ -30,7 +30,7 @@
     CheckCircle, Info, Edit, Trash2, FileSpreadsheet, Undo2, Save, Download, 
     Upload, Rocket, BarChart3, Target, ChevronDown, ChevronLeft, ChevronRight, 
     XCircle, Scale, Activity, Droplets, Dumbbell, Flame, Bone, Clock, Search, 
-    Sparkles, AlertCircle, Monitor, CheckCircle2 , Coffee, Heart, Github
+    Sparkles, AlertCircle, Monitor, CheckCircle2 , Coffee, Heart, Github, RotateCw
   } from 'lucide-svelte';
 
 
@@ -944,7 +944,7 @@
     <main class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
       
       {#if currentTab === 'help'}
-  <div class="max-w-3xl mx-auto space-y-8 animate-fade-in pb-12">
+  <div class="max-w-3xl mx-auto space-y-6 animate-fade-in pb-12">
     
     <div class="text-center pt-8 mb-6">
        <h2 class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">
@@ -957,14 +957,22 @@
             <Rocket class="text-indigo-600" size={24} />
             <h3 class="font-bold text-indigo-800 text-lg">{$t('help.section_starting')}</h3>
         </div>
-        <div class="p-6 space-y-6 text-sm text-slate-600 leading-relaxed">
+        <div class="p-5 sm:p-6 space-y-6 text-sm text-slate-600 leading-relaxed">
             <div>
                 <h4 class="font-bold text-indigo-600 text-base mb-2">{$t('help.starting_first_steps')}</h4>
-                <p class="whitespace-pre-line">{@html formatText($t('help.starting_first_steps_text'))}</p>
+                <p class="whitespace-pre-line text-slate-700">{@html formatText($t('help.starting_first_steps_text'))}</p>
             </div>
-            <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
-                 <h4 class="font-bold text-indigo-800 mb-1">{$t('help.starting_requirements')}</h4>
-                 <p class="whitespace-pre-line text-xs">{@html formatText($t('help.starting_requirements_text'))}</p>
+            
+            <div class="bg-indigo-50/80 border border-indigo-100 rounded-xl p-5">
+                 <div class="flex items-center gap-2 mb-2">
+                    <div class="bg-white p-1.5 rounded-full shadow-sm text-indigo-600">
+                        <Monitor size={16} /> 
+                    </div>
+                    <h4 class="font-bold text-indigo-900 text-base">{$t('help.starting_requirements')}</h4>
+                 </div>
+                 <div class="text-sm text-indigo-800 leading-relaxed pl-1">
+                    {@html formatText($t('help.starting_requirements_text'))}
+                 </div>
             </div>
         </div>
     </div>
@@ -974,16 +982,18 @@
             <Users class="text-indigo-600" size={24} />
             <h3 class="font-bold text-indigo-800 text-lg">{$t('help.section_clients_buttons')}</h3>
         </div>
-        <div class="p-6 space-y-4 text-sm text-slate-600">
-             <p class="whitespace-pre-line">{@html formatText($t('help.clients_buttons_logic_text'))}</p>
+        <div class="p-5 sm:p-6 space-y-6 text-sm text-slate-600">
+             <p class="whitespace-pre-line leading-relaxed">{@html formatText($t('help.clients_buttons_logic_text'))}</p>
              
-             <div class="mt-4 bg-amber-50 border border-amber-100 p-4 rounded-lg flex gap-3">
-                <div class="flex-shrink-0 mt-0.5">
-                    <AlertTriangle class="text-amber-500" size={20} />
+             <div class="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-white p-2 rounded-full shadow-sm text-amber-600 flex-shrink-0">
+                        <AlertTriangle size={20} />
+                    </div>
+                    <h4 class="font-bold text-amber-900 text-base leading-tight">{$t('help.clients_infinite_trick')}</h4>
                 </div>
-                <div>
-                    <h4 class="font-bold text-amber-800 mb-2">{$t('help.clients_infinite_trick')}</h4>
-                    <p class="whitespace-pre-line text-xs text-amber-900/80">{@html formatText($t('help.clients_infinite_trick_text'))}</p>
+                <div class="text-sm text-amber-900/90 leading-relaxed space-y-2 pl-1">
+                    {@html formatText($t('help.clients_infinite_trick_text'))}
                 </div>
              </div>
         </div>
@@ -994,24 +1004,28 @@
             <FolderOpen class="text-indigo-600" size={24} />
             <h3 class="font-bold text-indigo-800 text-lg">{$t('help.section_files')}</h3>
         </div>
-        <div class="p-6 space-y-6 text-sm text-slate-600 leading-relaxed">
+        <div class="p-5 sm:p-6 space-y-6 text-sm text-slate-600 leading-relaxed">
             <div>
                  <h4 class="font-bold text-indigo-600 text-base mb-2">{$t('help.files_structure')}</h4>
-                 <p class="whitespace-pre-line">{@html formatText($t('help.files_structure_text'))}</p>
+                 <p class="whitespace-pre-line text-slate-700">{@html formatText($t('help.files_structure_text'))}</p>
             </div>
             
-            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <h4 class="font-bold text-slate-700 mb-1 text-xs uppercase">{$t('help.files_where')}</h4>
-                    <p class="whitespace-pre-line text-xs">{@html formatText($t('help.files_where_text'))}</p>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-800 mb-2 text-xs uppercase tracking-wider flex items-center gap-2">
+                        <FolderOpen size={14}/> {$t('help.files_where')}
+                    </h4>
+                    <p class="whitespace-pre-line text-sm text-slate-600">{@html formatText($t('help.files_where_text'))}</p>
             </div>
 
-            <div class="bg-amber-50 border border-amber-100 p-4 rounded-lg flex gap-3">
-                <div class="flex-shrink-0 mt-0.5">
-                    <AlertTriangle class="text-amber-500" size={20} />
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-white p-2 rounded-full shadow-sm text-amber-600 flex-shrink-0">
+                        <AlertTriangle size={20} />
+                    </div>
+                    <h4 class="font-bold text-amber-900 text-base leading-tight">{$t('help.files_troubleshooting')}</h4>
                 </div>
-                <div>
-                     <h4 class="font-bold text-amber-800 mb-1">{$t('help.files_troubleshooting')}</h4>
-                     <p class="whitespace-pre-line text-xs text-amber-900/80">{@html formatText($t('help.files_troubleshooting_text'))}</p>
+                <div class="text-sm text-amber-900/90 leading-relaxed pl-1">
+                     {@html formatText($t('help.files_troubleshooting_text'))}
                 </div>
             </div>
         </div>
@@ -1032,22 +1046,32 @@
              <Lock class="text-indigo-600" size={24} />
              <h3 class="font-bold text-indigo-800 text-lg">{$t('help.section_security')}</h3>
         </div>
-        <div class="p-6 space-y-6 text-sm text-slate-500">
+        <div class="p-5 sm:p-6 space-y-6 text-sm text-slate-500">
             <div>
                  <h4 class="font-bold text-indigo-600 text-base mb-2">{$t('help.security_transparency_title')}</h4>
-                 <p class="whitespace-pre-line">{@html formatText($t('help.security_transparency_text'))}</p>
+                 <p class="whitespace-pre-line text-slate-600 leading-relaxed">{@html formatText($t('help.security_transparency_text'))}</p>
             </div>
 
             <div>
                  <h4 class="font-bold text-indigo-600 text-base mb-2">{$t('help.security_local_data')}</h4>
-                 <p class="whitespace-pre-line">{@html formatText($t('help.security_local_data_text'))}</p>
+                 <p class="whitespace-pre-line text-slate-600 leading-relaxed">{@html formatText($t('help.security_local_data_text'))}</p>
             </div>
             
-            <p class="whitespace-pre-line">{@html formatText($t('help.security_link_text'))}</p>
-            <p class="whitespace-pre-line">{@html formatText($t('help.security_backups_text'))}</p>
+            <div class="space-y-2 text-slate-600">
+                <p class="whitespace-pre-line leading-relaxed">{@html formatText($t('help.security_link_text'))}</p>
+                <p class="whitespace-pre-line leading-relaxed">{@html formatText($t('help.security_backups_text'))}</p>
+            </div>
             
-            <div class="bg-indigo-50 text-indigo-900 p-3 rounded border border-indigo-100 mt-2 text-xs">
-                {@html formatText($t('help.security_warning_sync'))}
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-white p-2 rounded-full shadow-sm text-amber-600 flex-shrink-0">
+                        <RotateCw size={20} />
+                    </div>
+                    <h4 class="font-bold text-amber-900 text-base leading-tight">{$t('help.security_manual_sync_title')}</h4>
+                </div>
+                <div class="text-sm text-amber-900/90 leading-relaxed pl-1">
+                     {@html formatText($t('help.security_manual_sync_text'))}
+                </div>
             </div>
         </div>
     </div>
@@ -1057,7 +1081,7 @@
             <Monitor class="text-indigo-600" size={24} />
             <h3 class="font-bold text-indigo-800 text-lg">{$t('help.viewer_section_title')}</h3>
         </div>
-        <div class="p-6 text-sm text-slate-600">
+        <div class="p-6 text-sm text-slate-600 leading-relaxed">
              <h4 class="font-bold text-indigo-600 text-base mb-2">{$t('help.viewer_title')}</h4>
              <p class="whitespace-pre-line">{@html formatText($t('help.viewer_text'))}</p>
         </div>
@@ -1071,38 +1095,39 @@
         <div class="p-6 space-y-6 text-sm text-slate-500">
             <div>
                 <h4 class="font-bold text-indigo-600 text-base mb-1">{$t('help.troubleshooting_which_file')}</h4>
-                {@html formatText($t('help.troubleshooting_which_file_text'))}
+                <div class="text-slate-600 leading-relaxed">{@html formatText($t('help.troubleshooting_which_file_text'))}</div>
             </div>
             <div class="border-t border-slate-100 pt-4">
                 <h4 class="font-bold text-indigo-600 text-base mb-1">{$t('help.troubleshooting_missing_data')}</h4>
-                {@html formatText($t('help.troubleshooting_missing_data_text'))}
+                <div class="text-slate-600 leading-relaxed">{@html formatText($t('help.troubleshooting_missing_data_text'))}</div>
             </div>
             <div class="border-t border-slate-100 pt-4">
                 <h4 class="font-bold text-indigo-600 text-base mb-1">{$t('help.troubleshooting_date')}</h4>
-                {@html formatText($t('help.troubleshooting_date_text'))}
+                <div class="text-slate-600 leading-relaxed">{@html formatText($t('help.troubleshooting_date_text'))}</div>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden text-center p-8">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden text-center p-6">
         <div class="flex justify-center mb-4 text-indigo-600">
             <Info size={32} />
         </div>
         <h3 class="text-xl font-bold text-slate-800 mb-2">{$t('help.section_about')}</h3>
-        <p class="text-sm text-slate-600 max-w-lg mx-auto mb-6">{$t('help.about_description')}</p>
         
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-500 mb-8 border-t border-b border-slate-100 py-4 max-w-2xl mx-auto">
-            <div>
-                <span class="block font-bold text-slate-700 mb-1">{$t('help.about_version')}</span>
-                {$t('help.about_license')}
+        <p class="text-sm text-slate-600 mx-auto mb-6">{$t('help.about_description')}</p>
+        
+        <div class="grid grid-cols-3 gap-0 text-xs text-slate-500 mb-8 border-t border-b border-slate-100 py-3 mx-auto divide-x divide-slate-100">
+            <div class="px-1 flex flex-col justify-center">
+                <span class="block font-bold text-slate-700 mb-1">{$t('help.about_lbl_version')}</span>
+                {$t('help.about_val_version')}
             </div>
-            <div>
-                <span class="block font-bold text-slate-700 mb-1">{$t('help.about_developed_by')}</span>
-                JuanPR-Lab
+            <div class="px-1 flex flex-col justify-center">
+                <span class="block font-bold text-slate-700 mb-1">{$t('help.about_lbl_license')}</span>
+                {$t('help.about_val_license')}
             </div>
-             <div>
-                <span class="block font-bold text-slate-700 mb-1">Stack</span>
-                Svelte • Tailwind • TypeScript
+            <div class="px-1 flex flex-col justify-center">
+                <span class="block font-bold text-slate-700 mb-1 truncate w-full">{$t('help.about_lbl_dev')}</span>
+                <span class="truncate w-full">JuanPR-Lab</span>
             </div>
         </div>
 
@@ -1112,7 +1137,7 @@
             {$t('help.about_github_btn')}
         </a>
         
-        <p class="mt-6 text-[10px] text-slate-400 uppercase tracking-widest">
+        <p class="mt-6 text-[9px] text-slate-400 uppercase tracking-wide">
             {$t('help.about_disclaimer')}
         </p>
     </div>
@@ -1126,7 +1151,7 @@
                         </div>
                         <h3 class="font-bold text-xl">{$t('help.section_support')}</h3>
                 </div>
-                <div class="text-sm text-white/95 font-medium leading-relaxed mb-6 max-w-lg space-y-2">
+                <div class="text-sm text-white/95 font-medium leading-relaxed mb-6 space-y-2">
                     <p>{@html formatText($t('help.support_description'))}</p>
                 </div>
                 
@@ -1149,11 +1174,12 @@
 
   </div>
 {/if}
-     {#if currentTab === 'inbox'}
+
+{#if currentTab === 'inbox'}
   <div class="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
     
-    <div class="text-center pt-4 sm:pt-8 space-y-4">
-      <h2 class="text-2xl sm:text-4xl font-black text-slate-800">
+    <div class="text-center pt-8 space-y-4">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">
         {$t('upload.instruction_title')}
       </h2>
       
@@ -1323,8 +1349,8 @@
                            {$t('dashboard.source_file')}
                         </span>
                         <div class="text-sm font-bold text-indigo-700 bg-indigo-50 p-2 rounded-lg mt-1 truncate">
-   {$t(getButtonKey(rec.sourceFile).toLowerCase())}
-</div>
+                           {$t(getButtonKey(rec.sourceFile).toLowerCase())}
+                        </div>
                     </div>
                     <div class="pt-3 border-t border-slate-100">
                         <div class="relative">
@@ -1402,8 +1428,8 @@
                   </td>
                   
                   <td class="px-6 py-4 text-sm font-bold text-indigo-700 max-w-[150px]">
-    {$t(getButtonKey(rec.sourceFile).toLowerCase())}
-</td>
+                      {$t(getButtonKey(rec.sourceFile).toLowerCase())}
+                  </td>
                   <td class="px-6 py-4 text-right">
                       <div class="relative w-56 ml-auto">
                          <input
@@ -1436,10 +1462,10 @@
     </div>
   </div>
 {/if}
-        {#if currentTab === 'clients'}
-          <div class="flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[800px] animate-fade-in">
-            
-            <div class="lg:col-span-1 flex flex-col gap-3 sm:gap-4 h-auto lg:h-full">
+
+{#if currentTab === 'clients'}
+  <div class="flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[800px] animate-fade-in">
+    <div class="lg:col-span-1 flex flex-col gap-3 sm:gap-4 h-auto lg:h-full">
   
   <div class="bg-indigo-50 p-3 sm:p-4 rounded-lg shadow-sm border border-indigo-100 flex-shrink-0">
     <h3 class="font-bold text-indigo-900 text-xs uppercase mb-2 sm:mb-3 tracking-wide">{$t('dashboard.create_btn')}</h3>
@@ -1937,10 +1963,10 @@
         {/if}
 
         {#if currentTab === 'settings'}
-          <div class="max-w-2xl mx-auto space-y-6 animate-fade-in pb-12">
+          <div class="max-w-3xl mx-auto space-y-6 animate-fade-in pb-12">
             
-            <div class="text-center pt-4 sm:pt-8 mb-4">
-               <h2 class="text-2xl sm:text-4xl font-black text-slate-800">
+            <div class="text-center pt-8 mb-4">
+               <h2 class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">
                   {$t('settings.title')}
                </h2>
             </div>
