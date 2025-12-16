@@ -230,22 +230,24 @@ export const PatientManager = {
    * Uses LOCAL SYSTEM TIME to avoid UTC offsets.
    * Format: bm_backup_YYYY-MM-DD_HH-mm-ss.json
    */
-  exportBackup() {
+  exportBackup(customFileName?: string) {
     const db = this.loadDB();
-    const now = new Date();
     
-    // Helper to pad numbers with leading zero (e.g. 5 -> "05")
-    const pad = (n: number) => n.toString().padStart(2, '0');
+    let filename = customFileName;
 
-    const year = now.getFullYear();
-    const month = pad(now.getMonth() + 1); // getMonth is 0-indexed
-    const day = pad(now.getDate());
-    
-    const hours = pad(now.getHours());
-    const minutes = pad(now.getMinutes());
-    const seconds = pad(now.getSeconds());
-    
-    const filename = `bm_backup_${year}-${month}-${day}_${hours}-${minutes}-${seconds}.json`;
+    if (!filename) {
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+
+      const day = pad(now.getDate());
+      const month = pad(now.getMonth() + 1);
+      const year = now.getFullYear();
+      
+      const hours = pad(now.getHours());
+      const minutes = pad(now.getMinutes());
+      
+      filename = `BM_Backup_${day}-${month}-${year}_${hours}-${minutes}.json`;
+    }
     
     triggerDownload(JSON.stringify(db, null, 2), filename);
   },

@@ -13,23 +13,18 @@ const downloadFile = (content: string, filename: string, mimeType: string) => {
   URL.revokeObjectURL(url);
 };
 
-// Helper: Get YYYY-MM-DD string
-const getTodayStr = () => new Date().toISOString().split('T')[0];
-
 /**
  * EXPORT 1: Client Data (CSV)
  * optimized for Excel/LibreOffice (European Format).
+ * * CHANGE: Now accepts the full 'filename' as the 3rd argument
+ * instead of generating it internally.
  */
 export const exportToCSV = (
   data: BioMetricRecord[], 
   headersMap: Record<string, string>, 
-  clientName: string = 'Client'
+  filename: string // <-- MODIFICADO: Ahora recibe el nombre completo del archivo
 ) => {
   if (!data || data.length === 0) return;
-
-  // Logic: Sanitize filename
-  const cleanName = clientName.replace(/[^a-z0-9]/gi, '_');
-  const filename = `BodyMetrics_${cleanName}_${getTodayStr()}.csv`;
 
   // 1. Define strict column order
   const columns: (keyof BioMetricRecord)[] = [
@@ -73,8 +68,7 @@ export const exportToCSV = (
  * EXPORT 2: Full Backup (JSON)
  * Used to restore app state.
  */
-export const exportToJSON = (data: BioMetricRecord[], filenameArg?: string) => {
-  const filename = filenameArg || `BodyMetrics_Backup_${getTodayStr()}.json`;
+export const exportToJSON = (data: BioMetricRecord[], filename: string) => {
   const jsonContent = JSON.stringify(data, null, 2);
   downloadFile(jsonContent, filename, 'application/json');
 };

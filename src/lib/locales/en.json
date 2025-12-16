@@ -92,8 +92,8 @@
     "files_troubleshooting": "Important: Old Data",
     "files_troubleshooting_text": "If your SD has years of data, **process in batches**:\n1. Load only Button 1 files (`DATA1`/`DATA5`) in **Inbox**.\n2. Use **Multi-Link** to assign them to 'Mom' (e.g.).\n3. Load Button 2 files (`DATA2`/`DATA6`) and assign to another client.\n4. Repeat for all.\n\nOnce history is organized, you can **load all files together** for daily use.",
     "section_interpretation": "Interpretation",
-    "interpretation_main_metrics": "Health Indicators",
-    "interpretation_main_metrics_text": "• **Fat % & BMI:** Blue (Low), Green (Healthy), Yellow (Overweight), Red (Obese).\n• **Water %:** The app uses Blue (Low), Green (Healthy), or Yellow (High). Ideal range is **45-60%** (Women) and **50-65%** (Men).\n• **Visceral Fat:** **1-12** (Healthy), **13+** (Risk).\n• **Metabolic Age:** Green if **≤ actual age**. Yellow if **> actual age**.",
+    "interpretation_main_metrics": "Traffic Light Interpretation",
+    "interpretation_main_metrics_text": "Colors indicate health status based on Tanita and WHO medical standards:\n\n**Fat % & BMI:**\n• **Blue (Under):** Fat or weight below healthy levels.\n• **Green (Healthy):** Optimal values for your age and gender.\n• **Yellow (Overweight):** Above standard.\n• **Red (Obese):** High health risk.\n\n**Visceral Fat Level:**\n• **Green (1-12):** Healthy level.\n• **Red (13-59):** Excess level. Indicates dangerous fat surrounding vital organs.\n\n**Metabolic Age:**\n• **Green:** Equal or lower than your actual age.\n• **Yellow:** Higher than your actual age.\n\n**Note:** Click the (i) icon on each card for detailed definition.",
     "interpretation_segmental": "Segmental",
     "interpretation_segmental_text": "Detect asymmetries and prevent injuries! Visualize hidden muscle imbalances (e.g., a weaker leg after recovery) or sports adaptations (e.g., dominant arm in tennis) to correct them in time.",
     "interpretation_health_states": "Dynamic Ranges",
@@ -112,12 +112,22 @@
     "security_manual_sync_title": "Manual Sync",
     "security_warning_sync": "**Manual Sync:**\nData does not sync automatically. To transfer data from PC to Mobile, you must load **TWO** things:\n1. The **Backup** file (.json) containing the links.\n2. The **DATA.CSV** files from the SD containing the raw data.\n\nWithout both files, you won't see any measurements.",
     "section_troubleshooting": "FAQ / Troubleshooting",
+    "viewer_section_title": "BodyMetrics Viewer",
+    "viewer_title": "Client Workflow",
+    "viewer_text": "**BodyMetrics Viewer** is a lightweight app designed exclusively for your clients to visualize their progress.\n\n**How it works:**\n1. Export your client's history to CSV using the **Spreadsheet** button.\n2. Send the `BM_Alias...csv` file to your client (WhatsApp/Email).\n3. The client opens the Viewer and loads the file.\n\nThe Viewer locally saves the last loaded data, allowing the client to consult their charts and evolution without needing an account or constant connection.",
     "troubleshooting_common": "Which file to upload?",
     "troubleshooting_common_text": "• For new measurements: The `DATA.CSV` files from the SD.\n• To restore or sync the app: The `bm_backup...json` file.",
     "troubleshooting_missing_data": "No data shown?",
     "troubleshooting_missing_data_text": "Every time you close the app **you must reload the SD files**. The app remembers assignments, but needs to read the original file each session.",
     "troubleshooting_date": "Wrong date?",
     "troubleshooting_date_text": "If you see measurements from 2010, the scale clock reset (e.g., battery change). Configure the date on the physical scale."
+  },
+  "metrics_info": {
+    "bmi": "Classification based on WHO data:<br><strong>Blue:</strong> Underweight<br><strong>Green:</strong> Healthy<br><strong>Yellow:</strong> Overweight<br><strong>Red:</strong> Obese",
+    "body_fat": "Ranges per manual tables:<br><strong>Blue:</strong> Low<br><strong>Green:</strong> Standard<br><strong>Yellow:</strong> Overfat<br><strong>Red:</strong> Obese",
+    "water": "Average healthy ranges (Tanita Manual):<br><strong>Female:</strong> 45% to 60%<br><strong>Male:</strong> 50% to 65%",
+    "metabolic_age": "Comparison with actual age:<br><strong>Green:</strong> Lower or equal to actual (Ideal metabolic age)<br><strong>Yellow/Red:</strong> Higher metabolic age",
+    "segmental": "Click on the diagram zones to view their status.<br><br><strong>Segmental Fat (Limbs/Trunk):</strong><br>Uses the same scale as Body Fat (Blue: Low, Green: Healthy, Yellow: High, Red: Obese).<br><br><strong>Visceral Fat (Central Abdomen):</strong><br><strong>Green (1-12):</strong> Healthy<br><strong>Red (13+):</strong> Excess"
   },
   "about": {
     "title": "About BodyMetrics",
@@ -187,7 +197,12 @@
     "import_success_title": "Import Successful",
     "import_error": "File does not look like a valid backup.",
     "import_error_title": "Import Error",
-    "delete_all_btn": "Factory Reset (Clear Data)"
+    "delete_all_btn": "Factory Reset (Clear Data)",
+    "danger_zone_description": "These actions are destructive and irreversible. Please be careful.",
+    "factory_reset_warning": "This action will delete <strong>ALL</strong> clients, histories, and links created. The application will return to its original state.<br><br>Your SD card files will remain untouched, but you will have to reload and link everything from scratch.",
+    "delete_client_warning": "You are about to delete client <strong>{name}</strong>. All their linked measurements will be unlinked and returned to the Inbox.",
+    "type_to_confirm": "Type the word:",
+    "confirm_word": "DELETE"
   },
   "actions": {
     "save": "Save",
@@ -196,7 +211,9 @@
     "delete": "Delete",
     "export_csv": "Spreadsheet",
     "ok": "OK",
-    "rename": "Rename"
+    "rename": "Rename",
+    "delete_confirm_btn": "Yes, delete",
+    "reset_confirm_btn": "Yes, reset factory settings"
   },
   "alerts": {
     "success_title": "Success!",
@@ -211,7 +228,7 @@
   },
   "first_use": {
     "title": "Welcome to BodyMetrics",
-    "step_counter": "Step {current} of {total}",
+    "step_counter": "Step {current} de {total}",
     "skip": "Skip tutorial",
     "previous": "Previous",
     "next": "Next",

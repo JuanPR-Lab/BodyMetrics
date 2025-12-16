@@ -1,38 +1,50 @@
 <script lang="ts">
+  // ---------------------------------------------------------------------------
+  // IMPORTS
+  // ---------------------------------------------------------------------------
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import { locale, t, isLoading as isLocaleLoading } from 'svelte-i18n';
   
+  // Logic & Utils
+  import { PatientManager, type Client } from '$lib/utils/patientManager';
   import { parseScaleFiles, type BioMetricRecord } from '$lib/utils/csvSDparser';
+  import { exportToCSV } from '$lib/utils/exporters';
   import { 
     STATUS_COLORS, 
     getBodyFatStatus, 
-    getWaterStatus, 
     getVisceralFatStatus, 
     getBMIStatus, 
     getMetabolicAgeStatus 
   } from '$lib/utils/ranges';
-  import { exportToCSV } from '$lib/utils/exporters';
-  import { PatientManager, type Client } from '$lib/utils/patientManager';
-  import BodyMap from '$lib/components/BodyMap.svelte';
   import '$lib/i18n';
+
+  // Components
+  import InfoModal from '$lib/components/InfoModal.svelte';
+  import DeleteModal from '$lib/components/DeleteModal.svelte';
+  import BodyMap from '$lib/components/BodyMap.svelte';
+  
+  // Icons
   import { 
     Inbox, Users, Settings, CircleHelp, Lock, UploadCloud, FolderOpen, AlertTriangle, 
     CheckCircle, Info, Edit, Trash2, FileSpreadsheet, Undo2, Save, Download, 
     Upload, Rocket, BarChart3, Target, ChevronDown, ChevronLeft, ChevronRight, 
-    XCircle, Scale, Activity, Droplets, Dumbbell, Flame, Bone, Clock, Search, Sparkles, AlertCircle
+    XCircle, Scale, Activity, Droplets, Dumbbell, Flame, Bone, Clock, Search, 
+    Sparkles, AlertCircle, Monitor, CheckCircle2 
   } from 'lucide-svelte';
 
-  // --- STATIC CONFIG ---
+  // ---------------------------------------------------------------------------
+  // CONSTANTS & CONFIGURATION
+  // ---------------------------------------------------------------------------
+  
   const CHART_OPTIONS = [
-    { key: 'weight', label: 'metrics.weight', color: '#475569', unitKey: 'kg' },
-    { key: 'bmi', label: 'metrics.bmi', color: '#64748b', unitKey: '' },
+    { key: 'weight', label: 'metrics.weight', color: '#64748b', unitKey: 'kg' }, // Slate-500
+    { key: 'bmi', label: 'metrics.bmi', color: '#ec4899', unitKey: '' },         // Pink-500
     { key: 'bodyFat', label: 'metrics.body_fat', color: '#f59e0b', unitKey: 'percent' },
     { key: 'muscleMass', label: 'metrics.muscle_mass', color: '#6366f1', unitKey: 'kg' },
-    { key: 'waterPercentage', label: 'metrics.water', color: '#0ea5e9', unitKey: 'percent' },
-    { key: 'boneMass', label: 'metrics.bone_mass', color: '#94a3b8', unitKey: 'kg' },
+    { key: 'boneMass', label: 'metrics.bone_mass', color: '#9ca3af', unitKey: 'kg' },
     { key: 'dci', label: 'metrics.dci', color: '#10b981', unitKey: 'kcal' },
-    { key: 'metabolicAge', label: 'metrics.metabolic_age', color: '#8b5cf6', unitKey: 'years' },
+    { key: 'metabolicAge', label: 'metrics.metabolic_age', color: '#a855f7', unitKey: 'years' },
     { key: 'visceralFat', label: 'metrics.visceral_fat', color: '#d97706', unitKey: 'rating' }
   ] as const;
 
@@ -49,48 +61,31 @@
     divider: "w-px h-10 bg-slate-200 mx-2"
   };
 
-  let promptInput: HTMLInputElement;
-  
-  // MAPPING: File Name -> Button Key (in UPPECASE, matching the JSON key but capitalized)
+  // Mapping: File Name -> Button Key
   const CSV_BUTTON_MAP: Record<string, string> = {
-      'data1.csv': 'BUTTON_1',
-      'data5.csv': 'BUTTON_1',
-      'data2.csv': 'BUTTON_2',
-      'data6.csv': 'BUTTON_2',
-      'data3.csv': 'BUTTON_3',
-      'data7.csv': 'BUTTON_3',
-      'data4.csv': 'BUTTON_4',
-      'data8.csv': 'BUTTON_4',
+      'data1.csv': 'BUTTON_1', 'data5.csv': 'BUTTON_1',
+      'data2.csv': 'BUTTON_2', 'data6.csv': 'BUTTON_2',
+      'data3.csv': 'BUTTON_3', 'data7.csv': 'BUTTON_3',
+      'data4.csv': 'BUTTON_4', 'data8.csv': 'BUTTON_4',
   };
 
-/**
- * Helper to get the full translation key for a button/user ID based on the file name.
- * @param fileName The name of the CSV file (e.g., 'data1.csv').
- * @returns The full translation key (e.g., 'dashboard.button_1').
- */
-const getButtonKey = (fileName: string): string => {
-    // 1. Get the internal key (e.g., BUTTON_1, UNKNOWN_SOURCE) from the mapping.
-    const internalKey = CSV_BUTTON_MAP[fileName.toLowerCase()] || 'UNKNOWN_SOURCE';
-    
-    // 2. Return the key prefixed with the JSON category and converted to lowercase.
-    // This ensures '$t' finds the nested key like "dashboard.button_1".
-    return `dashboard.${internalKey.toLowerCase()}`;
-};
+  // ---------------------------------------------------------------------------
+  // APP STATE
+  // ---------------------------------------------------------------------------
   
-  // --- STATE ---
+  // Data
   let allRecords: BioMetricRecord[] = [];
   let clients: Client[] = [];
-  
-  // State for client record counts (fixed bug)
   let clientCounts: Record<string, number> = {}; 
 
-  // UI State
+  // UI / Navigation
   let currentTab: 'inbox' | 'clients' | 'settings' | 'help' = 'inbox';
   let isProcessing = false;
-  let errorMessage = '';
   let isDragging = false;
+  let errorMessage = ''; // <-- VARIABLE AÑADIDA AQUÍ
   let fileInput: HTMLInputElement;
   let isClientListOpen = false;
+  let promptInput: HTMLInputElement;
 
   // Selection & Filters
   let selectedClientId: string = '';
@@ -100,28 +95,22 @@ const getButtonKey = (fileName: string): string => {
   let selectedInboxMeasurements: string[] = [];
   let clientSearchTerm = '';
   
-  // Pagination state
+  // Pagination
   let currentPage = 1;
   let clientsPerPage = 10;
   let totalPages = 1;
   
-  // Assignment search state
+  // Bulk Assignment Search
   let assignmentSearchTerms: Record<string, string> = {};
   let bulkAssignSearch = '';
   
-  $: filteredAssignmentClients = (searchTerm: string) => {
-    if (!searchTerm) return [];
-    const term = searchTerm.toLowerCase().trim();
-    return clients.filter(c => c.alias.toLowerCase().includes(term));
-  };
-  $: filteredBulkClients = filteredAssignmentClients(bulkAssignSearch);
-  
+  // Date Filtering
   type FilterMode = '1m' | '3m' | '6m' | '1y' | 'all' | 'custom';
   let currentFilter: FilterMode = 'all';
   let customDateStart = '';
   let customDateEnd = '';
   
-  // Chart State
+  // Chart
   // @ts-ignore
   let selectedChartMetric: keyof BioMetricRecord = 'weight';
   let hoveredIndex: number | null = null;
@@ -130,7 +119,9 @@ const getButtonKey = (fileName: string): string => {
   // Forms
   let newClientCodeOrAlias = '';
   
-  // Modal state
+  // --- STATE: MODALS & TOAST ---
+
+  // 1. Generic Modal (Info, Alert, Prompt)
   let showModal = false;
   let modalTitle = '';
   let modalMessage = '';
@@ -138,8 +129,23 @@ const getButtonKey = (fileName: string): string => {
   let modalConfirmCallback: (() => void) | null = null;
   let modalCancelCallback: (() => void) | null = null;
   let modalInputValue = '';
-  
-  // First-use guide
+
+  // 2. Info Modal (The (i) button)
+  let showInfoModal = false;
+  let infoModalTitle = '';
+  let infoModalContent = '';
+
+  // 3. Delete Modal (Safety Check)
+  let showDeleteModal = false;
+  let deleteModalType: 'client' | 'reset' = 'client';
+  let deleteTargetId: string | null = null;
+  let deleteTargetName: string = '';
+
+  // 4. Toast Notification
+  let showToast = false;
+  let toastMessage = '';
+
+  // 5. First Use Guide
   let showFirstUseGuide = false;
   let currentGuideStep = 0;
   const guideSteps = [
@@ -149,7 +155,11 @@ const getButtonKey = (fileName: string): string => {
     { tab: 'help', title: 'first_use.step_help_title', description: 'first_use.step_help_description' }
   ];
 
-  // --- HELPER: DATE SORTING ---
+  // ---------------------------------------------------------------------------
+  // REACTIVE STATEMENTS
+  // ---------------------------------------------------------------------------
+  
+  // Helpers
   const getTimestamp = (dateStr: string, timeStr: string = '00:00:00') => {
     try {
       if (!dateStr) return 0;
@@ -161,11 +171,12 @@ const getButtonKey = (fileName: string): string => {
     } catch (e) { return 0; }
   };
 
-  // --- REACTIVE DERIVED STATE ---
+  // Inbox: Records without a client
   $: inboxRecords = allRecords
       .filter(r => !PatientManager.getClientForRecord(r.id))
       .sort((a, b) => getTimestamp(b.date, b.time) - getTimestamp(a.date, a.time));
       
+  // Clients Filter & Sort
   $: filteredClients = clients.filter(c => {
     if (!clientSearchTerm) return true;
     const term = clientSearchTerm.toLowerCase().trim();
@@ -178,13 +189,11 @@ const getButtonKey = (fileName: string): string => {
     
     if (aIsNumber && !bIsNumber) return -1;
     if (!aIsNumber && bIsNumber) return 1;
-    if (aIsNumber && bIsNumber) {
-      return parseFloat(aAlias) - parseFloat(bAlias);
-    }
+    if (aIsNumber && bIsNumber) return parseFloat(aAlias) - parseFloat(bAlias);
     return aAlias.localeCompare(bAlias);
   });
 
-  // Paginated clients
+  // Client Pagination
   $: {
     totalPages = Math.max(1, Math.ceil(filteredClients.length / clientsPerPage));
     if (currentPage > totalPages) currentPage = totalPages;
@@ -195,6 +204,15 @@ const getButtonKey = (fileName: string): string => {
     currentPage * clientsPerPage
   );
 
+  // Bulk assignment search
+  $: filteredAssignmentClients = (searchTerm: string) => {
+    if (!searchTerm) return [];
+    const term = searchTerm.toLowerCase().trim();
+    return clients.filter(c => c.alias.toLowerCase().includes(term));
+  };
+  $: filteredBulkClients = filteredAssignmentClients(bulkAssignSearch);
+
+  // History & Selected Record
   $: clientHistory = selectedClientId 
     ? PatientManager.getClientHistory(selectedClientId, allRecords).sort((a, b) => {
         return getTimestamp(b.date, b.time) - getTimestamp(a.date, a.time);
@@ -205,31 +223,23 @@ const getButtonKey = (fileName: string): string => {
   
   $: currentRecord = displayedHistory.find(r => r.id === selectedRecordId) || displayedHistory[0] || null;
   
+  // Chart Config
   $: activeChartOption = CHART_OPTIONS.find(o => o.key === selectedChartMetric);
   $: activeChartColor = activeChartOption?.color || '#1f2937';
   $: activeChartUnitKey = activeChartOption?.unitKey || '';
   
   $: chartData = displayedHistory.length > 0 ? prepareSingleChart(displayedHistory, selectedChartMetric, activeChartUnitKey) : null;
 
-  // Helper to get the pre-calculated count from the map
-  const getClientTotalCount = (client: Client) => {
-    if (!client) return 0;
-    return clientCounts[client.id] || 0; 
-  };
-
-  // --- LIFECYCLE ---
+  // ---------------------------------------------------------------------------
+  // LIFECYCLE
+  // ---------------------------------------------------------------------------
   onMount(() => {
     const savedLocale = localStorage.getItem('user_locale');
-    
     if (savedLocale) {
         locale.set(savedLocale);
     } else {
         const browserLang = navigator.language || 'en';
-        if (browserLang.toLowerCase().startsWith('es')) {
-            locale.set('es');
-        } else {
-            locale.set('en');
-        }
+        locale.set(browserLang.toLowerCase().startsWith('es') ? 'es' : 'en');
     }
  
     refreshClients();
@@ -246,54 +256,29 @@ const getButtonKey = (fileName: string): string => {
     }
   });
 
-  // --- ACTIONS ---
+  // ---------------------------------------------------------------------------
+  // CORE FUNCTIONS
+  // ---------------------------------------------------------------------------
 
   function refreshClients() {
     clients = PatientManager.getClients();
-    
-    // Update client counts (fix)
     clientCounts = PatientManager.getClientCounts();
-    
     allRecords = [...allRecords];
 
     if (showFirstUseGuide) {
       const hasClients = clients.length > 0;
       const hasAssociations = allRecords.some(r => PatientManager.getClientForRecord(r.id));
-      if (hasClients || hasAssociations) {
-        showFirstUseGuide = false;
-      }
+      if (hasClients || hasAssociations) showFirstUseGuide = false;
     }
-  }
-
-  function nextGuideStep() {
-    if (currentGuideStep < guideSteps.length - 1) {
-      currentGuideStep++;
-      currentTab = guideSteps[currentGuideStep].tab as any;
-    } else {
-      showFirstUseGuide = false;
-      currentTab = 'help';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }
-
-  function previousGuideStep() {
-    if (currentGuideStep > 0) {
-      currentGuideStep--;
-      currentTab = guideSteps[currentGuideStep].tab as any;
-    }
-  }
-
-  function skipGuide() {
-    showFirstUseGuide = false;
   }
 
   const handleFiles = async (files: FileList | File[] | null) => {
     if (!files || files.length === 0) return;
     isProcessing = true;
     errorMessage = '';
+    const $t = get(t);
     
     try {
-      // Note: parseScaleFiles now injects 'sourceFile' property
       const parsedData = await parseScaleFiles(files);
       if (parsedData.length === 0) throw new Error('No valid records found.');
       
@@ -303,14 +288,14 @@ const getButtonKey = (fileName: string): string => {
       if (inboxRecords.length > 0 && currentTab !== 'inbox') {
         if(currentTab === 'help') currentTab = 'inbox';
       }
+
+      
+      triggerToast($t('alerts.success_title') || 'CSV Loaded Successfully');
+
     } catch (err) {
       console.error(err);
-      const $t = get(t);
-      showAlert(
-          $t('upload.error_title'), 
-          $t('upload.error'), 
-          'error'
-      );
+      errorMessage = $t('upload.error');
+      showAlert($t('upload.error_title'), $t('upload.error'), 'error');
     } finally {
       isProcessing = false;
       isDragging = false;
@@ -339,7 +324,8 @@ const getButtonKey = (fileName: string): string => {
     return history.filter(r => getTimestamp(r.date, r.time) >= cutoffTime);
   }
 
-  // --- CRUD OPERATIONS ---
+  // --- CLIENT MANAGEMENT (CRUD) ---
+  
   const createClient = () => {
       const newAlias = newClientCodeOrAlias ? newClientCodeOrAlias.trim() : '';
       if (!newAlias) return;
@@ -347,11 +333,7 @@ const getButtonKey = (fileName: string): string => {
       const $t = get(t);
       const isTaken = clients.some(c => c.alias.toLowerCase() === newAlias.toLowerCase());
       if (isTaken) {
-          showAlert(
-              $t('dashboard.client_exists_title'), 
-              $t('dashboard.client_exists_message'), 
-              'error'
-          );
+          showAlert($t('dashboard.client_exists_title'), $t('dashboard.client_exists_message'), 'error');
           return; 
       }
 
@@ -366,19 +348,6 @@ const getButtonKey = (fileName: string): string => {
       } else {
         showAlert($t('dashboard.client_exists_title'), $t('dashboard.client_exists_message'), 'error');
       }
-    };
-
-  const deleteClient = (id: string) => {
-    const $t = get(t);
-    showConfirm(
-      $t('alerts.delete_client_title'),
-      $t('alerts.delete_client_confirm'),
-      () => {
-        PatientManager.deleteClient(id);
-        if (selectedClientId === id) selectedClientId = '';
-        refreshClients();
-      }
-    );
   };
 
   const handleRenameClient = () => {
@@ -390,29 +359,73 @@ const getButtonKey = (fileName: string): string => {
     showPrompt(
       $t('actions.rename'),
       '', 
-      '', 
+      client.alias, // Pre-rellenar con el nombre actual es buena práctica
       () => {
         const newAlias = modalInputValue ? modalInputValue.trim() : '';
         if (!newAlias) return;
         
-        const isTaken = clients.some(c => c.alias.toLowerCase() === newAlias.toLowerCase());
-
+        const isTaken = clients.some(c => c.id !== selectedClientId && c.alias.toLowerCase() === newAlias.toLowerCase());
         if (isTaken) {
             setTimeout(() => {
-                showAlert(
-                    $t('dashboard.client_exists_rename_title'),
-                    $t('dashboard.client_exists_message'),
-                    'error'
-                );
+                showAlert($t('dashboard.client_exists_rename_title'), $t('dashboard.client_exists_message'), 'error');
             }, 100);
             return; 
         }
 
         PatientManager.renameClient(selectedClientId, newAlias);
         refreshClients();
+        // TOAST DE ÉXITO
+        triggerToast($t('alerts.success_title'));
       }
     );
   };
+
+  // --- DELETE & RESET ACTIONS (SAFE MODE) ---
+
+  const requestDeleteClient = (clientId: string) => {
+    const client = clients.find(c => c.id === clientId);
+    if (!client) return;
+    
+    deleteModalType = 'client';
+    deleteTargetId = clientId;
+    deleteTargetName = client.alias; 
+    showDeleteModal = true;
+  };
+
+  const requestFactoryReset = () => {
+    deleteModalType = 'reset';
+    showDeleteModal = true;
+  };
+
+  const executeDeleteAction = () => {
+    const $t = get(t);
+
+    if (deleteModalType === 'client' && deleteTargetId) {
+      PatientManager.deleteClient(deleteTargetId);
+      
+      if (selectedClientId === deleteTargetId) {
+        selectedClientId = '';
+        // @ts-ignore
+        currentRecord = null;
+      }
+      
+      refreshClients(); 
+      triggerToast($t('alerts.success_title')); 
+
+    } else if (deleteModalType === 'reset') {
+      PatientManager.deleteAllData();
+      clients = [];
+      clientCounts = {};
+      selectedClientId = '';
+      selectedRecordId = '';
+      refreshClients();
+      triggerToast($t('alerts.reset_success'));
+    }
+
+    showDeleteModal = false;
+  };
+
+  // --- ASSIGNMENT & UNASSIGNMENT ---
 
   const assignRecord = (recordId: string, clientId: string, silent = false) => {
     if (!clientId) return;
@@ -420,7 +433,7 @@ const getButtonKey = (fileName: string): string => {
     if (!silent) {
         refreshClients();
         const $t = get(t);
-        showAlert($t('alerts.success_title'), $t('alerts.link_success'), 'success');
+        triggerToast($t('alerts.link_success'));
     }
   };
 
@@ -431,110 +444,119 @@ const getButtonKey = (fileName: string): string => {
         $t('dashboard.detach_record_title'),
         $t('alerts.detach_record_confirm'),
         () => {
-          PatientManager.unassignRecord(currentRecord.id);
+          PatientManager.unassignRecord(currentRecord!.id);
           refreshClients();
           selectedRecordId = '';
         }
       );
   };
   
-    const toggleMultiSelectMode = () => {
-      isMultiSelectMode = !isMultiSelectMode;
-      selectedRecordIds = [];
-    };
+  const toggleMultiSelectMode = () => {
+    isMultiSelectMode = !isMultiSelectMode;
+    selectedRecordIds = [];
+  };
 
-    const toggleRecordSelection = (recordId: string) => {
-      if (!isMultiSelectMode) return;
-      const index = selectedRecordIds.indexOf(recordId);
-      if (index === -1) {
-        selectedRecordIds = [...selectedRecordIds, recordId];
-      } else {
-        selectedRecordIds = selectedRecordIds.filter(id => id !== recordId);
-      }
-    };
-  
-    const unassignSelectedRecords = () => {
-      if (selectedRecordIds.length === 0) return;
-      const $t = get(t);
-      showConfirm(
-        $t('dashboard.detach_record_title'),
-        $t('dashboard.detach_record') + '? (' + selectedRecordIds.length + ')',
-        () => {
-          selectedRecordIds.forEach(recordId => {
-            PatientManager.unassignRecord(recordId);
-          });
-          refreshClients();
-          selectedRecordIds = [];
-        }
-      );
-    };
+  const toggleRecordSelection = (recordId: string) => {
+    if (!isMultiSelectMode) return;
+    const index = selectedRecordIds.indexOf(recordId);
+    if (index === -1) selectedRecordIds = [...selectedRecordIds, recordId];
+    else selectedRecordIds = selectedRecordIds.filter(id => id !== recordId);
+  };
 
-    const assignSelectedRecords = (clientId: string) => {
-        if (!clientId) return;
-        selectedRecordIds.forEach(recordId => assignRecord(recordId, clientId, true));
-        refreshClients();
-        selectedRecordIds = [];
-        const $t = get(t);
-        showAlert($t('alerts.success_title'), $t('alerts.link_multiple_success').replace('{n}', selectedRecordIds.length.toString()), 'success');
-    };
-
-    const toggleInboxSelection = (recordId: string) => {
-      const index = selectedInboxMeasurements.indexOf(recordId);
-      if (index === -1) {
-        selectedInboxMeasurements = [...selectedInboxMeasurements, recordId];
-      } else {
-        selectedInboxMeasurements = selectedInboxMeasurements.filter(id => id !== recordId);
-      }
-    };
-
-    const selectAllInboxMeasurements = () => {
-      if (selectedInboxMeasurements.length === inboxRecords.length) {
-        selectedInboxMeasurements = [];
-      } else {
-        selectedInboxMeasurements = inboxRecords.map(r => r.id);
-      }
-    };
-
-    const assignBulkMeasurements = (clientId: string) => {
-        if (!clientId) return;
-        const count = selectedInboxMeasurements.length;
-        selectedInboxMeasurements.forEach(recordId => assignRecord(recordId, clientId, true));
-        
-        refreshClients();
-        selectedInboxMeasurements = [];
-        bulkAssignSearch = '';
-        const $t = get(t);
-        showAlert($t('alerts.success_title'), $t('alerts.link_multiple_success').replace('{n}', count.toString()), 'success');
-    };
-
-  const handleFactoryReset = () => {
+  const unassignSelectedRecords = () => {
+    if (selectedRecordIds.length === 0) return;
     const $t = get(t);
     showConfirm(
-      $t('alerts.reset_title'),
-      $t('alerts.reset_confirm'),
+      $t('dashboard.detach_record_title'),
+      $t('dashboard.detach_record') + '? (' + selectedRecordIds.length + ')',
       () => {
-        PatientManager.deleteAllData();
-        clients = [];
-        clientCounts = {}; // Reset counts
-        selectedClientId = '';
-        selectedRecordId = '';
+        selectedRecordIds.forEach(recordId => PatientManager.unassignRecord(recordId));
         refreshClients();
-        showAlert($t('alerts.success_title'), $t('alerts.reset_success'), 'success');
+        selectedRecordIds = [];
       }
     );
   };
 
+  const assignSelectedRecords = (clientId: string) => {
+      if (!clientId) return;
+      selectedRecordIds.forEach(recordId => assignRecord(recordId, clientId, true));
+      refreshClients();
+      selectedRecordIds = [];
+      const $t = get(t);
+      // AHORA USA TOAST CON PARÁMETROS
+      triggerToast($t('alerts.link_multiple_success').replace('{n}', selectedRecordIds.length.toString()));
+  };
+
+  const toggleInboxSelection = (recordId: string) => {
+    const index = selectedInboxMeasurements.indexOf(recordId);
+    if (index === -1) selectedInboxMeasurements = [...selectedInboxMeasurements, recordId];
+    else selectedInboxMeasurements = selectedInboxMeasurements.filter(id => id !== recordId);
+  };
+
+  const selectAllInboxMeasurements = () => {
+    if (selectedInboxMeasurements.length === inboxRecords.length) {
+      selectedInboxMeasurements = [];
+    } else {
+      selectedInboxMeasurements = inboxRecords.map(r => r.id);
+    }
+  };
+
+  const assignBulkMeasurements = (clientId: string) => {
+      if (!clientId) return;
+      const count = selectedInboxMeasurements.length;
+      selectedInboxMeasurements.forEach(recordId => assignRecord(recordId, clientId, true));
+      
+      refreshClients();
+      selectedInboxMeasurements = [];
+      bulkAssignSearch = '';
+      const $t = get(t);
+      triggerToast($t('alerts.link_multiple_success').replace('{n}', count.toString()));
+  };
+
+  // --- EXPORT & IMPORT ---
+
+  const handleExportBackup = () => {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+    
+    const timestamp = `${day}-${month}-${year}_${hour}-${minute}`;
+    const filename = `BM_Backup_${timestamp}.json`;
+    
+    PatientManager.exportBackup(filename);
+    
+    const $t = get(t);
+    triggerToast($t('settings.backup_success') || 'Backup generated');
+  };
+
   const exportClientData = () => {
     const $t = get(t);
+    
     if (!clientHistory || clientHistory.length === 0) {
       showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client'), 'error');
       return;
     }
 
     const client = clients.find(c => c.id === selectedClientId);
-    const dateStr = new Date().toISOString().split('T')[0];
-    const filename = client ? `${client.alias.replace(/\s/g, '_')}_${dateStr}.csv` : `export_${dateStr}.csv`;
     
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+
+    const timestamp = `${day}-${month}-${year}_${hour}-${minute}`;
+    
+    const cleanClientName = client ? client.alias.replace(/\s+/g, '_') : 'Unknown';
+    
+    const filename = `BM_${cleanClientName}_${timestamp}.csv`;
+    
+       
+    // Headers map for CSV
     const headersMap = {
       date: $t('csv_headers.date'), time: $t('csv_headers.time'), model: $t('csv_headers.model'),
       weight: $t('metrics.weight'), bmi: $t('metrics.bmi'), bodyFat: $t('metrics.body_fat'), 
@@ -547,6 +569,7 @@ const getButtonKey = (fileName: string): string => {
       muscleArmR: $t('csv_headers.mus_arm_r'), muscleArmL: $t('csv_headers.mus_arm_l'),
       muscleLegR: $t('csv_headers.mus_leg_r'), muscleLegL: $t('csv_headers.mus_leg_l')
     };
+    
     exportToCSV(clientHistory, headersMap, filename);
   };
 
@@ -557,8 +580,8 @@ const getButtonKey = (fileName: string): string => {
     try {
         const text = await file.text();
         if (PatientManager.importBackup(text)) {
-          showAlert($t('settings.import_success_title'), $t('settings.import_success'), 'success');
           refreshClients();
+          triggerToast($t('settings.import_success'));
         } else {
           showAlert($t('settings.import_error_title'), $t('settings.import_error'), 'error');
         }
@@ -567,7 +590,9 @@ const getButtonKey = (fileName: string): string => {
     }
   };
 
-  // --- CHART LOGIC ---
+  // ---------------------------------------------------------------------------
+  // CHART LOGIC
+  // ---------------------------------------------------------------------------
   function prepareSingleChart(history: BioMetricRecord[], key: keyof BioMetricRecord, unitKey: string) {
     try {
       const sorted = [...history].sort((a, b) => getTimestamp(a.date, a.time) - getTimestamp(b.date, b.time));
@@ -576,15 +601,18 @@ const getButtonKey = (fileName: string): string => {
       const values = sorted.map(d => Number(d[key]) || 0);
       const minVal = Math.min(...values);
       const maxVal = Math.max(...values);
-
+      
       let rawRange = maxVal - minVal;
       if (rawRange === 0) rawRange = 1;
+
       const roughStep = rawRange / 4;
       const niceSteps = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100];
       let step = niceSteps.find(s => s >= roughStep) || roughStep;
       if (step > 100) step = Math.pow(10, Math.floor(Math.log10(rawRange)));
+
       let axisMin = Math.floor(minVal / step) * step;
       let axisMax = Math.ceil(maxVal / step) * step;
+
       if (minVal - axisMin < step * 0.1) axisMin -= step;
       if (axisMax - maxVal < step * 0.1) axisMax += step;
 
@@ -612,35 +640,94 @@ const getButtonKey = (fileName: string): string => {
 
         return { x, y, val: val.toFixed(1), date: d.date, showLabel, unitKey, isRightSide, isTop };
       });
+
       const polyline = sorted.length > 1 ? pointsData.map(p => `${p.x},${p.y}`).join(' ') : '';
       const areaPath = sorted.length > 1 ? `0,120 ${polyline} 100,120` : '';
 
       return { pointsData, polyline, areaPath, gridLines };
-    } catch (e) { return null; }
+      
+    } catch (e) {
+      return null; 
+    }
   }
 
-  // --- UI HELPERS ---
+  // ---------------------------------------------------------------------------
+  // HELPERS
+  // ---------------------------------------------------------------------------
+
+  const openInfo = (key: string) => {
+    infoModalTitle = $t(`metrics.${key}`);
+    infoModalContent = $t(`metrics_info.${key}`);
+    showInfoModal = true;
+  };
+
+  const getButtonKey = (fileName: string): string => {
+    const internalKey = CSV_BUTTON_MAP[fileName.toLowerCase()] || 'UNKNOWN_SOURCE';
+    return `dashboard.${internalKey.toLowerCase()}`;
+  };
 
   const switchLang = (lang: string) => {
       locale.set(lang);
       localStorage.setItem('user_locale', lang); 
   };
+
   const getStatusColor = (type: string, val: number) => {
     if (!currentRecord) return STATUS_COLORS.unknown;
     try {
       if (type === 'fat') return STATUS_COLORS[getBodyFatStatus(val, currentRecord.gender, currentRecord.age)];
-      if (type === 'water') return STATUS_COLORS[getWaterStatus(val, currentRecord.gender)];
       if (type === 'visceral') return STATUS_COLORS[getVisceralFatStatus(val)];
       if (type === 'bmi') return STATUS_COLORS[getBMIStatus(val)];
       if (type === 'meta') return STATUS_COLORS[getMetabolicAgeStatus(val, currentRecord.age)];
     } catch (e) { return STATUS_COLORS.unknown; }
     return STATUS_COLORS.unknown;
   };
+
   const handleDrop = (e: DragEvent) => {
     isDragging = false;
     if(e.dataTransfer?.files) handleFiles(e.dataTransfer.files);
   };
-  // Modal functions
+
+  const formatText = (text: string) => {
+    if (!text) return '';
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
+      .replace(/`(.*?)`/g, '<code class="bg-gray-100 text-purple-600 px-1.5 py-0.5 rounded font-mono text-xs border border-gray-200">$1</code>');
+  };
+
+  const triggerToast = (msg: string) => {
+    toastMessage = msg;
+    showToast = true;
+    setTimeout(() => {
+      showToast = false;
+    }, 3000);
+  };
+
+  // Guide Helpers
+  function nextGuideStep() {
+    if (currentGuideStep < guideSteps.length - 1) {
+      currentGuideStep++;
+      currentTab = guideSteps[currentGuideStep].tab as any;
+    } else {
+      showFirstUseGuide = false;
+      currentTab = 'help';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+  function previousGuideStep() {
+    if (currentGuideStep > 0) {
+      currentGuideStep--;
+      currentTab = guideSteps[currentGuideStep].tab as any;
+    }
+  }
+  function skipGuide() {
+    showFirstUseGuide = false;
+  }
+  const getClientTotalCount = (client: Client | undefined) => {
+    if (!client) return 0;
+    return clientCounts[client.id] || 0; 
+  };
+
+  // Modal Helpers
   const showAlert = (title: string, message: string, type: 'alert' | 'error' | 'success' = 'alert') => {
     modalTitle = title;
     modalMessage = message;
@@ -665,11 +752,8 @@ const getButtonKey = (fileName: string): string => {
     modalConfirmCallback = onConfirm;
     modalCancelCallback = null;
     showModal = true;
-    setTimeout(() => {
-      promptInput?.focus(); 
-    }, 0);
+    setTimeout(() => { promptInput?.focus(); }, 0);
   };
-
   const handleModalConfirm = () => {
     if (modalConfirmCallback) modalConfirmCallback();
     showModal = false;
@@ -678,14 +762,6 @@ const getButtonKey = (fileName: string): string => {
     if (modalCancelCallback) modalCancelCallback();
     showModal = false;
   };
-  
-  const formatText = (text: string) => {
-    if (!text) return '';
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
-      .replace(/`(.*?)`/g, '<code class="bg-gray-100 text-purple-600 px-1.5 py-0.5 rounded font-mono text-xs border border-gray-200">$1</code>');
-  };
-
 </script>
 
 {#if $isLocaleLoading}
@@ -734,7 +810,7 @@ const getButtonKey = (fileName: string): string => {
         
         <div class="flex justify-between items-center">
           <button
-            on:click={skipGuide}
+            on:click={() => skipGuide()}
             class="text-slate-400 hover:text-slate-600 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors px-2 py-2"
           >
              {$t('first_use.skip')}
@@ -743,7 +819,7 @@ const getButtonKey = (fileName: string): string => {
           <div class="flex gap-2 sm:gap-3 items-center">
             {#if currentGuideStep > 0}
               <button
-                on:click={previousGuideStep}
+                on:click={() => previousGuideStep()}
                 class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-indigo-600 border border-indigo-200 hover:bg-indigo-50 transition-colors"
                 title="{$t('first_use.previous')}"
               >
@@ -752,7 +828,7 @@ const getButtonKey = (fileName: string): string => {
             {/if}
             
             <button
-              on:click={nextGuideStep}
+              on:click={() => nextGuideStep()}
               class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-full font-bold shadow-md shadow-indigo-200 transition-all transform active:scale-[0.98] text-sm flex items-center gap-2"
             >
               {#if currentGuideStep === guideSteps.length - 1}
@@ -855,15 +931,15 @@ const getButtonKey = (fileName: string): string => {
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.starting_requirements')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_requirements_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.starting_requirements_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.starting_installation')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_installation_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.starting_installation_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.starting_first_steps')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.starting_first_steps_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.starting_first_steps_text'))}</p>
                     </div>
                 </div>
             </div>
@@ -875,11 +951,11 @@ const getButtonKey = (fileName: string): string => {
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.clients_creation')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_creation_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.clients_creation_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.clients_buttons_logic')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.clients_buttons_logic_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.clients_buttons_logic_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
@@ -889,7 +965,7 @@ const getButtonKey = (fileName: string): string => {
                                     {$t('help.clients_infinite_trick')}
                                 </h4>
                             </div>
-                            <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                            <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line text-justify">
                                 {@html formatText($t('help.clients_infinite_trick_text'))}
                             </p>
                         </div>
@@ -904,15 +980,15 @@ const getButtonKey = (fileName: string): string => {
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.files_where')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_where_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.files_where_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.files_structure')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_structure_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.files_structure_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.files_troubleshooting')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.files_troubleshooting_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.files_troubleshooting_text'))}</p>
                     </div>
                 </div>
             </div>
@@ -924,19 +1000,19 @@ const getButtonKey = (fileName: string): string => {
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.interpretation_main_metrics')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_main_metrics_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.interpretation_main_metrics_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.interpretation_segmental')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_segmental_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.interpretation_segmental_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.interpretation_health_states')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_health_states_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.interpretation_health_states_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.interpretation_export')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.interpretation_export_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.interpretation_export_text'))}</p>
                     </div>
                 </div>
             </div>
@@ -949,22 +1025,22 @@ const getButtonKey = (fileName: string): string => {
                     <div class="space-y-6">
                         <div class="space-y-2">
                             <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.security_local_data')}</h4>
-                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_local_data_text'))}</p>
+                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.security_local_data_text'))}</p>
                         </div>
                         <div class="space-y-2">
                             <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.security_link')}</h4>
-                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_link_text'))}</p>
+                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.security_link_text'))}</p>
                         </div>
                         <div class="space-y-2">
                             <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.security_backups')}</h4>
-                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.security_backups_text'))}</p>
+                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.security_backups_text'))}</p>
                         </div>
                     </div>
 
                     <div class="space-y-6">
                         <div class="space-y-2">
                             <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.security_restoration')}</h4>
-                            <p class="text-sm text-slate-600 leading-relaxed">
+                            <p class="text-sm text-slate-600 leading-relaxed text-justify">
                                 {@html formatText($t('help.security_restoration_intro'))}
                             </p>
                         </div>
@@ -972,7 +1048,7 @@ const getButtonKey = (fileName: string): string => {
                         <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
                             <div class="flex items-start gap-3">
                                 <AlertTriangle class="text-amber-600 flex-shrink-0 mt-0.5" size={18} />
-                                <div class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                                <div class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line text-justify">
                                     <h4 class="font-bold text-amber-800 text-sm uppercase tracking-wider mb-2">
                                         {$t('help.security_manual_sync_title')}
                                     </h4>
@@ -980,8 +1056,21 @@ const getButtonKey = (fileName: string): string => {
                                 </div>
                             </div>
                         </div>
-                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-xl font-black text-slate-800 mb-6 border-b border-slate-100 pb-3 text-center flex items-center justify-center gap-2">
+                    <Monitor class="text-indigo-600" /> {$t('help.viewer_section_title')}
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.viewer_title')}</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">
+                            {@html formatText($t('help.viewer_text'))}
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -992,15 +1081,15 @@ const getButtonKey = (fileName: string): string => {
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.troubleshooting_common')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_common_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.troubleshooting_common_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.troubleshooting_missing_data')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_missing_data_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.troubleshooting_missing_data_text'))}</p>
                     </div>
                     <div class="space-y-3">
                         <h4 class="font-bold text-indigo-600 text-sm uppercase tracking-wider text-center">{$t('help.troubleshooting_date')}</h4>
-                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{@html formatText($t('help.troubleshooting_date_text'))}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line text-justify">{@html formatText($t('help.troubleshooting_date_text'))}</p>
                     </div>
                 </div>
             </div>
@@ -1020,7 +1109,7 @@ const getButtonKey = (fileName: string): string => {
                 <p class="text-[10px] mt-8 opacity-30 uppercase tracking-widest">{$t('about.disclaimer')}</p>
             </div>
         </div>
-      {/if}
+{/if}
      {#if currentTab === 'inbox'}
   <div class="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
     
@@ -1467,13 +1556,13 @@ const getButtonKey = (fileName: string): string => {
                       </button>
 
                       <button 
-                        on:click={() => deleteClient(selectedClientId)} 
-                        class="col-span-1 sm:w-auto justify-center text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
-                        title="{$t('actions.delete')}"
-                      >
-                        <Trash2 size={16} />
-                        <span>{$t('actions.delete')}</span>
-                      </button>
+  on:click={() => requestDeleteClient(selectedClientId)} 
+  class="col-span-1 sm:w-auto justify-center text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
+  title="{$t('actions.delete')}"
+>
+  <Trash2 size={16} />
+  <span>{$t('actions.delete')}</span>
+</button>
                       
                     </div>
                   </div>
@@ -1592,97 +1681,173 @@ const getButtonKey = (fileName: string): string => {
 
                <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
   
-                   <div class="flex flex-col gap-3 sm:gap-4 xl:col-span-1"> 
-                    <div class="grid grid-cols-2 gap-3 sm:gap-4">
-  
-  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-800 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.weight')}</span>
-      <div class="flex justify-between items-end w-full">
-          <Scale size={24} class="text-slate-400 mb-1" strokeWidth={2} />
-          <span class="text-3xl font-black text-slate-800 leading-none">
-            {currentRecord.weight}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
+  <div class="flex flex-col gap-3 sm:gap-4 xl:col-span-1"> 
+    
+    <div class="grid grid-cols-2 gap-3 sm:gap-4">
+
+      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-slate-800 transition-transform hover:scale-[1.02]">
+        <div class="mb-1">
+          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
+            {$t('metrics.weight')}
           </span>
+        </div>
+        <div class="flex items-end justify-between mt-1">
+          <Scale size={20} class="text-slate-400 mb-1" strokeWidth={2} />
+          <div class="text-right leading-none">
+            <span class="text-xl sm:text-2xl font-black text-slate-800">
+              {currentRecord?.weight ?? '--'}
+            </span>
+            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
+          </div>
+        </div>
       </div>
+
+      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-pink-500 transition-transform hover:scale-[1.02]">
+        <div class="flex justify-between items-start mb-1">
+          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
+            {$t('metrics.bmi')}
+          </span>
+          <button on:click={() => openInfo('bmi')} class="text-slate-300 hover:text-indigo-500 transition-colors" aria-label="Info IMC">
+            <Info size={16} />
+          </button>
+        </div>
+        <div class="flex items-end justify-between mt-1">
+          <Activity size={20} class="text-pink-500 mb-1" strokeWidth={2} />
+          <span class="text-xl sm:text-2xl font-black leading-none {getStatusColor('bmi', currentRecord?.bmi).replace('bg-', 'text-').replace('-100', '-600')}">
+            {currentRecord?.bmi ?? '--'}
+          </span>
+        </div>
+      </div>
+
+      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-amber-500 transition-transform hover:scale-[1.02]">
+        <div class="flex justify-between items-start mb-1">
+          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
+            {$t('metrics.body_fat')}
+          </span>
+          <button on:click={() => openInfo('body_fat')} class="text-slate-300 hover:text-indigo-500 transition-colors" aria-label="Info Grasa">
+            <Info size={16} />
+          </button>
+        </div>
+        <div class="flex items-end justify-between mt-1">
+          <Droplets size={20} class="text-amber-400 mb-1" strokeWidth={2} />
+          <div class="text-right leading-none">
+            <span class="text-xl sm:text-2xl font-black {getStatusColor('fat', currentRecord?.bodyFat).replace('bg-', 'text-').replace('-100', '-600')}">
+              {currentRecord?.bodyFat ?? '--'}
+            </span>
+            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-indigo-500 transition-transform hover:scale-[1.02]">
+        <div class="mb-1">
+          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
+            {$t('metrics.muscle_mass')}
+          </span>
+        </div>
+        <div class="flex items-end justify-between mt-1">
+          <Dumbbell size={20} class="text-indigo-400 mb-1" strokeWidth={2} />
+          <div class="text-right leading-none">
+            <span class="text-xl sm:text-2xl font-black text-slate-800">
+              {currentRecord?.muscleMass ?? '--'}
+            </span>
+            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">kg</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-cyan-500 transition-transform hover:scale-[1.02]">
+        <div class="flex justify-between items-start mb-1">
+          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
+            {$t('metrics.water')}
+          </span>
+          <button on:click={() => openInfo('water')} class="text-slate-300 hover:text-indigo-500 transition-colors" aria-label="Info Agua">
+            <Info size={16} />
+          </button>
+        </div>
+        <div class="flex items-end justify-between mt-1">
+          <Droplets size={20} class="text-cyan-400 mb-1" strokeWidth={2} />
+          <div class="text-right leading-none">
+            <span class="text-xl sm:text-2xl font-black text-slate-800">
+              {currentRecord?.waterPercentage ?? '--'}
+            </span>
+            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-gray-400 transition-transform hover:scale-[1.02]">
+        <div class="mb-1">
+          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
+            {$t('metrics.bone_mass')}
+          </span>
+        </div>
+        <div class="flex items-end justify-between mt-1">
+          <Bone size={20} class="text-slate-400 mb-1" strokeWidth={2} />
+          <div class="text-right leading-none">
+            <span class="text-xl sm:text-2xl font-black text-slate-800">
+              {currentRecord?.boneMass ?? '--'}
+            </span>
+            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">kg</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500 transition-transform hover:scale-[1.02]">
+        <div class="mb-1">
+          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
+            {$t('metrics.dci')}
+          </span>
+        </div>
+        <div class="flex items-end justify-between mt-1">
+          <Flame size={20} class="text-emerald-400 mb-1" strokeWidth={2} />
+          <div class="text-right leading-none">
+            <span class="text-xl sm:text-2xl font-black text-slate-800">
+              {currentRecord?.dci ?? '--'}
+            </span>
+            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">kcal</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500 transition-transform hover:scale-[1.02]">
+        <div class="flex justify-between items-start mb-1">
+          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
+            {$t('metrics.metabolic_age')}
+          </span>
+          <button on:click={() => openInfo('metabolic_age')} class="text-slate-300 hover:text-indigo-500 transition-colors" aria-label="Info Edad">
+            <Info size={16} />
+          </button>
+        </div>
+        <div class="flex items-end justify-between mt-1">
+          <Clock size={20} class="text-purple-400 mb-1" strokeWidth={2} />
+          <div class="text-right leading-none">
+            <span class="text-xl sm:text-2xl font-black {getStatusColor('meta', currentRecord?.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">
+              {currentRecord?.metabolicAge ?? '--'}
+            </span>
+            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">{$t('units.years')}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <InfoModal 
+      isOpen={showInfoModal}
+      title={infoModalTitle}
+      message={infoModalContent}
+      closeAriaLabel={$t('common.close') || 'Close'}
+      on:close={() => showInfoModal = false}
+    />
   </div>
 
-  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-slate-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.bmi')}</span>
-      <div class="flex justify-between items-end w-full">
-          <Activity size={24} class="text-slate-400 mb-1" strokeWidth={2} />
-          <span class="text-3xl font-black leading-none {getStatusColor('bmi', currentRecord.bmi).replace('bg-', 'text-').replace('-100', '-600')}">
-            {currentRecord.bmi}
-          </span>
-      </div>
-  </div>
-
-  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-amber-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.body_fat')}</span>
-      <div class="flex justify-between items-end w-full">
-          <Droplets size={24} class="text-amber-400 mb-1" strokeWidth={2} />
-          <span class="text-3xl font-black text-slate-800 leading-none">
-            {currentRecord.bodyFat}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.percent')}</span>
-          </span>
-      </div>
-  </div>
-
-  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.muscle_mass')}</span>
-      <div class="flex justify-between items-end w-full">
-          <Dumbbell size={24} class="text-indigo-400 mb-1" strokeWidth={2} />
-          <span class="text-3xl font-black text-slate-800 leading-none">
-            {currentRecord.muscleMass}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
-          </span>
-      </div>
-  </div>
-
-  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-cyan-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.water')}</span>
-      <div class="flex justify-between items-end w-full">
-          <Droplets size={24} class="text-cyan-400 mb-1" strokeWidth={2} />
-          <span class="text-3xl font-black leading-none {getStatusColor('water', currentRecord.waterPercentage).replace('bg-', 'text-').replace('-100', '-600')}">
-            {currentRecord.waterPercentage}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.percent')}</span>
-          </span>
-      </div>
-  </div>
-
-  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-gray-400 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.bone_mass')}</span>
-      <div class="flex justify-between items-end w-full">
-          <Bone size={24} class="text-slate-400 mb-1" strokeWidth={2} />
-          <span class="text-3xl font-black text-slate-800 leading-none">
-            {currentRecord.boneMass}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
-          </span>
-      </div>
-  </div>
-
-  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.dci')}</span>
-      <div class="flex justify-between items-end w-full">
-          <Flame size={24} class="text-emerald-400 mb-1" strokeWidth={2} />
-          <span class="text-3xl font-black text-slate-800 leading-none">
-            {currentRecord.dci}<span class="text-sm font-bold text-slate-400 ml-0.5">kcal</span>
-          </span>
-      </div>
-  </div>
-
-  <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-500 flex flex-col justify-between h-28 transition-transform hover:scale-[1.02]">
-      <span class="text-xs font-black text-slate-500 uppercase tracking-widest truncate">{$t('metrics.metabolic_age')}</span>
-      <div class="flex justify-between items-end w-full">
-          <Clock size={24} class="text-purple-400 mb-1" strokeWidth={2} />
-          <span class="text-3xl font-black leading-none {getStatusColor('meta', currentRecord.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">
-            {currentRecord.metabolicAge}<span class="text-sm font-bold text-slate-400 ml-0.5">{$t('units.years')}</span>
-          </span>
-      </div>
+  <div class="xl:col-span-2 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
+    <BodyMap record={currentRecord} 
+    on:info={() => openInfo('segmental')}
+    />
   </div>
 
 </div>
-                  </div>
-
-                  <div class="xl:col-span-2 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
-                    <BodyMap record={currentRecord} />
-                  </div>
-
-                </div>
 
                   {#if chartData}
                     <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm mt-4 sm:mt-6">
@@ -1737,8 +1902,8 @@ const getButtonKey = (fileName: string): string => {
             
             <div class="text-center pt-4 sm:pt-8 mb-4">
                <h2 class="text-2xl sm:text-4xl font-black text-slate-800">
-  {$t('settings.title')}
-</h2>
+                  {$t('settings.title')}
+               </h2>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -1779,7 +1944,7 @@ const getButtonKey = (fileName: string): string => {
                         </div>
 
                         <button 
-                            on:click={() => PatientManager.exportBackup()} 
+                            on:click={handleExportBackup} 
                             class="flex items-center justify-center gap-3 w-full bg-indigo-600 text-white py-3 sm:py-4 rounded-xl hover:bg-indigo-700 transition-all font-bold shadow-md shadow-indigo-200 active:scale-[0.98]"
                         >
                             <Download size={20} /> {$t('settings.btn_export')}
@@ -1811,7 +1976,7 @@ const getButtonKey = (fileName: string): string => {
                                 type="file" 
                                 accept=".json" 
                                 on:change={handleImportBackup} 
-                                on:click={(e) => { e.currentTarget.value = ''; }}
+                                on:click={(e) => { (e.currentTarget as HTMLInputElement).value = ''; }}
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                             />
                           </div>
@@ -1820,27 +1985,34 @@ const getButtonKey = (fileName: string): string => {
                 </div>
             </div>
 
-            <div class="bg-rose-50/50 rounded-xl shadow-sm border border-rose-100 overflow-hidden">
-                 <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                     <div class="text-center sm:text-left">
-                         <h4 class="text-rose-700 font-bold text-sm uppercase flex items-center gap-2 justify-center sm:justify-start">
-                            <AlertTriangle size={16} /> {$t('settings.danger_zone_title')}
-                         </h4>
-                     </div>
-                     <button 
-                        on:click={handleFactoryReset} 
-                        class="flex-shrink-0 flex items-center gap-2 bg-white border border-rose-200 text-rose-600 text-xs sm:text-sm font-bold px-5 py-3 rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm whitespace-nowrap"
-                     >
-                        <Trash2 size={16} /> {$t('settings.delete_all_btn')}
-                     </button>
-                 </div>
+            <div class="bg-red-50 border border-red-100 rounded-xl overflow-hidden shadow-sm mt-8">
+                <div class="px-6 py-4 border-b border-red-100 bg-red-100/50 flex items-center justify-center gap-2">
+                    <AlertTriangle class="text-red-500" size={20} />
+                    <h3 class="text-lg font-bold text-red-700">{$t('settings.danger_zone_title')}</h3>
+                </div>
+                
+                <div class="p-6 flex flex-col items-center text-center">
+                    <p class="text-sm text-red-800 font-medium mb-6 max-w-lg">
+                        {$t('settings.danger_zone_description')}
+                    </p>
+
+                    <button 
+                        on:click={requestFactoryReset} 
+                        class="bg-white border-2 border-red-200 text-red-600 hover:bg-red-600 hover:text-white hover:border-red-600 px-6 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm flex items-center gap-2"
+                    >
+                        <Trash2 size={18} />
+                        {$t('settings.delete_all_btn')}
+                    </button>
+                </div>
             </div>
 
           </div>
         {/if}
 
+        
+
         {#if showModal}
-          <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div class="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 animate-fade-in">
             <div 
               class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto animate-slide-up" 
               on:keydown|stopPropagation
@@ -1919,6 +2091,35 @@ const getButtonKey = (fileName: string): string => {
             </div>
           </div>
         {/if}
+
+        <InfoModal 
+          isOpen={showInfoModal}
+          title={infoModalTitle}
+          message={infoModalContent}
+          closeAriaLabel={$t('common.close') || 'Close'}
+          on:close={() => showInfoModal = false}
+        />
+
+        <DeleteModal 
+          isOpen={showDeleteModal}
+          title={deleteModalType === 'client' ? $t('alerts.delete_client_title') : $t('alerts.reset_title')}
+          message={deleteModalType === 'client' 
+            ? $t('settings.delete_client_warning', { values: { name: deleteTargetName } }) 
+            : $t('settings.factory_reset_warning')}
+          confirmationWord={$t('settings.confirm_word')}
+          placeholder={$t('settings.type_to_confirm')}
+          confirmBtnText={deleteModalType === 'client' ? $t('actions.delete_confirm_btn') : $t('actions.reset_confirm_btn')}
+          cancelBtnText={$t('actions.cancel')}  on:close={() => showDeleteModal = false}
+          on:confirm={executeDeleteAction} 
+        />
+
+        {#if showToast}
+          <div class="fixed bottom-6 right-6 z-[70] flex items-center gap-3 bg-slate-800 text-white px-4 py-3 rounded-lg shadow-lg animate-fade-in-up">
+            <CheckCircle2 class="text-emerald-400" size={20} />
+            <span class="font-medium text-sm">{toastMessage}</span>
+          </div>
+        {/if}
+
     </main>
   </div>
 {/if}

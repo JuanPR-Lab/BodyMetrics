@@ -92,10 +92,10 @@
     "files_troubleshooting": "Importante: Datos Antiguos",
     "files_troubleshooting_text": "Si tu SD tiene años de datos, **procésalo por lotes** para organizarte:\n1. Carga solo los archivos del Botón 1 (`DATA1` y `DATA5`) en **Entrada**.\n2. Usa **Vinculación Múltiple** para asignarlos a 'Mamá' (ej.).\n3. Carga ahora los del Botón 2 (`DATA2`/`DATA6`) y asigna a otro cliente.\n4. Repite con todos.\n\nUna vez organizado el histórico, para el día a día ya podrás **cargar todos los archivos juntos**.",
     "section_interpretation": "Interpretación",
-    "interpretation_main_metrics": "Semáforos de Salud",
-    "interpretation_main_metrics_text": "• **% Grasa e IMC:** Azul (Bajo), Verde (Sano), Amarillo (Sobrepeso), Rojo (Obesidad).\n• **% Agua:** La app indicará si está bajo (Azul), sano (Verde) o alto (Amarillo). Lo ideal es **45-60%** (Mujeres) y **50-65%** (Hombres).\n• **Visceral:** **1-12** (Sano), **13+** (Riesgo).\n• **Edad Metabólica:** Verde si es **≤ edad actual**. Amarillo si es **> edad actual**.",
-    "interpretation_segmental": "Segmental",
-    "interpretation_segmental_text": "¡Detecta asimetrías y evita lesiones! Visualiza desequilibrios musculares ocultos (ej: una pierna más débil tras recuperar una lesión) o adaptaciones deportivas (ej: brazo dominante en tenis) para corregirlos a tiempo.",
+    "interpretation_main_metrics": "Interpretación del Semáforo",
+    "interpretation_main_metrics_text": "Los colores indican el estado de salud según los estándares médicos de Tanita y la OMS:\n\n**% Grasa e IMC:**\n• **Azul (Bajo):** Grasa o peso inferior a lo saludable.\n• **Verde (Sano):** Valores óptimos para tu edad y género.\n• **Amarillo (Sobrepeso):** Por encima del estándar.\n• **Rojo (Obesidad):** Riesgo elevado de salud.\n\n**Nivel de Grasa Visceral:**\n• **Verde (1-12):** Nivel saludable.\n• **Rojo (13-59):** Nivel excesivo. Indica grasa peligrosa rodeando órganos vitales.\n\n**Edad Metabólica:**\n• **Verde:** Menor o igual a tu edad real.\n• **Amarillo:** Mayor a tu edad real.\n\n**Nota:** Pulsa el icono (i) en cada tarjeta para ver su definición detallada.",
+    "interpretation_segmental": "Análisis Segmental Interactivo",
+    "interpretation_segmental_text": "El análisis segmental divide el cuerpo en 5 secciones (brazos, piernas y tronco) para detectar asimetrías y desequilibrios.\n\n**Interactividad:** En el diagrama corporal (BodyMap), puedes **pulsar sobre cada extremidad o el tronco** para ver el estado específico (color del semáforo) de esa zona. Esto es vital para corregir descompensaciones tras lesiones o en deportes unilaterales (tenis, golf).",
     "interpretation_health_states": "Rangos Dinámicos",
     "interpretation_health_states_text": "Los rangos de 'Saludable' no son fijos: la app los calcula automáticamente siguiendo el **manual de la báscula**, adaptándose a la edad y género exactos en cada medición.",
     "interpretation_export": "Exportar Datos",
@@ -112,12 +112,22 @@
     "security_manual_sync_title": "Sincronización Manual",
     "security_warning_sync": "**Sincronización Manual:**\nLos datos no se sincronizan automáticamente. Para pasar datos de PC a Móvil, necesitas cargar **DOS** cosas:\n1. La **Copia de Seguridad** (.json) con los vínculos.\n2. Los archivos **DATA.CSV** de la SD con los datos brutos.\n\nSin ambos archivos, no verás las mediciones.",
     "section_troubleshooting": "Dudas Frecuentes",
+    "viewer_section_title": "BodyMetrics Viewer",
+    "viewer_title": "Flujo de trabajo con Clientes",
+    "viewer_text": "**BodyMetrics Viewer** es una app ligera diseñada exclusivamente para que sus clientes visualicen su progreso.\n\n**Cómo funciona:**\n1. Exporte el historial de su cliente a CSV usando el botón **Exportar**.\n2. Envíe el archivo `BM_Alias...csv` a su cliente (WhatsApp/Email).\n3. El cliente abre el Viewer y carga el archivo.\n\nEl Viewer guarda localmente los últimos datos cargados, permitiendo al cliente consultar sus gráficas y evolución sin necesitar una cuenta ni conexión constante.",
     "troubleshooting_common": "¿Qué archivo subo?",
     "troubleshooting_common_text": "• Para nuevas mediciones: Los `DATA.CSV` de la SD.\n• Para restaurar o sincronizar la app: El archivo `bm_backup...json`.",
     "troubleshooting_missing_data": "¿No hay datos?",
     "troubleshooting_missing_data_text": "Cada vez que cierras la app **tienes que volver a cargar los archivos de la SD**. La app recordará la vinculación de cada medición, pero necesita leer el archivo original cada sesión.",
     "troubleshooting_date": "¿Fecha incorrecta?",
     "troubleshooting_date_text": "Si ves mediciones del año 2010, el reloj de la báscula se reinició (ej: cambio de pilas). Configura la fecha en la báscula física."
+  },
+  "metrics_info": {
+    "bmi": "Clasificación basada en datos de la OMS:<br><strong>Azul:</strong> Bajo peso<br><strong>Verde:</strong> Saludable<br><strong>Amarillo:</strong> Sobrepeso<br><strong>Rojo:</strong> Obesidad",
+    "body_fat": "Rangos según tablas del manual:<br><strong>Azul:</strong> Bajo<br><strong>Verde:</strong> Saludable<br><strong>Amarillo:</strong> Alto en grasa<br><strong>Rojo:</strong> Obesidad",
+    "water": "Rangos saludables promedio según manual:<br><strong>Mujeres:</strong> 45% a 60%<br><strong>Hombres:</strong> 50% a 65%",
+    "metabolic_age": "Comparativa con la edad real:<br><strong>Verde:</strong> Menor o igual a real (Edad metabólica ideal)<br><strong>Amarillo/Rojo:</strong> Edad metabólica superior",
+    "segmental": "Pulsa sobre el diagrama para ver el estado de cada zona.<br><br><strong>Grasa Segmental (Brazos/Piernas/Tronco):</strong><br>Sigue la misma escala que la Grasa Corporal (Azul: Bajo, Verde: Sano, Amarillo: Alto, Rojo: Obeso).<br><br><strong>Grasa Visceral (Abdomen central):</strong><br><strong>Verde (1-12):</strong> Saludable<br><strong>Rojo (13+):</strong> Exceso"
   },
   "about": {
     "title": "Acerca de BodyMetrics",
@@ -187,7 +197,12 @@
     "import_success_title": "Importación Exitosa",
     "import_error": "El archivo no parece una copia de seguridad válida.",
     "import_error_title": "Error de Importación",
-    "delete_all_btn": "Restablecer de Fábrica (Borrar Datos)"
+    "delete_all_btn": "Restablecer de Fábrica (Borrar Datos)",
+    "danger_zone_description": "Estas acciones son destructivas e irreversibles. Ten cuidado.",
+    "factory_reset_warning": "Esta acción borrará <strong>TODOS</strong> los clientes, historiales y vínculos creados. La aplicación volverá a su estado original.<br><br>Los archivos de tu tarjeta SD no se tocarán, pero tendrás que volver a cargar y vincular todo desde cero.",
+    "delete_client_warning": "Estás a punto de eliminar al cliente <strong>{name}</strong>. Todas sus mediciones vinculadas se desvincularán y volverán a la bandeja de Entrada.",
+    "type_to_confirm": "Escribe la palabra:",
+    "confirm_word": "BORRAR"
   },
   "actions": {
     "save": "Guardar",
@@ -196,7 +211,9 @@
     "delete": "Eliminar",
     "export_csv": "Hoja de Cálculo",
     "ok": "Aceptar",
-    "rename": "Renombrar"
+    "rename": "Renombrar",
+    "delete_confirm_btn": "Sí, eliminar",
+    "reset_confirm_btn": "Sí, restablecer"
   },
   "alerts": {
     "success_title": "¡Operación Exitosa!",
@@ -215,7 +232,7 @@
     "skip": "Saltar tutorial",
     "previous": "Anterior",
     "next": "Siguiente",
-    "finish": "Comenzar", 
+    "finish": "Comenzar",
     "step_inbox_title": "Entrada",
     "step_inbox_description": "Aquí cargas los archivos de la tarjeta SD y vinculas las mediciones pendientes a los clientes que vayas creando.",
     "step_clients_title": "Clientes",
