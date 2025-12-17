@@ -958,6 +958,19 @@
             <h3 class="font-bold text-indigo-800 text-lg">{$t('help.section_starting')}</h3>
         </div>
         <div class="p-5 sm:p-6 space-y-6 text-sm text-slate-600 leading-relaxed">
+            
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
+                 <div class="flex items-center gap-2 mb-3">
+                    <div class="bg-white p-1.5 rounded-md shadow-sm text-indigo-600 border border-slate-100">
+                        <Download size={18} /> 
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-base">{$t('help.starting_installation')}</h4>
+                 </div>
+                 <div class="text-sm text-slate-600 leading-7 whitespace-pre-line pl-1">
+                    {@html formatText($t('help.starting_installation_text'))}
+                 </div>
+            </div>
+
             <div>
                 <h4 class="font-bold text-indigo-600 text-base mb-2">{$t('help.starting_first_steps')}</h4>
                 <p class="whitespace-pre-line text-slate-700">{@html formatText($t('help.starting_first_steps_text'))}</p>

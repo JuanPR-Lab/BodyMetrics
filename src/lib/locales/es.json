@@ -73,10 +73,10 @@
   "help": {
     "page_title": "Centro de Ayuda",
     "section_starting": "Primeros Pasos",
+    "starting_installation": "Instalar App (Modo Offline)",
+    "starting_installation_text": "Para usar la app a pantalla completa y sin internet:\n\n• **iPhone / iPad:** Busca el botón **Compartir** (icono de cuadrado con flecha) en la barra de navegación de tu navegador y selecciona **'Añadir a pantalla de inicio'**.\n• **Android:** Abre el menú de opciones (**3 puntos**) en Chrome y elige **'Instalar aplicación'** o 'Añadir a pantalla de inicio'.\n• **PC / Mac:** Busca el icono de **Instalar aplicación** en la barra de direcciones del navegador.",
     "starting_requirements": "Requisitos del Sistema",
     "starting_requirements_text": "• **Navegador:** Chrome, Safari, Edge o compatible.\n• **Tarjeta SD:** Archivos originales de tu Tanita (BC-601/602/613).\n• **Sin Conexión:** Funciona 100% offline tras la instalación.",
-    "starting_installation": "Instalar App (PWA)",
-    "starting_installation_text": "Para una mejor experiencia, instala la aplicación:\n• **PC:** Busca el icono 'Instalar' en la barra de direcciones.\n• **Móvil:** Pulsa 'Compartir' o Menú y elige **'Añadir a pantalla de inicio'**.",
     "starting_first_steps": "Flujo de trabajo",
     "starting_first_steps_text": "1. **Cargar (Entrada):** Arrastra o carga los archivos `DATA.CSV` de tu tarjeta SD.\n2. **Vincular (Entrada):** Asigna cada nueva medición a su cliente correspondiente.\n3. **Analizar (Clientes):** Visualiza gráficas y métricas de progreso.\n\n*Nota: Crea primero el perfil del cliente en la pestaña Clientes.*",
     "section_clients_buttons": "Gestión de Botones Físicos",

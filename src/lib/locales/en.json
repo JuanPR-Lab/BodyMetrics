@@ -73,10 +73,10 @@
   "help": {
     "page_title": "Help Center",
     "section_starting": "Getting Started",
+    "starting_installation": "Install App (Offline Mode)",
+    "starting_installation_text": "To use the app full screen and offline:\n\n• **iPhone / iPad:** Find the **Share** button (square with arrow icon) in your browser's navigation bar and select **'Add to Home Screen'**.\n• **Android:** Open the options menu (**3 dots**) in Chrome and select **'Install app'** or 'Add to Home Screen'.\n• **PC / Mac:** Look for the **Install App** icon in the browser address bar.",
     "starting_requirements": "System Requirements",
     "starting_requirements_text": "• **Browser:** Chrome, Safari, Edge, or compatible.\n• **SD Card:** Original files from your Tanita (BC-601/602/613).\n• **Offline:** Works 100% offline after installation.",
-    "starting_installation": "Install App (PWA)",
-    "starting_installation_text": "For the best experience, install the application:\n• **PC:** Look for the 'Install' icon in the browser bar.\n• **Mobile:** Tap 'Share' or Menu and select **'Add to Home Screen'**.",
     "starting_first_steps": "Workflow",
     "starting_first_steps_text": "1. **Load (Inbox):** Drag or upload the `DATA.CSV` files from your SD card.\n2. **Link (Inbox):** Assign each new measurement to its corresponding client.\n3. **Analyze (Clients):** View progress charts and metrics.\n\n*Note: Create the client profile in the Clients tab first.*",
     "section_clients_buttons": "Managing Physical Buttons",
