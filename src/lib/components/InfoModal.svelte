@@ -40,12 +40,12 @@
       transition:scale={{ duration: 200, start: 0.95 }}
       role="document"
     >
-      <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-        <h3 id="modal-title" class="font-bold text-slate-800 text-lg">
+      <div class="px-6 py-4 border-b border-indigo-100 flex justify-between items-center">
+        <h3 id="modal-title" class="font-bold text-indigo-600 text-lg">
           {title}
         </h3>
         
-        <button 
+        <button
           on:click={close}
           class="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-full hover:bg-slate-100"
           aria-label={closeAriaLabel}

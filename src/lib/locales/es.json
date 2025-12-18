@@ -226,9 +226,15 @@
     "export_csv": "CSV",
     "ok": "Entendido",
     "rename": "Renombrar",
-    "delete_confirm_btn": "Sí, eliminar",
-    "reset_confirm_btn": "Sí, restablecer"
-  },
+        "rename_confirm_btn": "Renombrar",
+        "delete_confirm_btn": "Sí, eliminar",
+        "reset_confirm_btn": "Sí, restablecer"
+      },
+      "modals": {
+        "rename_client_title": "Renombrar Cliente",
+        "rename_client_message": "Introduce un nuevo nombre para este cliente:",
+        "new_name_placeholder": "Nuevo nombre"
+      },
   "alerts": {
     "csv_imported_success": "Lectura de archivos completada",
     "client_renamed_success": "Nombre actualizado",
@@ -240,7 +246,11 @@
     "reset_confirm": "¿Estás completamente seguro? Se borrará toda la base de datos local del navegador.",
     "delete_client_title": "Eliminar Cliente",
     "delete_client_confirm": "¿Eliminar a este cliente? Sus mediciones volverán a la bandeja de Entrada.",
-    "detach_record_confirm": "¿Desvincular esta medición? Volverá a estar disponible en la bandeja de Entrada."
+    "detach_record_confirm": "¿Desvincular esta medición? Volverá a estar disponible en la bandeja de Entrada.",
+    "client_created": "Cliente creado con éxito",
+    "client_renamed": "Cliente renombrado con éxito",
+    "client_deleted": "Cliente borrado con éxito",
+    "record_detached": "Medición desvinculada con éxito"
   },
   "first_use": {
     "title": "Bienvenido a BodyMetrics",

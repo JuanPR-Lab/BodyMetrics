@@ -226,9 +226,15 @@
     "export_csv": "CSV",
     "ok": "Got it",
     "rename": "Rename",
-    "delete_confirm_btn": "Yes, delete",
-    "reset_confirm_btn": "Yes, reset"
-  },
+        "rename_confirm_btn": "Rename",
+        "delete_confirm_btn": "Yes, delete",
+        "reset_confirm_btn": "Yes, reset"
+      },
+      "modals": {
+        "rename_client_title": "Rename Client",
+        "rename_client_message": "Enter a new name for this client:",
+        "new_name_placeholder": "New name"
+      },
   "alerts": {
     "csv_imported_success": "File reading completed",
     "client_renamed_success": "Name updated",
@@ -240,7 +246,11 @@
     "reset_confirm": "Are you absolutely sure? The entire local browser database will be deleted.",
     "delete_client_title": "Delete Client",
     "delete_client_confirm": "Delete this client? Their measurements will return to the Inbox.",
-    "detach_record_confirm": "Unlink this measurement? It will become available in the Inbox again."
+    "detach_record_confirm": "Unlink this measurement? It will become available in the Inbox again.",
+    "client_created": "Client created successfully",
+    "client_renamed": "Client renamed successfully",
+    "client_deleted": "Client deleted successfully",
+    "record_detached": "Record detached successfully"
   },
   "first_use": {
     "title": "Welcome to BodyMetrics",

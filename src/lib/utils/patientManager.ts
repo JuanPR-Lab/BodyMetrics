@@ -122,9 +122,9 @@ export const PatientManager = {
     
     // Check for duplicates
     if (db.clients.find(c => c.id === id)) {
-      return false; 
+      return false;
     }
-
+  
     db.clients.push({
       id,
       alias: alias || id,
@@ -221,6 +221,110 @@ export const PatientManager = {
     
     // Sort by date descending (newest first) based on ID string comparison
     return clientRecords.sort((a, b) => b.id.localeCompare(a.id));
+  },
+
+  /**
+   * Filter history by date range.
+   * @param history Array of BioMetricRecord
+   * @param filter 'all' | '1m' | '3m' | '6m' | '1y' | 'custom'
+   * @param start Custom start date (YYYY-MM-DD)
+   * @param end Custom end date (YYYY-MM-DD)
+   */
+  filterHistoryByDate(history: BioMetricRecord[], filter: string, start: string, end: string): BioMetricRecord[] {
+    if (filter === 'all' || !history.length) return history;
+    
+    const now = new Date();
+    const cutoff = new Date();
+    
+    if (filter === '1m') cutoff.setMonth(now.getMonth() - 1);
+    else if (filter === '3m') cutoff.setMonth(now.getMonth() - 3);
+    else if (filter === '6m') cutoff.setMonth(now.getMonth() - 6);
+    else if (filter === '1y') cutoff.setFullYear(now.getFullYear() - 1);
+    else if (filter === 'custom' && start && end) {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      return history.filter(r => {
+        const recordDate = new Date(r.date.split('/').reverse().join('-'));
+        return recordDate >= startDate && recordDate <= endDate;
+      });
+    } else {
+      return history;
+    }
+    
+    return history.filter(r => {
+      const recordDate = new Date(r.date.split('/').reverse().join('-'));
+      return recordDate >= cutoff;
+    });
+  },
+
+  /**
+   * Compute chart data for a given metric key.
+   * @param history Array of BioMetricRecord
+   * @param metricKey keyof BioMetricRecord
+   * @returns Chart data object with pointsData, polyline, areaPath, gridLines
+   */
+  computeChartData(history: BioMetricRecord[], metricKey: keyof BioMetricRecord): any {
+    if (!history.length) return null;
+    
+    const getTimestamp = (dateStr: string, timeStr: string = '00:00:00') => {
+      try {
+        if (!dateStr) return 0;
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+          return new Date(`${parts[2]}-${parts[1]}-${parts[0]}T${timeStr}`).getTime();
+        }
+        return new Date(dateStr).getTime() || 0;
+      } catch (e) { return 0; }
+    };
+
+    const sorted = [...history].sort((a, b) => getTimestamp(a.date, a.time) - getTimestamp(b.date, b.time));
+    const values = sorted.map(d => Number(d[metricKey]) || 0);
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+    
+    let rawRange = maxVal - minVal;
+    if (rawRange === 0) rawRange = 1;
+
+    const roughStep = rawRange / 4;
+    const niceSteps = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100];
+    let step = niceSteps.find(s => s >= roughStep) || roughStep;
+    if (step > 100) step = Math.pow(10, Math.floor(Math.log10(rawRange)));
+
+    let axisMin = Math.floor(minVal / step) * step;
+    let axisMax = Math.ceil(maxVal / step) * step;
+
+    if (minVal - axisMin < step * 0.1) axisMin -= step;
+    if (axisMax - maxVal < step * 0.1) axisMax += step;
+
+    const range = axisMax - axisMin;
+    const stepX = sorted.length > 1 ? 100 / (sorted.length - 1) : 0;
+
+    const gridLines = [];
+    for (let v = axisMin; v <= axisMax + 0.0001; v += step) {
+      const y = 100 - ((v - axisMin) / range * 100);
+      gridLines.push({ y, label: parseFloat(v.toFixed(1)) });
+    }
+
+    const pointsData = sorted.map((d, i) => {
+      const val = Number(d[metricKey]) || 0;
+      const x = sorted.length > 1 ? i * stepX : 50;
+      const y = 100 - ((val - axisMin) / range * 100);
+      
+      const showLabel = (sorted.length <= 6) ||
+                        (i === 0) ||
+                        (i === sorted.length - 1) ||
+                        (sorted.length > 10 && i % Math.ceil(sorted.length / 5) === 0);
+      
+      const isRightSide = x > 60;
+      const isTop = y < 25;
+
+      return { x, y, val: val.toFixed(1), date: d.date, showLabel, unitKey: '', isRightSide, isTop };
+    });
+
+    const polyline = sorted.length > 1 ? pointsData.map(p => `${p.x},${p.y}`).join(' ') : '';
+    const areaPath = sorted.length > 1 ? `0,120 ${polyline} 100,120` : '';
+
+    return { pointsData, polyline, areaPath, gridLines };
   },
 
   // --- BACKUP & RESTORE ---

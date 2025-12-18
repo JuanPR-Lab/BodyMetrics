@@ -6,6 +6,7 @@
   import { get } from 'svelte/store';
   import { locale, t, isLoading as isLocaleLoading } from 'svelte-i18n';
   
+  
   // Logic & Utils
   import { PatientManager, type Client } from '$lib/utils/patientManager';
   import { parseScaleFiles, type BioMetricRecord } from '$lib/utils/csvSDparser';
@@ -22,7 +23,10 @@
   // Components
   import InfoModal from '$lib/components/InfoModal.svelte';
   import DeleteModal from '$lib/components/DeleteModal.svelte';
+  import RenameModal from '$lib/components/RenameModal.svelte';
   import BodyMap from '$lib/components/BodyMap.svelte';
+  import ClientDashboard from '$lib/components/ClientDashboard.svelte'; // Ajusta la ruta si es necesario
+  import ToastNotification from '$lib/components/ToastNotification.svelte';
   
   // Icons
   import { 
@@ -85,7 +89,6 @@
   let isDragging = false;
   let errorMessage = ''; // <-- VARIABLE AÑADIDA AQUÍ
   let fileInput: HTMLInputElement;
-  let isClientListOpen = false;
   let promptInput: HTMLInputElement;
 
   // Selection & Filters
@@ -94,7 +97,6 @@
   let selectedRecordIds: string[] = [];
   let isMultiSelectMode: boolean = false;
   let selectedInboxMeasurements: string[] = [];
-  let clientSearchTerm = '';
   
   // Pagination
   let currentPage = 1;
@@ -105,20 +107,9 @@
   let assignmentSearchTerms: Record<string, string> = {};
   let bulkAssignSearch = '';
   
-  // Date Filtering
-  type FilterMode = '1m' | '3m' | '6m' | '1y' | 'all' | 'custom';
-  let currentFilter: FilterMode = 'all';
-  let customDateStart = '';
-  let customDateEnd = '';
-  
   // Chart
-  // @ts-ignore
-  let selectedChartMetric: keyof BioMetricRecord = 'weight';
   let hoveredIndex: number | null = null;
   let hoveredPointData: any | null = null;
-  
-  // Forms
-  let newClientCodeOrAlias = '';
   
   // --- STATE: MODALS & TOAST ---
 
@@ -131,30 +122,24 @@
   let modalCancelCallback: (() => void) | null = null;
   let modalInputValue = '';
 
-  // 2. Info Modal (The (i) button)
-  let showInfoModal = false;
-  let infoModalTitle = '';
-  let infoModalContent = '';
-
-  // 3. Delete Modal (Safety Check)
-  let showDeleteModal = false;
-  let deleteModalType: 'client' | 'reset' = 'client';
-  let deleteTargetId: string | null = null;
-  let deleteTargetName: string = '';
+  // 2. Delete Modal (Safety Check)
+    let showDeleteModal = false;
+    let deleteModalType: 'client' | 'reset' = 'client';
+    let deleteTargetId: string | null = null;
+    let deleteTargetName: string = '';
+  
+    // 3. Rename Modal
+    let showRenameModal = false;
+    let clientToRenameId: string | null = null;
+    let clientToRenameCurrentName: string = '';
 
   // 4. Toast Notification
   let showToast = false;
   let toastMessage = '';
 
-  // 5. First Use Guide
   let showFirstUseGuide = false;
-  let currentGuideStep = 0;
-  const guideSteps = [
-    { tab: 'inbox', title: 'first_use.step_inbox_title', description: 'first_use.step_inbox_description' },
-    { tab: 'clients', title: 'first_use.step_clients_title', description: 'first_use.step_clients_description' },
-    { tab: 'settings', title: 'first_use.step_settings_title', description: 'first_use.step_settings_description' },
-    { tab: 'help', title: 'first_use.step_help_title', description: 'first_use.step_help_description' }
-  ];
+
+  
 
   // ---------------------------------------------------------------------------
   // REACTIVE STATEMENTS
@@ -178,11 +163,7 @@
       .sort((a, b) => getTimestamp(b.date, b.time) - getTimestamp(a.date, a.time));
       
   // Clients Filter & Sort
-  $: filteredClients = clients.filter(c => {
-    if (!clientSearchTerm) return true;
-    const term = clientSearchTerm.toLowerCase().trim();
-    return c.alias.toLowerCase().includes(term);
-  }).sort((a, b) => {
+  $: filteredClients = clients.sort((a, b) => {
     const aAlias = a.alias.toLowerCase();
     const bAlias = b.alias.toLowerCase();
     const aIsNumber = !isNaN(aAlias as any) && !isNaN(parseFloat(aAlias));
@@ -214,22 +195,13 @@
   $: filteredBulkClients = filteredAssignmentClients(bulkAssignSearch);
 
   // History & Selected Record
-  $: clientHistory = selectedClientId 
+  $: clientHistory = selectedClientId
     ? PatientManager.getClientHistory(selectedClientId, allRecords).sort((a, b) => {
         return getTimestamp(b.date, b.time) - getTimestamp(a.date, a.time);
       })
     : [];
     
-  $: displayedHistory = filterHistory(clientHistory, currentFilter, customDateStart, customDateEnd);
-  
-  $: currentRecord = displayedHistory.find(r => r.id === selectedRecordId) || displayedHistory[0] || null;
-  
-  // Chart Config
-  $: activeChartOption = CHART_OPTIONS.find(o => o.key === selectedChartMetric);
-  $: activeChartColor = activeChartOption?.color || '#1f2937';
-  $: activeChartUnitKey = activeChartOption?.unitKey || '';
-  
-  $: chartData = displayedHistory.length > 0 ? prepareSingleChart(displayedHistory, selectedChartMetric, activeChartUnitKey) : null;
+  $: currentRecord = clientHistory.find(r => r.id === selectedRecordId) || clientHistory[0] || null;
 
   // ---------------------------------------------------------------------------
   // LIFECYCLE
@@ -244,10 +216,8 @@
     }
  
     refreshClients();
-    const today = new Date().toISOString().split('T')[0];
-    customDateEnd = today;
     
-    const hasClients = clients.length > 0;
+    /* const hasClients = clients.length > 0;
     const hasAssociations = allRecords.some(r => PatientManager.getClientForRecord(r.id));
     if (!hasClients && !hasAssociations) {
       showFirstUseGuide = true;
@@ -255,6 +225,7 @@
     } else if (clients.length === 0) {
       currentTab = 'help';
     }
+      */
   });
 
   // ---------------------------------------------------------------------------
@@ -262,10 +233,17 @@
   // ---------------------------------------------------------------------------
 
   function refreshClients() {
+    // 1. Releer clientes de la DB
     clients = PatientManager.getClients();
+    
+    // 2. Releer conteos
     clientCounts = PatientManager.getClientCounts();
-    allRecords = [...allRecords];
-
+    
+    // 3. ¡IMPORTANTE! Forzar reactividad de allRecords
+    // Esto hace que Svelte recalcule 'inboxRecords' automáticamente
+    allRecords = [...allRecords]; 
+    
+    // 4. Gestión del tutorial (opcional, según tu lógica)
     if (showFirstUseGuide) {
       const hasClients = clients.length > 0;
       const hasAssociations = allRecords.some(r => PatientManager.getClientForRecord(r.id));
@@ -313,84 +291,133 @@
     }
   };
 
-  function filterHistory(history: BioMetricRecord[], mode: FilterMode, start: string, end: string) {
-    if (history.length === 0) return [];
-    if (mode === 'all') return history;
+  // --- LÓGICA DE CONFIRMACIÓN Y ALERTAS ---
 
-    const now = new Date();
-    let cutoffTime = 0;
-    if (mode === '1m') cutoffTime = new Date(now.setMonth(now.getMonth() - 1)).getTime();
-    else if (mode === '3m') cutoffTime = new Date(now.setMonth(now.getMonth() - 3)).getTime();
-    else if (mode === '6m') cutoffTime = new Date(now.setMonth(now.getMonth() - 6)).getTime();
-    else if (mode === '1y') cutoffTime = new Date(now.setFullYear(now.getFullYear() - 1)).getTime();
-    else if (mode === 'custom') {
-      const s = start ? new Date(start).getTime() : 0;
-      const e = end ? new Date(end).getTime() + 86400000 : Infinity;
-      return history.filter(r => {
-        const t = getTimestamp(r.date, r.time);
-        return t >= s && t < e;
-      });
-    }
-    return history.filter(r => getTimestamp(r.date, r.time) >= cutoffTime);
-  }
+  // 1. Variable temporal para saber qué vamos a desvincular
+  let recordToUnassignId: string | null = null;
+
+  // 2. Manejador: El hijo (Dashboard) pide desvincular
+  const handleRequestUnassign = (e: CustomEvent<string>) => {
+      recordToUnassignId = e.detail;
+      const $t = get(t);
+      
+      // Usamos tu función showConfirm existente para mostrar el modal
+      showConfirm(
+          $t('dashboard.detach_record_title'), // "Desvincular medición"
+          $t('alerts.detach_record_confirm'),  // "¿Desvincular esta medición?..."
+          confirmUnassignAction                // Función a ejecutar si dice SÍ
+      );
+  };
+
+  // 3. Acción real: El usuario dijo SÍ en el modal
+  // En +page.svelte
+  const confirmUnassignAction = () => {
+      if (!recordToUnassignId) return;
+
+      PatientManager.unassignRecord(recordToUnassignId);
+      refreshClients();
+      
+      const $t = get(t);
+      
+      // CAMBIO AQUÍ: Usamos la nueva clave específica
+      triggerToast($t('alerts.record_detached')); 
+      
+      recordToUnassignId = null;
+  };
+
+ 
 
   // --- CLIENT MANAGEMENT (CRUD) ---
   
-  const createClient = () => {
-      const newAlias = newClientCodeOrAlias ? newClientCodeOrAlias.trim() : '';
-      if (!newAlias) return;
-
-      const $t = get(t);
-      const isTaken = clients.some(c => c.alias.toLowerCase() === newAlias.toLowerCase());
-      if (isTaken) {
-          showAlert($t('dashboard.client_exists_title'), $t('dashboard.client_exists_message'), 'error');
-          return; 
+  // --- FUNCIÓN createClient CORREGIDA (SOLO UNA VEZ) ---
+  function createClient(aliasToCreate: string) {
+      if (!aliasToCreate) return;
+      
+      const isDuplicate = clients.some(client =>
+        client.alias.toLowerCase() === aliasToCreate.toLowerCase()
+      );
+      
+      if (isDuplicate) {
+        const $t = get(t);
+        modalTitle = $t('dashboard.client_exists_title');
+        modalMessage = $t('dashboard.client_exists_message');
+        modalType = 'alert';
+        showModal = true;
+        return;
       }
-
-      const uniqueId = Date.now().toString();
-      const success = PatientManager.addClient(uniqueId, newAlias);
-
+      
+      const newId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+      const success = PatientManager.addClient(newId, aliasToCreate);
+      
       if (success) {
         refreshClients();
-        newClientCodeOrAlias = '';
-        clientSearchTerm = '';
-        currentTab = 'clients';
+        const $t = get(t);
+        // CAMBIO AQUÍ: Usamos la clave específica
+        triggerToast($t('alerts.client_created')); 
       } else {
-        showAlert($t('dashboard.client_exists_title'), $t('dashboard.client_exists_message'), 'error');
+        console.error('Client ID already exists');
       }
-  };
+  }
 
-  const handleRenameClient = () => {
-    if (!selectedClientId) return;
-    const client = clients.find(c => c.id === selectedClientId);
-    if (!client) return;
-
-    const $t = get(t);
-    
-    showPrompt(
-      $t('actions.rename'),
-      '', 
-      '',
-      () => {
-        const newAlias = modalInputValue ? modalInputValue.trim() : '';
-        
-        if (!newAlias) return;
-
-        const isTaken = clients.some(c => c.alias.toLowerCase() === newAlias.toLowerCase());
-        
-        if (isTaken) {
-            setTimeout(() => {
-                showAlert($t('dashboard.client_exists_rename_title'), $t('dashboard.client_exists_message'), 'error');
-            }, 100);
-            return; 
+  const handleRenameClient = (id: string, newName: string) => {
+        const success = PatientManager.renameClient(id, newName);
+        if (success) {
+          refreshClients(); // Sync local state with updated DB
+        } else {
+          console.error('Client not found');
         }
-
-        PatientManager.renameClient(selectedClientId, newAlias);
-        refreshClients();
-        triggerToast($t('alerts.client_renamed_success'));
-      }
-    );
-  };
+      };
+    
+      const requestRenameClient = (clientId: string, currentName: string) => {
+        clientToRenameId = clientId;
+        clientToRenameCurrentName = currentName;
+        showRenameModal = true;
+      };
+      
+      const confirmRenameClient = (newName: string) => {
+        if (!clientToRenameId) return;
+        
+        // Find the current client to check if the new name is identical
+        const currentClient = clients.find(client => client.id === clientToRenameId);
+        if (currentClient && currentClient.alias.toLowerCase() === newName.toLowerCase()) {
+          // Show info modal for identical name
+          const $t = get(t);
+          modalTitle = $t('dashboard.client_exists_title');
+          modalMessage = $t('dashboard.client_exists_message');
+          modalType = 'alert';
+          modalConfirmCallback = null;
+          modalCancelCallback = null;
+          showModal = true;
+          return;
+        }
+        
+        // Check for duplicate client names (case insensitive), excluding the current client
+        const isDuplicate = clients.some(client =>
+          client.id !== clientToRenameId &&
+          client.alias.toLowerCase() === newName.toLowerCase()
+        );
+        
+        if (isDuplicate) {
+          // Show info modal for duplicate client
+          const $t = get(t);
+          modalTitle = $t('dashboard.client_exists_title');
+          modalMessage = $t('dashboard.client_exists_message');
+          modalType = 'alert';
+          modalConfirmCallback = null;
+          modalCancelCallback = null;
+          showModal = true;
+          return;
+        }
+        
+        handleRenameClient(clientToRenameId, newName);
+      refreshClients(); // Aseguramos refresco
+      
+      const $t = get(t);
+      // CAMBIO AQUÍ: Añadimos el Toast
+      triggerToast($t('alerts.client_renamed')); 
+      
+      showRenameModal = false;
+      };
 
   // --- DELETE & RESET ACTIONS (SAFE MODE) ---
 
@@ -413,24 +440,40 @@
     const $t = get(t);
 
     if (deleteModalType === 'client' && deleteTargetId) {
+      // --- BORRADO INDIVIDUAL ---
       PatientManager.deleteClient(deleteTargetId);
       
       if (selectedClientId === deleteTargetId) {
         selectedClientId = '';
+        selectedRecordId = ''; // Limpiamos selección
         // @ts-ignore
         currentRecord = null;
       }
       
       refreshClients(); 
-      triggerToast($t('alerts.success_title')); 
+      triggerToast($t('alerts.client_deleted')); 
 
     } else if (deleteModalType === 'reset') {
+      // --- FACTORY RESET (NUCLEAR) ---
+      
+      // 1. Borrar Base de Datos Persistente
       PatientManager.deleteAllData();
+      
+      // 2. LIMPIEZA TOTAL DE MEMORIA (Esto es lo que faltaba)
       clients = [];
+      allRecords = []; // ¡CRÍTICO! Borrar los registros en memoria
       clientCounts = {};
+      
+      // 3. Resetear selecciones y filtros
       selectedClientId = '';
       selectedRecordId = '';
-      refreshClients();
+      selectedInboxMeasurements = [];
+      recordToUnassignId = null;
+      
+      // 4. Resetear UI
+      currentTab = 'inbox'; // Volver a la bandeja de entrada
+      refreshClients(); // Asegurar que todo está sincronizado
+      
       triggerToast($t('alerts.reset_success'));
     }
 
@@ -449,18 +492,12 @@
     }
   };
 
-  const unassignCurrentRecord = () => {
-      if (!currentRecord) return;
-      const $t = get(t);
-      showConfirm(
-        $t('dashboard.detach_record_title'),
-        $t('alerts.detach_record_confirm'),
-        () => {
-          PatientManager.unassignRecord(currentRecord!.id);
-          refreshClients();
-          selectedRecordId = '';
-        }
-      );
+  const unassignCurrentRecord = (recordId: string) => {
+      // Lógica para desvincular usando recordId
+      PatientManager.unassignRecord(recordId);
+      // Refresh clients to update counts and ensure UI consistency
+      refreshClients();
+      // inboxRecords will be updated automatically via reactive statement
   };
   
   const toggleMultiSelectMode = () => {
@@ -542,15 +579,22 @@
     
   };
 
-  const exportClientData = () => {
+  const exportClientData = (clientId?: string) => {
     const $t = get(t);
+    const targetClientId = clientId || selectedClientId;
     
-    if (!clientHistory || clientHistory.length === 0) {
+    if (!targetClientId) {
       showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client'), 'error');
       return;
     }
 
-    const client = clients.find(c => c.id === selectedClientId);
+    const history = PatientManager.getClientHistory(targetClientId, allRecords);
+    if (!history || history.length === 0) {
+      showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client'), 'error');
+      return;
+    }
+
+    const client = clients.find(c => c.id === targetClientId);
     
     const now = new Date();
     const day = String(now.getDate()).padStart(2, '0');
@@ -569,7 +613,7 @@
     // Headers map for CSV
     const headersMap = {
       date: $t('csv_headers.date'), time: $t('csv_headers.time'), model: $t('csv_headers.model'),
-      weight: $t('metrics.weight'), bmi: $t('metrics.bmi'), bodyFat: $t('metrics.body_fat'), 
+      weight: $t('metrics.weight'), bmi: $t('metrics.bmi'), bodyFat: $t('metrics.body_fat'),
       muscleMass: $t('metrics.muscle_mass'), visceralFat: $t('metrics.visceral_fat'),
       waterPercentage: $t('metrics.water'), boneMass: $t('metrics.bone_mass'),
       metabolicAge: $t('metrics.metabolic_age'), dci: $t('metrics.dci'),
@@ -580,7 +624,7 @@
       muscleLegR: $t('csv_headers.mus_leg_r'), muscleLegL: $t('csv_headers.mus_leg_l')
     };
     
-    exportToCSV(clientHistory, headersMap, filename);
+    exportToCSV(history, headersMap, filename);
   };
 
   const handleImportBackup = async (e: Event) => {
@@ -665,11 +709,6 @@
   // HELPERS
   // ---------------------------------------------------------------------------
 
-  const openInfo = (key: string) => {
-    infoModalTitle = $t(`metrics.${key}`);
-    infoModalContent = $t(`metrics_info.${key}`);
-    showInfoModal = true;
-  };
 
   const getButtonKey = (fileName: string): string => {
     const internalKey = CSV_BUTTON_MAP[fileName.toLowerCase()] || 'UNKNOWN_SOURCE';
@@ -782,87 +821,15 @@
   </div>
 {:else}
   
-  {#if showFirstUseGuide}
-  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
-    
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto overflow-hidden flex flex-col max-h-[85vh] animate-slide-up">
-      
-      <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-4 sm:p-8 text-center relative flex-shrink-0 transition-all">
-          <div class="hidden sm:block absolute top-0 left-0 w-full h-full bg-white/10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent opacity-50 pointer-events-none"></div>
-          
-          <div class="relative z-10 flex flex-col items-center justify-center">
-              <h2 class="text-xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md leading-tight">
-                  {$t('first_use.title')}
-              </h2>
-          </div>
-      </div>
-      
-      <div class="flex-1 overflow-y-auto p-5 sm:p-8">
-        <div class="mb-4 sm:mb-8">
-          <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2 sticky top-0 bg-white z-10">
-              {#if guideSteps[currentGuideStep].tab === 'inbox'}<Inbox class="text-indigo-500" size={18} />{/if}
-              {#if guideSteps[currentGuideStep].tab === 'clients'}<Users class="text-indigo-500" size={18} />{/if}
-              {#if guideSteps[currentGuideStep].tab === 'settings'}<Settings class="text-indigo-500" size={18} />{/if}
-              {#if guideSteps[currentGuideStep].tab === 'help'}<CircleHelp class="text-indigo-500" size={18} />{/if}
-              {$t(guideSteps[currentGuideStep].title)}
-          </h3>
-          <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
-              {$t(guideSteps[currentGuideStep].description)}
-          </p>
-        </div>
-      </div>
-
-      <div class="p-4 sm:p-6 sm:pt-0 bg-white border-t border-slate-100 sm:border-none flex-shrink-0">
-        <div class="flex justify-center gap-2 mb-4 sm:mb-6">
-          {#each guideSteps as _, i}
-              <div class="h-2 rounded-full transition-all duration-300 {i === currentGuideStep ? 'w-6 sm:w-8 bg-indigo-600' : 'w-2 bg-slate-200'}"></div>
-          {/each}
-        </div>
-        
-        <div class="flex justify-between items-center">
-          <button
-            on:click={() => skipGuide()}
-            class="text-slate-400 hover:text-slate-600 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors px-2 py-2"
-          >
-             {$t('first_use.skip')}
-          </button>
-          
-          <div class="flex gap-2 sm:gap-3 items-center">
-            {#if currentGuideStep > 0}
-              <button
-                on:click={() => previousGuideStep()}
-                class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-indigo-600 border border-indigo-200 hover:bg-indigo-50 transition-colors"
-                title="{$t('first_use.previous')}"
-              >
-                <ChevronLeft size={18} />
-              </button>
-            {/if}
-            
-            <button
-              on:click={() => nextGuideStep()}
-              class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-full font-bold shadow-md shadow-indigo-200 transition-all transform active:scale-[0.98] text-sm flex items-center gap-2"
-            >
-              {#if currentGuideStep === guideSteps.length - 1}
-                {$t('first_use.finish')} 
-              {:else}
-                {$t('first_use.next')} <ChevronRight size={16} />
-              {/if}
-            </button>
-          </div>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-{/if}
+  
 
   <div
     role="application"
-    class="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20 select-none {showFirstUseGuide ? 'pointer-events-none' : ''}"
+    class="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20 select-none"
     on:dragover|preventDefault={() => isDragging = true}
     on:dragleave|preventDefault={() => isDragging = false}
     on:drop|preventDefault={handleDrop}
-  >
+>
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm transition-all backdrop-blur-sm bg-white/95">
       <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
         
@@ -1477,502 +1444,18 @@
 {/if}
 
 {#if currentTab === 'clients'}
-  <div class="flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[800px] animate-fade-in">
-    <div class="lg:col-span-1 flex flex-col gap-3 sm:gap-4 h-auto lg:h-full">
-  
-  <div class="bg-indigo-50 p-3 sm:p-4 rounded-lg shadow-sm border border-indigo-100 flex-shrink-0">
-    <h3 class="font-bold text-indigo-900 text-xs uppercase mb-2 sm:mb-3 tracking-wide">{$t('dashboard.create_btn')}</h3>
-    <div class="space-y-2">
-      <input 
-        bind:value={newClientCodeOrAlias} 
-        placeholder="{$t('dashboard.client_id_placeholder')}" 
-        class="w-full text-sm border border-indigo-200 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-      />
-      <button 
-        on:click={createClient} 
-        disabled={!newClientCodeOrAlias} 
-        class="w-full bg-gray-800 text-white text-sm font-bold py-2 rounded hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm flex items-center justify-center gap-2"
-      >
-        <CheckCircle size={14} /> {$t('actions.save')}
-      </button>
-    </div>
-  </div>
-  
-  <div class="lg:hidden bg-white rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
-    <button
-        on:click={() => isClientListOpen = !isClientListOpen}
-        class="w-full flex items-center justify-center px-3 py-5 font-medium text-gray-700 hover:bg-gray-50 transition relative"
-    >
-        <Users class="text-indigo-600 absolute left-3 top-1/2 -translate-y-1/2" size={20} />
-        <span class="text-sm font-bold text-gray-700 uppercase absolute left-1/2 -translate-x-1/2">
-            {$t('dashboard.client_list_title')}
-        </span>
-        {#if isClientListOpen}
-            <ChevronDown class="text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 rotate-180 transition-transform" size={16} />
-        {:else}
-            <ChevronDown class="text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 transition-transform" size={16} />
-        {/if}
-    </button>
-    
-    {#if isClientListOpen}
-      <div class="border-t border-gray-100">
-        <div class="p-2 border-b bg-gray-50">
-          <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
-        </div>
-        
-        <div class="max-h-[300px] overflow-y-auto p-1 sm:p-2 space-y-1">
-          {#if clients.length === 0}
-             <div class="p-4 text-center text-xs text-slate-400 italic">
-                {$t('dashboard.no_clients_created')}
-             </div>
-          {:else}
-              {#each paginatedClients as client (client.id)}
-                <button
-                  on:click={() => { selectedClientId = client.id; isClientListOpen = false; }}
-                  class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}"
-                >
-                  <div class="truncate pr-2 flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
-                    <div class="font-semibold truncate">{client.alias}</div>
-                  </div>
-                  <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
-                    {getClientTotalCount(client)}
-                  </span>
-                </button>
-              {/each}
-          {/if}
-        </div>
-        
-        {#if filteredClients.length > clientsPerPage}
-           <div class="border-t border-gray-200 p-2 bg-gray-50 flex flex-col gap-2">
-             <div class="flex justify-between items-center">
-               <button on:click={() => currentPage = Math.max(1, currentPage - 1)} disabled={currentPage === 1} class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"><ChevronLeft size={16} /></button>
-               <span class="text-xs text-gray-500 whitespace-nowrap">{$t('dashboard.pagination.page_of', { values: { current: currentPage, total: totalPages } })}</span>
-               <button on:click={() => currentPage = Math.min(totalPages, currentPage + 1)} disabled={currentPage === totalPages} class="px-2 py-1 text-xs font-medium rounded border border-gray-200 transition bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"><ChevronRight size={16} /></button>
-             </div>
-           </div>
-        {/if}
-      </div>
-    {/if}
-  </div>
-  
-  <div class="hidden lg:flex bg-white rounded-lg shadow-sm border border-gray-200 flex-1 overflow-hidden flex-col h-[600px]">
-    <div class="p-2 border-b bg-gray-50">
-      <input type="text" bind:value={clientSearchTerm} placeholder={$t('dashboard.filter_placeholder')} class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
-    </div>
-    
-    <div class="overflow-y-auto flex-1 p-1 sm:p-2 space-y-1">
-      {#if clients.length === 0}
-         <div class="flex flex-col items-center justify-center h-32 text-center p-4">
-            <Users size={24} class="text-slate-300 mb-2" />
-            <p class="text-xs text-slate-400 italic leading-relaxed">
-                {$t('dashboard.no_clients_created')}
-            </p>
-         </div>
-      {:else}
-          {#each paginatedClients as client (client.id)}
-            <button on:click={() => selectedClientId = client.id} class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId === client.id ? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm' : 'bg-white text-gray-700 hover:bg-indigo-50'}">
-              <div class="truncate pr-2 flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
-                <div class="font-semibold truncate">{client.alias}</div>
-              </div>
-              <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold min-w-[24px] text-center">
-                 {getClientTotalCount(client)}
-              </span>
-            </button>
-          {/each}
-      {/if}
-    </div>
-    
-    {#if filteredClients.length > clientsPerPage}
-      <div class="border-t border-gray-200 p-2 bg-gray-50 flex justify-center gap-4 items-center">
-          <button on:click={() => currentPage = Math.max(1, currentPage - 1)} disabled={currentPage === 1} class="p-1 rounded border hover:bg-gray-50 disabled:opacity-50"><ChevronLeft size={16}/></button>
-          <span class="text-xs text-gray-500">{$t('dashboard.pagination.page_of', { values: { current: currentPage, total: totalPages } })}</span>
-          <button on:click={() => currentPage = Math.min(totalPages, currentPage + 1)} disabled={currentPage === totalPages} class="p-1 rounded border hover:bg-gray-50 disabled:opacity-50"><ChevronRight size={16}/></button>
-      </div>
-    {/if}
-  </div>
-</div>
-            
-            <div class="lg:col-span-3 flex flex-col gap-4 sm:gap-6 h-full lg:overflow-y-auto lg:pr-1 lg:pb-10">
-              {#if !selectedClientId}
-                <div class="h-full flex flex-col items-center justify-center text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-200 py-12 px-4 text-center">
-                  <div class="bg-gray-50 p-6 rounded-full mb-4">
-                     <Users class="text-slate-300" size={48} strokeWidth={1.5} />
-                  </div>
-                  <p class="max-w-xs font-medium text-slate-500">{$t('dashboard.select_client_prompt')}</p>
-                </div>
-              {:else}
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4 flex-shrink-0">
-                  
-                  <div class="flex flex-col sm:flex-row items-center sm:justify-between gap-3 sm:gap-4 w-full">
-                    
-                    <div class="text-center sm:text-left">
-                      <h2 class="text-2xl font-bold text-gray-800 break-words">
-                        {clients.find(c => c.id === selectedClientId)?.alias}
-                      </h2>
-                    </div>
+          <ClientDashboard
+    clients={clients}
+    allRecords={allRecords}
+    bind:selectedClientId={selectedClientId}
+    isReadOnly={false}
 
-                    <div class="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
-                      
-                      <button 
-  on:click={exportClientData} 
-  class="col-span-1 sm:w-auto justify-center text-emerald-600 hover:text-white border border-emerald-200 hover:bg-emerald-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
-  title="{$t('dashboard.export_csv_btn')}" 
->
-  <FileSpreadsheet size={16} />
-  <span>{$t('dashboard.export_csv_btn')}</span>
-</button>
+    on:createClient={(e) => createClient(e.detail)}
+    on:deleteClient={(e) => requestDeleteClient(e.detail)}
+    on:renameClient={(e) => requestRenameClient(e.detail.id, e.detail.newName)}
+    on:exportClient={(e) => exportClientData(e.detail)}
 
-                      <button 
-                        on:click={handleRenameClient} 
-                        class="col-span-1 sm:w-auto justify-center text-indigo-600 hover:text-white border border-indigo-200 hover:bg-indigo-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
-                        title="{$t('actions.rename')}"
-                      >
-                        <Edit size={16} />
-                        <span>{$t('actions.rename')}</span>
-                      </button>
-
-                      <button 
-  on:click={() => requestDeleteClient(selectedClientId)} 
-  class="col-span-1 sm:w-auto justify-center text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
-  title="{$t('actions.delete')}"
->
-  <Trash2 size={16} />
-  <span>{$t('actions.delete')}</span>
-</button>
-                      
-                    </div>
-                  </div>
-
-                  <div class="flex flex-col sm:flex-row items-center gap-3 border-t pt-3 w-full">
-                    
-                    <div class="flex flex-col sm:flex-row items-center sm:items-start w-full sm:w-auto gap-2 sm:gap-0">
-                        
-                        <div class="w-full sm:w-12 text-center sm:text-left flex-shrink-0 sm:pt-1 mb-1 sm:mb-0">
-                            <span class="text-xs font-bold text-gray-400 uppercase">{$t('dashboard.filters.title')}</span>
-                        </div>
-                        
-                        <div class="flex flex-wrap justify-center sm:justify-start gap-2 flex-grow px-10 sm:px-0">
-                            <button on:click={() => currentFilter = 'all'} class="{STYLES.filterBtn} {currentFilter === 'all' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.all')}</button>
-                            <button on:click={() => currentFilter = '1m'} class="{STYLES.filterBtn} {currentFilter === '1m' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_month')}</button>
-                            <button on:click={() => currentFilter = '3m'} class="{STYLES.filterBtn} {currentFilter === '3m' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_3_months')}</button>
-                            <button on:click={() => currentFilter = '6m'} class="{STYLES.filterBtn} {currentFilter === '6m' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_6_months')}</button>
-                            <button on:click={() => currentFilter = '1y'} class="{STYLES.filterBtn} {currentFilter === '1y' ? STYLES.filterBtnActive : ''}">{$t('dashboard.filters.last_year')}</button>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center gap-2 sm:ml-auto border border-slate-200 rounded-xl px-4 py-2 bg-white flex-shrink-0 mt-2 sm:mt-0 shadow-sm transition-colors hover:border-indigo-300">
-                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{$t('dashboard.filters.from')}</span>
-                      
-                      <input 
-                        type="date" 
-                        bind:value={customDateStart} 
-                        on:change={() => currentFilter = 'custom'} 
-                        class="text-xs text-gray-500 font-bold bg-transparent outline-none cursor-pointer hover:text-indigo-600 transition-colors" 
-                        placeholder="dd/mm/yyyy" 
-                      />
-                      
-                      <span class="text-slate-300 mx-1">|</span>
-                      
-                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{$t('dashboard.filters.to')}</span>
-                      
-                      <input 
-                        type="date" 
-                        bind:value={customDateEnd} 
-                        on:change={() => currentFilter = 'custom'} 
-                        class="text-xs text-gray-500 font-bold bg-transparent outline-none cursor-pointer hover:text-indigo-600 transition-colors" 
-                        placeholder="dd/mm/yyyy" 
-                      />
-                  </div>
-                  </div>
-                </div>
-
-                <div class="w-full flex-shrink-0 bg-gray-50 p-2 sm:p-3 rounded-xl border border-gray-200 shadow-inner overflow-x-auto scrollbar-thin">
-  {#if displayedHistory.length === 0}
-  {@const currentClient = clients.find(c => c.id === selectedClientId)}
-  {@const totalLinked = getClientTotalCount(currentClient)}
-  
-  <div class="flex flex-col items-center justify-center py-4 text-center px-4 w-full h-[85px] sm:h-[105px]">
-    
-    {#if totalLinked === 0}
-      <div class="text-gray-400 flex flex-col items-center gap-1">
-          <span class="text-xs italic">{$t('dashboard.client_no_history')}</span>
-      </div>
-    
-    {:else}
-        <div class="flex items-center gap-3 text-amber-600 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200 shadow-sm animate-pulse">
-           <AlertCircle size={18} class="flex-shrink-0" />
-           <p class="text-xs font-bold text-left">
-             {$t('dashboard.client_data_missing_short')}
-           </p>
-        </div>
-      {/if}
-  </div>
-{:else}
-    <div class="flex gap-2 sm:gap-3">
-      {#each displayedHistory as rec (rec.id)}
-        <button
-          on:click={() => selectedRecordId = rec.id}
-          class="flex-shrink-0 w-[85px] sm:w-[85px] p-2 rounded-lg border text-left transition-all touch-manipulation relative
-          {selectedRecordId === rec.id || (!selectedRecordId && rec === currentRecord)
-            ? 'border-indigo-400 bg-indigo-50 shadow-md transform scale-105 z-10' 
-            : 'bg-white border-gray-200 opacity-80 hover:opacity-100'
-          }"
-        >
-           <div class="text-[12px] sm:text-[13px] text-gray-500 uppercase font-bold mb-1 leading-tight">{rec.date} <br><span class="font-normal opacity-75 text-[11px] sm:text-[12px]">{rec.time}</span></div>
-           <div class="font-black text-gray-800 text-lg sm:text-xl">{rec.weight}<span class="text-xs sm:text-sm font-normal text-gray-400 ml-0.5">{$t('units.kg')}</span></div>
-        </button>
-      {/each}
-    </div>
-  {/if}
-</div>
-                
-                {#if currentRecord}
-                  <div class="flex flex-col sm:flex-row items-center sm:justify-between gap-3 sm:gap-0 -mt-2 mb-4 border-b border-gray-100 pb-3 w-full">
-                    
-                    <div class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
-                      <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                        {$t('dashboard.latest_reading')}
-                      </span>
-                      
-                      <span class="text-xs font-mono text-gray-300 hidden sm:inline">|</span>
-                      
-                      <div class="flex items-baseline gap-1.5">
-                        <span class="text-xs font-black text-gray-700">
-                            {currentRecord.date}
-                        </span>
-                        <span class="text-[10px] font-medium text-gray-400">
-                            {currentRecord.time}
-                        </span>
-                      </div>
-                    </div>
-
-                    <button 
-                      on:click={unassignCurrentRecord} 
-                      class="text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"
-                    >
-                      <Undo2 size={16} />
-                      <span>{$t('dashboard.detach_record')}</span>
-                    </button>
-                  </div>
-
-               <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
-  
-  <div class="flex flex-col gap-3 sm:gap-4 xl:col-span-1"> 
-    
-    <div class="grid grid-cols-2 gap-3 sm:gap-4">
-
-      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-slate-800 transition-transform hover:scale-[1.02]">
-        <div class="mb-1">
-          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
-            {$t('metrics.weight')}
-          </span>
-        </div>
-        <div class="flex items-end justify-between mt-1">
-          <Scale size={20} class="text-slate-400 mb-1" strokeWidth={2} />
-          <div class="text-right leading-none">
-            <span class="text-xl sm:text-2xl font-black text-slate-800">
-              {currentRecord?.weight ?? '--'}
-            </span>
-            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-pink-500 transition-transform hover:scale-[1.02]">
-        <div class="flex justify-between items-start mb-1">
-          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
-            {$t('metrics.bmi')}
-          </span>
-          <button on:click={() => openInfo('bmi')} class="text-slate-300 hover:text-indigo-500 transition-colors" aria-label="Info IMC">
-            <Info size={16} />
-          </button>
-        </div>
-        <div class="flex items-end justify-between mt-1">
-          <Activity size={20} class="text-pink-500 mb-1" strokeWidth={2} />
-          <span class="text-xl sm:text-2xl font-black leading-none {getStatusColor('bmi', currentRecord?.bmi).replace('bg-', 'text-').replace('-100', '-600')}">
-            {currentRecord?.bmi ?? '--'}
-          </span>
-        </div>
-      </div>
-
-      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-amber-500 transition-transform hover:scale-[1.02]">
-        <div class="flex justify-between items-start mb-1">
-          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
-            {$t('metrics.body_fat')}
-          </span>
-          <button on:click={() => openInfo('body_fat')} class="text-slate-300 hover:text-indigo-500 transition-colors" aria-label="Info Grasa">
-            <Info size={16} />
-          </button>
-        </div>
-        <div class="flex items-end justify-between mt-1">
-          <Droplets size={20} class="text-amber-400 mb-1" strokeWidth={2} />
-          <div class="text-right leading-none">
-            <span class="text-xl sm:text-2xl font-black {getStatusColor('fat', currentRecord?.bodyFat).replace('bg-', 'text-').replace('-100', '-600')}">
-              {currentRecord?.bodyFat ?? '--'}
-            </span>
-            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">%</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-indigo-500 transition-transform hover:scale-[1.02]">
-        <div class="mb-1">
-          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
-            {$t('metrics.muscle_mass')}
-          </span>
-        </div>
-        <div class="flex items-end justify-between mt-1">
-          <Dumbbell size={20} class="text-indigo-400 mb-1" strokeWidth={2} />
-          <div class="text-right leading-none">
-            <span class="text-xl sm:text-2xl font-black text-slate-800">
-              {currentRecord?.muscleMass ?? '--'}
-            </span>
-            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">kg</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-cyan-500 transition-transform hover:scale-[1.02]">
-        <div class="flex justify-between items-start mb-1">
-          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
-            {$t('metrics.water')}
-          </span>
-          <button on:click={() => openInfo('water')} class="text-slate-300 hover:text-indigo-500 transition-colors" aria-label="Info Agua">
-            <Info size={16} />
-          </button>
-        </div>
-        <div class="flex items-end justify-between mt-1">
-          <Droplets size={20} class="text-cyan-400 mb-1" strokeWidth={2} />
-          <div class="text-right leading-none">
-            <span class="text-xl sm:text-2xl font-black text-slate-800">
-              {currentRecord?.waterPercentage ?? '--'}
-            </span>
-            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">%</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-gray-400 transition-transform hover:scale-[1.02]">
-        <div class="mb-1">
-          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
-            {$t('metrics.bone_mass')}
-          </span>
-        </div>
-        <div class="flex items-end justify-between mt-1">
-          <Bone size={20} class="text-slate-400 mb-1" strokeWidth={2} />
-          <div class="text-right leading-none">
-            <span class="text-xl sm:text-2xl font-black text-slate-800">
-              {currentRecord?.boneMass ?? '--'}
-            </span>
-            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">kg</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500 transition-transform hover:scale-[1.02]">
-        <div class="mb-1">
-          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
-            {$t('metrics.dci')}
-          </span>
-        </div>
-        <div class="flex items-end justify-between mt-1">
-          <Flame size={20} class="text-emerald-400 mb-1" strokeWidth={2} />
-          <div class="text-right leading-none">
-            <span class="text-xl sm:text-2xl font-black text-slate-800">
-              {currentRecord?.dci ?? '--'}
-            </span>
-            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">kcal</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500 transition-transform hover:scale-[1.02]">
-        <div class="flex justify-between items-start mb-1">
-          <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">
-            {$t('metrics.metabolic_age')}
-          </span>
-          <button on:click={() => openInfo('metabolic_age')} class="text-slate-300 hover:text-indigo-500 transition-colors" aria-label="Info Edad">
-            <Info size={16} />
-          </button>
-        </div>
-        <div class="flex items-end justify-between mt-1">
-          <Clock size={20} class="text-purple-400 mb-1" strokeWidth={2} />
-          <div class="text-right leading-none">
-            <span class="text-xl sm:text-2xl font-black {getStatusColor('meta', currentRecord?.metabolicAge).replace('bg-', 'text-').replace('-100', '-600')}">
-              {currentRecord?.metabolicAge ?? '--'}
-            </span>
-            <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">{$t('units.years')}</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <InfoModal 
-      isOpen={showInfoModal}
-      title={infoModalTitle}
-      message={infoModalContent}
-      closeAriaLabel={$t('common.close') || 'Close'}
-      on:close={() => showInfoModal = false}
-    />
-  </div>
-
-  <div class="xl:col-span-2 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
-    <BodyMap record={currentRecord} 
-    on:info={() => openInfo('segmental')}
-    />
-  </div>
-
-</div>
-
-                  {#if chartData}
-                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm mt-4 sm:mt-6">
-                      <div class="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-2">
-                         <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-                            <BarChart3 size={16} class="text-indigo-600" />
-                            {$t('dashboard.evolution_chart')} ({chartData.pointsData.length})
-                         </h3>
-                         <select bind:value={selectedChartMetric} class="w-full sm:w-auto min-w-[200px] sm:min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-xs sm:text-sm font-medium bg-white hover:border-indigo-500 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 outline-none cursor-pointer shadow-sm">
-                            {#each CHART_OPTIONS as option}<option value={option.key}>{$t(option.label)}</option>{/each}
-                         </select>
-                      </div>
-                      
-                      <div role="img" aria-label="Evolution Chart" class="h-48 sm:h-64 md:h-72 w-full relative group" on:mouseleave={() => { hoveredIndex = null; hoveredPointData = null; }}>
-                        <svg viewBox="-12 -5 115 120" preserveAspectRatio="none" class="w-full h-full overflow-visible font-sans">
-                          <defs><linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color={activeChartColor} stop-opacity="0.2"/><stop offset="100%" stop-color={activeChartColor} stop-opacity="0"/></linearGradient></defs>
-                          {#each chartData.gridLines as grid}
-                             <line x1="0" y1={grid.y} x2="100" y2={grid.y} stroke="#e5e7eb" stroke-width="0.5" />
-                             <text x="-3" y={grid.y + 1.5} font-size="3.0" font-weight="bold" fill="#9ca3af" text-anchor="end">{grid.label}</text>
-                          {/each}
-                          <polyline points={chartData.areaPath} fill="url(#chartGradient)" />
-                          <polyline fill="none" stroke={activeChartColor} stroke-width="1.5" points={chartData.polyline} vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
-                          {#each chartData.pointsData as p, i}
-                            <circle cx={p.x} cy={p.y} r={hoveredIndex === i ? 3 : 1.5} fill={activeChartColor} stroke="white" stroke-width="0.5" class="transition-all duration-150 pointer-events-none" />
-                            <rect role="presentation" x={p.x - 3} y="0" width="6" height="100" fill="transparent" class="cursor-pointer hover:fill-gray-50/10"
-                                  on:mouseenter={() => { hoveredIndex = i; hoveredPointData = { ...p, unitKey: activeChartUnitKey }; }}
-                                  on:touchstart|passive={() => { hoveredIndex = i; hoveredPointData = { ...p, unitKey: activeChartUnitKey }; }} />
-                            {#if p.showLabel}
-                               <text x={p.x} y="112" font-size="3.2" font-weight="bold" fill="#6b7280" text-anchor="middle">{p.date.slice(0,5)}</text>
-                            {/if}
-                          {/each}
-                        </svg>
-                        
-                        {#if hoveredPointData}
-                          <div class="absolute bg-gray-900 text-white text-xs sm:text-sm rounded px-2 sm:px-3 py-1 sm:py-2 pointer-events-none transform shadow-xl z-30 min-w-[80px] sm:min-w-[100px] text-center transition-all duration-75"
-                               style="left: {hoveredPointData.x}%; top: {hoveredPointData.isTop ? hoveredPointData.y + 10 : hoveredPointData.y - 15}%; transform: translate({hoveredPointData.isRightSide ? '-100%' : hoveredPointData.x < 15 ? '0%' : '-50%'}, -50%);">
-                            <div class="font-black text-base sm:text-lg leading-none mb-1">{hoveredPointData.val} <span class="text-xs font-normal opacity-80">{$t(`units.${hoveredPointData.unitKey}`)}</span></div>
-                            <div class="text-[9px] sm:text-[10px] font-mono text-gray-300 border-t border-gray-700 pt-1 mt-1">{hoveredPointData.date}</div>
-                          </div>
-                        {/if}
-                      </div>
-                    </div>
-                  {/if}
-                {/if}
-              {/if}
-            </div>
-          </div>
+    on:requestUnassign={handleRequestUnassign}  />
         {/if}
 
         {#if currentTab === 'settings'}
@@ -2170,36 +1653,41 @@
           </div>
         {/if}
 
-        <InfoModal 
-          isOpen={showInfoModal}
-          title={infoModalTitle}
-          message={infoModalContent}
-          closeAriaLabel={$t('common.close') || 'Close'}
-          on:close={() => showInfoModal = false}
-        />
 
-        <DeleteModal 
-          isOpen={showDeleteModal}
-          title={deleteModalType === 'client' ? $t('alerts.delete_client_title') : $t('alerts.reset_title')}
-          message={deleteModalType === 'client' 
-            ? $t('settings.delete_client_warning', { values: { name: deleteTargetName } }) 
-            : $t('settings.factory_reset_warning')}
-          confirmationWord={$t('settings.confirm_word')}
-          placeholder={$t('settings.type_to_confirm')}
-          confirmBtnText={deleteModalType === 'client' ? $t('actions.delete_confirm_btn') : $t('actions.reset_confirm_btn')}
-          cancelBtnText={$t('actions.cancel')}  on:close={() => showDeleteModal = false}
-          on:confirm={executeDeleteAction} 
-        />
+        <DeleteModal
+                  isOpen={showDeleteModal}
+                  title={deleteModalType === 'client' ? $t('alerts.delete_client_title') : $t('alerts.reset_title')}
+                  message={deleteModalType === 'client'
+                    ? $t('settings.delete_client_warning', { values: { name: deleteTargetName } })
+                    : $t('settings.factory_reset_warning')}
+                  confirmationWord={$t('settings.confirm_word')}
+                  placeholder={$t('settings.type_to_confirm')}
+                  confirmBtnText={deleteModalType === 'client' ? $t('actions.delete_confirm_btn') : $t('actions.reset_confirm_btn')}
+                  cancelBtnText={$t('actions.cancel')}  on:close={() => showDeleteModal = false}
+                  on:confirm={executeDeleteAction}
+                />
+        
+                <RenameModal
+                  isOpen={showRenameModal}
+                  title={$t('modals.rename_client_title')}
+                  initialValue={clientToRenameCurrentName}
+                  confirmBtnText={$t('actions.rename_confirm_btn')}
+                  cancelBtnText={$t('actions.cancel')}
+                  on:close={() => showRenameModal = false}
+                  on:confirm={(e) => {
+                                      confirmRenameClient(e.detail.newName);
+                                    }}
+                />
 
         {#if showToast}
-          <div class="fixed bottom-6 right-6 z-[70] flex items-center gap-3 bg-slate-800 text-white px-4 py-3 rounded-lg shadow-lg animate-fade-in-up">
-            <CheckCircle2 class="text-emerald-400" size={20} />
-            <span class="font-medium text-sm">{toastMessage}</span>
-          </div>
-        {/if}
+  <ToastNotification 
+     message={toastMessage} 
+     on:close={() => showToast = false} 
+  />
+{/if}
 
-    </main>
-  </div>
+</main>
+</div>
 {/if}
 
 <style>
