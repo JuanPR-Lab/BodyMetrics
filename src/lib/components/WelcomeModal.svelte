@@ -1,12 +1,9 @@
 <script lang="ts">
 	import { Sparkles } from 'lucide-svelte';
-	import { get } from 'svelte/store';
-	import { t } from '$lib/i18n';
+	import { t } from 'svelte-i18n';
 
 	export let onClose: () => void;
 	export let onGoToHelp: () => void;
-	
-	$: $t = get(t);
 </script>
 
 <div class="modal-overlay">
