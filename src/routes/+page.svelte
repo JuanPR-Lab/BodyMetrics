@@ -20,16 +20,19 @@
 	import '$lib/i18n';
 
 	// Components
-	import InfoModal from '$lib/components/InfoModal.svelte';
-	import DeleteModal from '$lib/components/DeleteModal.svelte';
-	import RenameModal from '$lib/components/RenameModal.svelte';
+	import InfoModal from '$lib/components/modals/InfoModal.svelte';
+	import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
+	import RenameModal from '$lib/components/modals/RenameModal.svelte';
+	import GeneralModal from '$lib/components/modals/GeneralModal.svelte';
+	import UnlinkModal from '$lib/components/modals/UnlinkModal.svelte';
 	import BodyMap from '$lib/components/BodyMap.svelte';
 	import ClientDashboard from '$lib/components/ClientDashboard.svelte'; // Adjust path if needed
 	import ToastNotification from '$lib/components/ToastNotification.svelte';
 	import SettingsTab from '$lib/components/SettingsTab.svelte';
 	import HelpTab from '$lib/components/HelpTab.svelte';
 	import InboxTab from '$lib/components/InboxTab.svelte';
-	import WelcomeModal from '$lib/components/WelcomeModal.svelte';
+	import WelcomeModal from '$lib/components/modals/WelcomeModal.svelte';
+	import LanguageSelector from '$lib/components/LanguageSelector.svelte';
 
 	// Icons
 	import {
@@ -171,6 +174,12 @@
 	let deleteTargetId: string | null = null;
 	let deleteTargetName: string = '';
 
+	// 3. Unassign Modal
+	let showUnassignModal = false;
+	let unassignModalTitle = '';
+	let unassignModalMessage = '';
+	let unassignTargetId: string | null = null;
+
 	// 3. Rename Modal
 	let showRenameModal = false;
 	let renameModalHasError = false;
@@ -299,12 +308,46 @@
 
 	const handleFiles = async (files: FileList | File[] | null) => {
 		if (!files || files.length === 0) return;
+		
+		// Convert files to a real Array for filtering
+		const filesArray = Array.from(files);
+		
+		// Filter files: separate valid CSV files from ignored files
+		const validFiles: File[] = [];
+		const ignoredFiles: File[] = [];
+		
+		filesArray.forEach(file => {
+			const fileName = file.name.toUpperCase();
+			// For Inbox: only accept CSV files that contain 'DATA' in the name
+			// Ignore files with 'BM' (Backups) or 'PROF' (System files)
+			if (fileName.includes('DATA') && fileName.endsWith('.CSV')) {
+				validFiles.push(file);
+			} else {
+				ignoredFiles.push(file);
+			}
+		});
+		
+		// Case A: If there are no valid files but there are ignored files
+		if (validFiles.length === 0 && ignoredFiles.length > 0) {
+			const $t = get(t);
+			triggerToast('Archivo ignorado. Solo se admiten archivos DATA*.csv');
+			if (fileInput) (fileInput as HTMLInputElement).value = '';
+			return;
+		}
+		
+		// Case B: If there are valid files, continue processing
+		// If there were also ignored files, show a quick toast
+		if (ignoredFiles.length > 0) {
+			const $t = get(t);
+			triggerToast(`Se procesaron ${validFiles.length} archivos. Se omitieron archivos no válidos.`);
+		}
+		
 		isProcessing = true;
 		errorMessage = '';
 		const $t = get(t);
 
 		try {
-			const parsedData = await parseScaleFiles(files);
+			const parsedData = await parseScaleFiles(validFiles);
 			if (parsedData.length === 0) throw new Error('No valid records found.');
 
 			const recordMap = new Map([...allRecords, ...parsedData].map((r) => [r.id, r]));
@@ -318,7 +361,9 @@
 		} catch (err) {
 			console.error(err);
 
-			showAlert($t('upload.error_title'), $t('upload.error'), 'error');
+			setTimeout(() => {
+				showAlert($t('upload.error_title'), $t('upload.error'), 'error');
+			}, 10);
 		} finally {
 			isProcessing = false;
 			isDragging = false;
@@ -328,36 +373,31 @@
 
 	// --- CONFIRMATION AND ALERTS LOGIC ---
 	
-	// 1. Temporary variable to know what we're going to unassign
-	let recordToUnassignId: string | null = null;
-	
-	// 2. Handler: Child (Dashboard) requests unassign
+	// 1. Handler: Child (Dashboard) requests unassign
 	const handleRequestUnassign = (e: CustomEvent<string>) => {
-	 recordToUnassignId = e.detail;
-	 const $t = get(t);
-	
-	 // Use your existing showConfirm function to show the modal
-	 showConfirm(
-	  $t('dashboard.detach_record_title'), // "Unassign measurement"
-	  $t('alerts.detach_record_confirm'), // "Unassign this measurement?..."
-	  confirmUnassignAction // Function to execute if user says YES
-	 );
+		unassignTargetId = e.detail;
+		const $t = get(t);
+		
+		unassignModalTitle = $t('dashboard.detach_record_title');
+		unassignModalMessage = $t('alerts.detach_record_confirm');
+		showUnassignModal = true;
 	};
 	
-	// 3. Actual action: User said YES in the modal
-	// In +page.svelte
+	// 3. Actual action: User said YES in the unassign modal
 	const confirmUnassignAction = () => {
-	 if (!recordToUnassignId) return;
-	
-	 PatientManager.unassignRecord(recordToUnassignId);
-	 refreshClients();
-	
-	 const $t = get(t);
-	
-	 triggerToast($t('alerts.record_detached'));
-	
-	 recordToUnassignId = null;
+		if (!unassignTargetId) return;
+		
+		PatientManager.unassignRecord(unassignTargetId);
+		refreshClients();
+		
+		const $t = get(t);
+		
+		triggerToast($t('alerts.record_detached'));
+		
+		unassignTargetId = null;
+		showUnassignModal = false;
 	};
+	
 
 	// --- CLIENT MANAGEMENT (CRUD) ---
 	
@@ -370,13 +410,17 @@
 	 );
 	
 	 if (isDuplicate) {
-	  const $t = get(t);
-	  modalTitle = $t('dashboard.client_exists_title');
-	  modalMessage = $t('dashboard.client_exists_message');
-	  modalType = 'alert';
-	  showModal = true;
-	  return;
-	 }
+      const $t = get(t);
+      modalTitle = $t('dashboard.client_exists_title');
+      modalMessage = $t('dashboard.client_exists_message');
+      modalType = 'alert';
+      
+      setTimeout(() => {
+          showModal = true;
+      }, 10);
+      
+      return;
+     }
 	
 	 const newId = Date.now().toString(36) + Math.random().toString(36).substring(2);
 	 const success = PatientManager.addClient(newId, aliasToCreate);
@@ -497,7 +541,7 @@
 	  selectedClientId = '';
 	  selectedRecordId = '';
 	  selectedInboxMeasurements = [];
-	  recordToUnassignId = null;
+	  unassignTargetId = null;
 	
 	  // 4. Reset UI
 	  currentTab = 'inbox'; // Return to inbox
@@ -544,15 +588,17 @@
 	const unassignSelectedRecords = () => {
 		if (selectedRecordIds.length === 0) return;
 		const $t = get(t);
-		showConfirm(
-			$t('dashboard.detach_record_title'),
-			$t('dashboard.detach_record') + '? (' + selectedRecordIds.length + ')',
-			() => {
-				selectedRecordIds.forEach((recordId) => PatientManager.unassignRecord(recordId));
-				refreshClients();
-				selectedRecordIds = [];
-			}
-		);
+		setTimeout(() => {
+			showConfirm(
+				$t('dashboard.detach_record_title'),
+				$t('dashboard.detach_record') + '? (' + selectedRecordIds.length + ')',
+				() => {
+					selectedRecordIds.forEach((recordId) => PatientManager.unassignRecord(recordId));
+					refreshClients();
+					selectedRecordIds = [];
+				}
+			);
+		}, 10);
 	};
 
 	const assignSelectedRecords = (clientId: string) => {
@@ -614,13 +660,17 @@
 		const targetClientId = clientId || selectedClientId;
 
 		if (!targetClientId) {
-			showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client'), 'error');
+			setTimeout(() => {
+				showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client'), 'error');
+			}, 10);
 			return;
 		}
 
 		const history = PatientManager.getClientHistory(targetClientId, allRecords);
 		if (!history || history.length === 0) {
-			showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client'), 'error');
+			setTimeout(() => {
+				showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client'), 'error');
+			}, 10);
 			return;
 		}
 
@@ -666,22 +716,36 @@
 		};
 
 		exportToCSV(history, headersMap, filename);
+		// Show success toast
+		triggerToast($t('toast.export_success'));
 	};
 
 	const handleImportBackup = async (e: Event) => {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (!file) return;
 		const $t = get(t);
+		
+		// Validación del nombre del archivo (El Portero)
+		const fileName = file.name.toLowerCase();
+		if (!fileName.includes('bm_backup') || !fileName.endsWith('.json')) {
+			triggerToast($t('alerts.ignored_files_warning'));
+			return;
+		}
+		
 		try {
 			const text = await file.text();
 			if (PatientManager.importBackup(text)) {
 				refreshClients();
 				triggerToast($t('settings.import_success'));
 			} else {
-				showAlert($t('settings.import_error_title'), $t('settings.import_error'), 'error');
+				setTimeout(() => {
+					showAlert($t('settings.import_error_title'), $t('settings.import_error'), 'error');
+				}, 10);
 			}
 		} catch (error) {
-			showAlert($t('settings.import_error_title'), $t('settings.import_error'), 'error');
+			setTimeout(() => {
+				showAlert($t('settings.import_error_title'), $t('settings.import_error'), 'error');
+			}, 10);
 		}
 	};
 
@@ -761,10 +825,6 @@
 		return `dashboard.${internalKey.toLowerCase()}`;
 	};
 
-	const switchLang = (lang: string) => {
-		locale.set(lang);
-		localStorage.setItem('user_locale', lang);
-	};
 
 	const getStatusColor = (type: string, val: number) => {
 		if (!currentRecord) return STATUS_COLORS.unknown;
@@ -826,7 +886,10 @@
 		modalType = type;
 		modalConfirmCallback = null;
 		modalCancelCallback = null;
-		showModal = true;
+		
+		setTimeout(() => {
+			showModal = true;
+		}, 10);
 	};
 	const showConfirm = (
 		title: string,
@@ -839,7 +902,10 @@
 		modalType = 'confirm';
 		modalConfirmCallback = onConfirm;
 		modalCancelCallback = onCancel || null;
-		showModal = true;
+		
+		setTimeout(() => {
+			showModal = true;
+		}, 10);
 	};
 	const showPrompt = (
 		title: string,
@@ -853,10 +919,10 @@
 		modalType = 'prompt';
 		modalConfirmCallback = onConfirm;
 		modalCancelCallback = null;
-		showModal = true;
+		
 		setTimeout(() => {
-			promptInput?.focus();
-		}, 0);
+			showModal = true;
+		}, 10);
 	};
 	const handleModalConfirm = () => {
 		if (modalConfirmCallback) modalConfirmCallback();
@@ -865,6 +931,24 @@
 	const handleModalCancel = () => {
 		if (modalCancelCallback) modalCancelCallback();
 		showModal = false;
+	};
+
+	// Global keyboard handler for modals
+	const handleGlobalModalKeydown = (e: KeyboardEvent) => {
+		if (!showModal) return;
+		
+		e.stopPropagation();
+		
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			if (modalType === 'confirm' || modalType === 'prompt') {
+				handleModalConfirm();
+			} else {
+				showModal = false;
+			}
+		} else if (e.key === 'Escape') {
+			showModal = false;
+		}
 	};
 
 	// Welcome Modal Helpers
@@ -877,6 +961,8 @@
 	};
 </script>
 
+<svelte:window on:keydown={handleGlobalModalKeydown} />
+
 {#if $isLocaleLoading}
 	<div class="flex flex-col items-center justify-center h-screen bg-slate-50 text-slate-400 gap-3">
 		<div
@@ -888,9 +974,25 @@
 	<div
 		role="application"
 		class="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20 select-none"
-		on:dragover|preventDefault={() => (isDragging = true)}
-		on:dragleave|preventDefault={() => (isDragging = false)}
-		on:drop|preventDefault={handleDrop}
+		on:dragover|preventDefault={(e) => {
+			// Solo activar drag & drop global si estamos en la pestaña inbox
+			if (currentTab === 'inbox') {
+				isDragging = true;
+			}
+		}}
+		on:dragleave|preventDefault={(e) => {
+			// Solo activar drag & drop global si estamos en la pestaña inbox
+			if (currentTab === 'inbox') {
+				isDragging = false;
+			}
+		}}
+		on:drop|preventDefault={(e) => {
+			// Solo activar drag & drop global si estamos en la pestaña inbox
+			if (currentTab === 'inbox') {
+				isDragging = false;
+				if (e.dataTransfer?.files) handleFiles(e.dataTransfer.files);
+			}
+		}}
 	>
 		<header
 			class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm transition-all backdrop-blur-sm bg-white/95"
@@ -943,30 +1045,7 @@
 						<span class="hidden sm:inline">{$t('app.privacy_badge')}</span>
 					</span>
 
-					<div
-						class="flex items-center text-xs sm:text-sm font-semibold border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm"
-					>
-						<button
-							on:click={() => switchLang('es')}
-							class="px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-slate-50 border-r border-slate-200 transition-colors {get(
-								locale
-							) === 'es'
-								? 'bg-slate-100 text-slate-800'
-								: 'text-slate-600'}"
-						>
-							ES
-						</button>
-						<button
-							on:click={() => switchLang('en')}
-							class="px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-slate-50 transition-colors {get(
-								locale
-							) === 'en'
-								? 'bg-slate-100 text-slate-800'
-								: 'text-slate-600'}"
-						>
-							EN
-						</button>
-					</div>
+					<LanguageSelector />
 				</div>
 			</div>
 
@@ -1054,6 +1133,17 @@
 	// 3. Show ONE success message
 	triggerToast($t('alerts.link_multiple_success').replace('{n}', count.toString()));
 					}}
+					on:error={(e) => {
+						const { message, isIgnoredFile } = e.detail;
+						// Si es un archivo ignorado, mostrar Toast en lugar de Modal
+						if (isIgnoredFile) {
+							triggerToast(message);
+						} else {
+							setTimeout(() => {
+								showAlert($t('common.error'), message, 'error');
+							}, 10);
+						}
+					}}
 				/>
 			{/if}
 
@@ -1086,102 +1176,41 @@
 					on:requestFactoryReset={() => {
 						requestFactoryReset(); // Opens confirmation modal
 					}}
+					on:error={(e) => {
+						const { message, isIgnoredFile, isCriticalError } = e.detail;
+						// Si es un archivo ignorado (validación), mostrar Toast en lugar de Modal
+						if (isIgnoredFile) {
+							triggerToast(message);
+						} else if (isCriticalError) {
+							// Errores críticos (JSON.parse, estructura, corrupción) usan Modal
+							setTimeout(() => {
+								showAlert($t('common.error'), message, 'error');
+							}, 10);
+						} else {
+							// Comportamiento por defecto para otros errores
+							setTimeout(() => {
+								showAlert($t('common.error'), message, 'error');
+							}, 10);
+						}
+					}}
 				/>
 			{/if}
 
-			{#if showModal}
-				<div
-					class="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 animate-fade-in"
-				>
-					<div
-						class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto animate-slide-up"
-						on:keydown|stopPropagation
-						role="dialog"
-						aria-modal="true"
-						tabindex="-1"
-						on:keydown={(e) => {
-							if (e.key === 'Enter') {
-								if (modalType === 'confirm' || modalType === 'prompt') {
-									handleModalConfirm();
-								} else {
-									showModal = false;
-								}
-							} else if (e.key === 'Escape') {
-								showModal = false;
-							}
-						}}
-					>
-						<div class="p-6">
-							<div class="flex items-center gap-3 mb-4">
-								{#if modalType === 'error'}
-									<div class="bg-rose-100 text-rose-600 p-2 rounded-lg flex-shrink-0">
-										<AlertTriangle size={24} />
-									</div>
-								{:else if modalType === 'success'}
-									<div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg flex-shrink-0">
-										<CheckCircle size={24} />
-									</div>
-								{:else if modalType === 'confirm'}
-									<div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg flex-shrink-0">
-										<CircleHelp size={24} />
-									</div>
-								{:else if modalType === 'prompt'}
-									<div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg flex-shrink-0">
-										<Edit size={24} />
-									</div>
-								{:else}
-									<div class="bg-slate-100 text-slate-600 p-2 rounded-lg flex-shrink-0">
-										<Info size={24} />
-									</div>
-								{/if}
-
-								<h3 class="text-lg font-bold text-slate-800">{modalTitle}</h3>
-							</div>
-
-							<div class="mb-6 space-y-3">
-								<p class="text-slate-600 text-sm leading-relaxed">{modalMessage}</p>
-
-								{#if modalType === 'prompt'}
-									<div>
-										<input
-											type="text"
-											bind:this={promptInput}
-											bind:value={modalInputValue}
-											class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
-											placeholder={$t('dashboard.new_alias_placeholder')}
-											on:keydown={(e) => e.key === 'Enter' && handleModalConfirm()}
-										/>
-									</div>
-								{/if}
-							</div>
-
-							<div class="flex justify-end gap-3">
-								{#if modalType === 'confirm' || modalType === 'prompt'}
-									<button
-										on:click={() => (showModal = false)}
-										class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
-									>
-										{$t('actions.cancel')}
-									</button>
-									<button
-										on:click={handleModalConfirm}
-										class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors shadow-sm"
-									>
-										{$t('actions.confirm')}
-									</button>
-								{:else}
-									<button
-										on:click={() => (showModal = false)}
-										class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors shadow-sm"
-									>
-										{$t('actions.ok')}
-									</button>
-								{/if}
-							</div>
-						</div>
-					</div>
-				</div>
-			{/if}
+			<GeneralModal
+				isOpen={showModal}
+				title={modalTitle}
+				message={modalMessage}
+				type={modalType}
+				inputValue={modalInputValue}
+				on:confirm={(e) => {
+					if (modalType === 'prompt') {
+						modalInputValue = e.detail.inputValue;
+					}
+					handleModalConfirm();
+				}}
+				on:cancel={handleModalCancel}
+				on:close={() => (showModal = false)}
+			/>
 
 			<DeleteModal
 				isOpen={showDeleteModal}
@@ -1221,6 +1250,16 @@
 				}}
 			/>
 
+			<UnlinkModal
+				isOpen={showUnassignModal}
+				title={unassignModalTitle}
+				message={unassignModalMessage}
+				confirmBtnText={$t('actions.confirm')}
+				cancelBtnText={$t('actions.cancel')}
+				on:close={() => (showUnassignModal = false)}
+				on:confirm={confirmUnassignAction}
+			/>
+
 			{#if showToast}
 				<ToastNotification message={toastMessage} on:close={() => (showToast = false)} />
 			{/if}
@@ -1239,34 +1278,6 @@
 	.no-scrollbar {
 		-ms-overflow-style: none;
 		scrollbar-width: none;
-	}
-
-	@keyframes fade-in {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
-
-	@keyframes slide-up {
-		from {
-			opacity: 0;
-			transform: translateY(20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	.animate-fade-in {
-		animation: fade-in 0.2s ease-out;
-	}
-
-	.animate-slide-up {
-		animation: slide-up 0.3s ease-out;
 	}
 
 	@media print {

@@ -47,9 +47,13 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
+		e.stopPropagation();
+		
 		if (e.key === 'Enter' && inputValue.trim()) {
+			e.preventDefault();
 			confirm();
 		} else if (e.key === 'Escape' && !hasError) {
+			e.preventDefault();
 			close();
 		}
 		// Don't close on Escape if there's an error - let user fix it

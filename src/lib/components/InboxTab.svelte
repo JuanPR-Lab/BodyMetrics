@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 	import { t } from 'svelte-i18n';
 	import type { BioMetricRecord } from '$lib/utils/csvSDparser';
 	import type { Client } from '$lib/utils/patientManager';
@@ -57,10 +57,51 @@
 	};
 
 	const handleFiles = async (files: FileList | File[] | null) => {
-		dispatch('filesSelected', { files });
+		if (!files || files.length === 0) return;
+		
+		// Convert files to array for filtering
+		const filesArray = Array.from(files);
+		
+		// Filter files: separate valid CSV files from ignored files
+		const validFiles: File[] = [];
+		const ignoredFiles: File[] = [];
+		
+		filesArray.forEach(file => {
+			const fileName = file.name.toUpperCase();
+			// For Inbox: only accept CSV files that contain 'DATA' in the name
+			// Ignore files with 'BM' (Backups) or 'PROF' (System files)
+			if (fileName.includes('DATA') && fileName.endsWith('.CSV')) {
+				validFiles.push(file);
+			} else {
+				ignoredFiles.push(file);
+			}
+		});
+		
+		// If there are no valid files but there are ignored files, dispatch error for toast
+		if (validFiles.length === 0 && ignoredFiles.length > 0) {
+			dispatch('error', {
+				message: 'Archivo ignorado. Solo se admiten archivos CSV de datos (DATA*.csv)',
+				isIgnoredFile: true
+			});
+			return;
+		}
+		
+		// If there are valid files, continue processing
+		// If there were also ignored files, show a quick toast
+		if (ignoredFiles.length > 0) {
+			dispatch('error', {
+				message: `Se procesaron ${validFiles.length} archivos válidos. ${ignoredFiles.length} archivos fueron ignorados.`,
+				isIgnoredFile: true
+			});
+		}
+		
+		// Only dispatch valid files to parent
+		dispatch('filesSelected', { files: validFiles });
 	};
 
 	const handleDrop = (e: DragEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
 		if (e.dataTransfer?.files) handleFiles(e.dataTransfer.files);
 	};
 
@@ -76,7 +117,48 @@
 		selectedInboxMeasurements = [];
 		bulkAssignSearch = '';
 	};
+
+	// LOGICA DE FOCO AUTOMÁTICO
+	$: handleSelectionFocus(selectedInboxMeasurements);
+
+	async function handleSelectionFocus(ids: string[]) {
+		await tick();
+		
+		if (ids.length === 1) {
+			const id = ids[0];
+			
+			// Intentamos obtener ambos
+			const desktopInput = document.getElementById(`assign-input-desktop-${id}`);
+			const mobileInput = document.getElementById(`assign-input-mobile-${id}`);
+
+			// Lógica simple: Si la ventana es ancha (PC), prioriza desktop.
+			// El breakpoint 'lg' de Tailwind es 1024px.
+			if (window.innerWidth >= 1024 && desktopInput) {
+				desktopInput.focus();
+			} else if (mobileInput) {
+				mobileInput.focus();
+			} else if (desktopInput) {
+				// Fallback por si acaso
+				desktopInput.focus();
+			}
+
+		} else if (ids.length > 1) {
+			const el = document.getElementById('bulk-assign-input');
+			el?.focus();
+		}
+	}
+
+	// LOGICA DE TECLA ESCAPE
+	function handleWindowKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && selectedInboxMeasurements.length > 0) {
+			e.preventDefault();
+			e.stopPropagation();
+			selectedInboxMeasurements = [];
+		}
+	}
 </script>
+
+<svelte:window on:keydown={handleWindowKeydown} />
 
 <div class="max-w-5xl mx-auto space-y-4 animate-fade-in pb-8">
 	<div class="text-center pt-4 space-y-4">
@@ -100,8 +182,10 @@
 				class="border-2 border-dashed border-indigo-200 rounded-2xl p-5 sm:p-8 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer flex flex-col items-center justify-center gap-3"
 				role="button"
 				tabindex="0"
-				on:drop|preventDefault={handleDrop}
-				on:dragover|preventDefault={() => {}}
+				on:drop={handleDrop}
+				on:dragover={(e) => { e.preventDefault(); e.stopPropagation(); }}
+				on:dragenter={(e) => { e.preventDefault(); e.stopPropagation(); }}
+				on:dragleave={(e) => { e.preventDefault(); e.stopPropagation(); }}
 			>
 				{#if isProcessing}
 					<div
@@ -130,18 +214,20 @@
 				bind:this={fileInput}
 				type="file"
 				multiple
-				accept=".csv,text/csv,application/vnd.ms-excel"
+				accept=".csv, text/csv"
 				class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
 				disabled={isProcessing}
 				on:click={(e) => {
 					e.currentTarget.value = '';
 				}}
 				on:change={(e) => handleFiles((e.currentTarget as HTMLInputElement).files)}
-				on:drop|preventDefault={(e) => {
+				on:drop={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
 					handleFiles(e.dataTransfer?.files || null);
 				}}
-				on:dragover|preventDefault={() => {}}
-				on:dragleave|preventDefault={() => {}}
+				on:dragover={(e) => { e.preventDefault(); e.stopPropagation(); }}
+				on:dragleave={(e) => { e.preventDefault(); e.stopPropagation(); }}
 			/>
 		</div>
 
@@ -201,6 +287,7 @@
 
 							<div class="relative flex-1 sm:w-64">
 								<input
+									id="bulk-assign-input"
 									type="text"
 									disabled={clients.length === 0}
 									placeholder={clients.length === 0
@@ -315,13 +402,14 @@
 									<div class="relative">
 										{#if selectedInboxMeasurements.length === 0 || (selectedInboxMeasurements.length === 1 && selectedInboxMeasurements.includes(rec.id))}
 											<input
+												id="assign-input-mobile-{rec.id}"
 												type="text"
 												disabled={clients.length === 0}
 												placeholder={clients.length === 0
 													? $t('dashboard.no_clients_created')
 													: $t('dashboard.assign_btn')}
 												class="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 outline-none transition-colors {clients.length ===
-												0
+													0
 													? 'bg-gray-100 text-gray-400 cursor-not-allowed italic'
 													: 'bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'} mini-input"
 												bind:value={assignmentSearchTerms[rec.id]}
@@ -417,6 +505,7 @@
 								<div class="relative w-full ml-auto">
 									{#if selectedInboxMeasurements.length === 0 || (selectedInboxMeasurements.length === 1 && selectedInboxMeasurements.includes(rec.id))}
 										<input
+											id="assign-input-desktop-{rec.id}"
 											type="text"
 											disabled={clients.length === 0}
 											placeholder={clients.length === 0

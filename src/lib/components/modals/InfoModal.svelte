@@ -18,7 +18,13 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape' || e.key === 'Enter') {
+		e.stopPropagation();
+		
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			close();
+		} else if (e.key === 'Enter') {
+			e.preventDefault();
 			close();
 		}
 	}
