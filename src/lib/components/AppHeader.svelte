@@ -6,7 +6,6 @@
     export let currentTab: string;
     export let inboxCount: number = 0;
 
-    // Dispatcher para comunicar al padre el cambio de tab
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 

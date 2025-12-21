@@ -4,6 +4,9 @@
 	import type { BioMetricRecord } from '$lib/utils/csvSDparser';
 	import type { Client } from '$lib/utils/patientManager';
 	import { Inbox, FolderOpen, Upload, AlertTriangle, Clock } from 'lucide-svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import Card from '$lib/components/ui/Card.svelte';
+	import Badge from '$lib/components/ui/Badge.svelte';
 
 	export let inboxRecords: BioMetricRecord[] = [];
 	export let clients: Client[] = [];
@@ -160,7 +163,7 @@
 
 <svelte:window on:keydown={handleWindowKeydown} />
 
-<div class="max-w-5xl mx-auto space-y-4 animate-fade-in pb-8">
+<Card class="max-w-5xl mx-auto space-y-4 animate-fade-in pb-8">
 	<div class="text-center pt-4 space-y-4">
 		<h2 class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">
 			{$t('upload.instruction_title')}
@@ -177,16 +180,16 @@
 	</div>
 
 	<div class="max-w-3xl mx-auto px-2">
-		<div class="relative group">
-			<div
-				class="border-2 border-dashed border-indigo-200 rounded-2xl p-5 sm:p-8 text-center bg-indigo-50/30 transition-all group-hover:bg-indigo-50 group-hover:border-indigo-400 cursor-pointer flex flex-col items-center justify-center gap-3"
-				role="button"
-				tabindex="0"
-				on:drop={handleDrop}
-				on:dragover={(e) => { e.preventDefault(); e.stopPropagation(); }}
-				on:dragenter={(e) => { e.preventDefault(); e.stopPropagation(); }}
-				on:dragleave={(e) => { e.preventDefault(); e.stopPropagation(); }}
-			>
+		<div
+			class="border-2 border-dashed border-indigo-200 rounded-2xl p-5 sm:p-8 text-center bg-indigo-50/30 transition-all hover:bg-indigo-50 hover:border-indigo-400 cursor-pointer flex flex-col items-center justify-center gap-3"
+			role="button"
+			tabindex="0"
+			on:drop={handleDrop}
+			on:dragover={(e) => { e.preventDefault(); e.stopPropagation(); }}
+			on:dragenter={(e) => { e.preventDefault(); e.stopPropagation(); }}
+			on:dragleave={(e) => { e.preventDefault(); e.stopPropagation(); }}
+		>
+			<Card>
 				{#if isProcessing}
 					<div
 						class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"
@@ -209,7 +212,8 @@
 						</span>
 					</div>
 				{/if}
-			</div>
+			</Card>
+		</div>
 			<input
 				bind:this={fileInput}
 				type="file"
@@ -242,7 +246,7 @@
 				</div>
 			</div>
 		{/if}
-	</div>
+	</Card>
 
 	<div class="bg-white rounded-lg shadow-sm border border-slate-200 min-h-[120px] mt-3 sm:mt-4">
 		{#if inboxRecords.length === 0}
@@ -278,12 +282,13 @@
 
 					{#if selectedInboxMeasurements.length > 1 || (selectedInboxMeasurements.length === inboxRecords.length && inboxRecords.length > 0)}
 						<div class="flex gap-2 w-full sm:w-auto animate-fade-in">
-							<button
-								on:click={() => (selectedInboxMeasurements = [])}
-								class="px-3 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700 border border-slate-300 hover:border-slate-400 rounded-lg bg-white transition-colors mini-btn"
+							<Button
+								onclick={() => (selectedInboxMeasurements = [])}
+								variant="secondary"
+								size="sm"
 							>
 								{$t('actions.cancel')}
-							</button>
+							</Button>
 
 							<div class="relative flex-1 sm:w-64">
 								<input
@@ -296,7 +301,7 @@
 									class="w-full text-sm border border-indigo-300 rounded-lg px-3 py-1.5 shadow-sm outline-none {clients.length ===
 									0
 										? 'bg-gray-100 text-gray-400 cursor-not-allowed italic'
-										: 'bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'} mini-input"
+										: 'bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'}"
 									bind:value={bulkAssignSearch}
 									on:keydown={(e) => {
 										if (e.key === 'Enter' && filteredBulkClients.length > 0) {
@@ -309,12 +314,14 @@
 										class="absolute top-full left-0 right-0 mt-2 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-50"
 									>
 										{#each filteredBulkClients as c}
-											<button
-												on:click={() => assignBulkMeasurements(c.id)}
-												class="w-full text-left px-4 py-2 text-sm hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0 font-medium text-slate-700 mini-btn"
+											<Button
+												onclick={() => assignBulkMeasurements(c.id)}
+												variant="ghost"
+												size="sm"
+												class="w-full text-left font-medium text-slate-700 border-b border-slate-50 last:border-0"
 											>
 												{c.alias}
-											</button>
+											</Button>
 										{/each}
 									</div>
 								{/if}
@@ -370,21 +377,15 @@
 								</div>
 
 								<div class="flex flex-wrap gap-1 mb-2">
-									<span
-										class="px-1.5 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded text-[10px] font-bold whitespace-nowrap"
-									>
+									<Badge variant="indigo">
 										{rec.height}cm
-									</span>
-									<span
-										class="px-1.5 py-0.5 bg-white border border-slate-200 text-slate-600 rounded text-[10px] font-medium whitespace-nowrap"
-									>
+									</Badge>
+									<Badge variant="slate">
 										{$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
-									</span>
-									<span
-										class="px-1.5 py-0.5 bg-slate-100 border border-slate-200 text-slate-700 rounded text-[10px] font-medium whitespace-nowrap"
-									>
+									</Badge>
+									<Badge variant="slate">
 										{rec.age} {$t('units.years')}
-									</span>
+									</Badge>
 								</div>
 
 								<div class="mb-2">
@@ -411,7 +412,7 @@
 												class="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 outline-none transition-colors {clients.length ===
 													0
 													? 'bg-gray-100 text-gray-400 cursor-not-allowed italic'
-													: 'bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'} mini-input"
+													: 'bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'}"
 												bind:value={assignmentSearchTerms[rec.id]}
 												on:keydown={(e) => {
 													if (
@@ -430,12 +431,14 @@
 													class="absolute bottom-full left-0 right-0 mb-1 max-h-40 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-50"
 												>
 													{#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
-														<button
-															on:click={() => assignRecord(rec.id, c.id)}
-															class="w-full text-left px-4 py-2 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0 mini-btn"
+														<Button
+															onclick={() => assignRecord(rec.id, c.id)}
+															variant="ghost"
+															size="sm"
+															class="w-full text-left font-medium text-slate-700 border-b border-slate-50 last:border-0"
 														>
 															{c.alias}
-														</button>
+														</Button>
 													{/each}
 												</div>
 											{/if}
@@ -479,21 +482,15 @@
 
 							<div class="flex-1 px-2">
 								<div class="flex flex-wrap gap-2 text-xs">
-									<span
-										class="px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded font-bold"
-									>
+									<Badge variant="indigo">
 										{rec.height}cm
-									</span>
-									<span
-										class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded font-medium"
-									>
+									</Badge>
+									<Badge variant="slate">
 										{$t(rec.gender === 'male' ? 'common.male' : 'common.female')}
-									</span>
-									<span
-										class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-700 rounded font-medium"
-									>
+									</Badge>
+									<Badge variant="slate">
 										{rec.age} {$t('units.years')}
-									</span>
+									</Badge>
 								</div>
 							</div>
 
@@ -514,7 +511,7 @@
 											class="w-full text-xs border border-slate-300 rounded-lg px-3 py-1.5 outline-none transition-shadow {clients.length ===
 											0
 												? 'bg-gray-100 text-gray-400 cursor-not-allowed italic'
-												: 'bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'} mini-input"
+												: 'bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'}"
 											bind:value={assignmentSearchTerms[rec.id]}
 											on:keydown={(e) => {
 												if (
@@ -533,12 +530,14 @@
 												class="absolute top-full right-0 w-full mt-1 max-h-40 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-xl z-50 text-left"
 											>
 												{#each filteredAssignmentClients(assignmentSearchTerms[rec.id]) as c}
-													<button
-														on:click={() => assignRecord(rec.id, c.id)}
-														class="w-full text-left px-4 py-2 text-xs hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-50 last:border-0 mini-btn"
+													<Button
+														onclick={() => assignRecord(rec.id, c.id)}
+														variant="ghost"
+														size="sm"
+														class="w-full text-left border-b border-slate-50 last:border-0"
 													>
 														{c.alias}
-													</button>
+													</Button>
 												{/each}
 											</div>
 										{/if}
@@ -551,33 +550,8 @@
 			</div>
 		{/if}
 	</div>
-</div>
 
 <style>
-	.mini-btn {
-		padding: 0.25rem 0.5rem;
-		font-size: 0.75rem;
-		line-height: 1rem;
-	}
-
-	.mini-input {
-		padding: 0.25rem 0.5rem;
-		font-size: 0.75rem;
-		line-height: 1rem;
-	}
-
-	@media (min-width: 640px) {
-		.mini-btn {
-			padding: 0.375rem 0.625rem;
-			font-size: 0.8125rem;
-		}
-
-		.mini-input {
-			padding: 0.375rem 0.625rem;
-			font-size: 0.8125rem;
-		}
-	}
-
 	@keyframes fade-in {
 		from {
 			opacity: 0;
