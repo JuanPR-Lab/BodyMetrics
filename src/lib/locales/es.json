@@ -250,5 +250,10 @@
 	"languages": {
 		"es": "Español",
 		"en": "Inglés"
+	},
+	"error": {
+		"title": "¡Ups! Algo salió mal",
+		"subtitle": "Ocurrió un error inesperado",
+		"button": "Volver al Inicio"
 	}
 }

@@ -250,5 +250,10 @@
 	"languages": {
 		"es": "Spanish",
 		"en": "English"
+	},
+	"error": {
+		"title": "Oops! Something went wrong",
+		"subtitle": "An unexpected error occurred",
+		"button": "Go Home"
 	}
 }
