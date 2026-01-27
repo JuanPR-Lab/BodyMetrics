@@ -159,7 +159,7 @@
 		{#if !record}
 			<div class="text-center opacity-50">
 				<p class="text-4xl mb-2" aria-hidden="true">👤</p>
-				<p class="text-xs font-medium text-gray-400">{$t('client_view.no_data_client')}</p>
+				<p class="text-xs font-medium text-gray-400">{$t('dashboard.no_data_client')}</p>
 			</div>
 		{:else}
 			<svg

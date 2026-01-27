@@ -14,8 +14,15 @@
 	export let placeholder: string = '';
 
 	let inputValue = '';
+	let inputElement: HTMLInputElement;
 
-	$: if (isOpen) inputValue = '';
+	$: if (isOpen) {
+		inputValue = '';
+		// Auto-focus the input when modal opens
+		setTimeout(() => {
+			inputElement?.focus();
+		}, 100);
+	}
 	$: inputClean = inputValue.trim().toUpperCase();
 	$: validWords = [confirmationWord.toUpperCase(), 'DELETE', 'BORRAR'];
 	$: isMatch = validWords.includes(inputClean);
@@ -32,9 +39,13 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
+		e.stopPropagation();
+		
 		if (e.key === 'Enter' && isMatch) {
+			e.preventDefault();
 			confirm();
 		} else if (e.key === 'Escape') {
+			e.preventDefault();
 			close();
 		}
 	}
@@ -77,6 +88,7 @@
 						id="delete-confirmation-input"
 						type="text"
 						bind:value={inputValue}
+						bind:this={inputElement}
 						placeholder={confirmationWord}
 						class="w-full border-2 border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:border-red-500 focus:ring-red-500 outline-none transition-all font-bold tracking-widest placeholder:font-normal placeholder:tracking-normal uppercase"
 					/>

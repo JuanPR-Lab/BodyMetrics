@@ -28,7 +28,7 @@
 
 	// COMPONENTS & UTILITIES
 	import BodyMap from './BodyMap.svelte';
-	import InfoModal from './InfoModal.svelte';
+	import InfoModal from './modals/InfoModal.svelte';
 	import { t } from 'svelte-i18n';
 	import { PatientManager } from '../utils/patientManager';
 	import { CHART_OPTIONS, getStatusColor } from '../utils/constants';
@@ -247,7 +247,7 @@
 							type="text"
 							bind:value={clientSearchTerm}
 							placeholder={$t('dashboard.filter_placeholder')}
-							class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none"
+							class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
 							on:keydown={(e) => {
 								if (e.key === 'Enter' && filteredClients.length > 0) {
 									selectedClientId = filteredClients[0].id;
@@ -319,7 +319,7 @@
 					type="text"
 					bind:value={clientSearchTerm}
 					placeholder={$t('dashboard.filter_placeholder')}
-					class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 outline-none"
+					class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
 					on:keydown={(e) => {
 						if (e.key === 'Enter' && filteredClients.length > 0) {
 							selectedClientId = filteredClients[0].id;

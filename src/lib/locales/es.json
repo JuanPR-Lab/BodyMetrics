@@ -63,7 +63,20 @@
 		"multi_assignment": "Vinculación Múltiple",
 		"pagination": {
 			"page_of": "Página {current} de {total}"
-		}
+		},
+		"no_data_title": "Sin datos para exportar",
+		"no_data_client": "Este cliente aún no tiene mediciones registradas."
+	},
+	"segments": {
+		"title": "Análisis Segmental",
+		"fat": "Grasa",
+		"muscle": "Músculo",
+		"right_arm": "Brazo Der.",
+		"left_arm": "Brazo Izq.",
+		"right_leg": "Pierna Der.",
+		"left_leg": "Pierna Izq.",
+		"trunk": "Tronco",
+		"visceral": "Grasa visceral"
 	},
 	"help": {
 		"page_title": "Centro de Ayuda",
@@ -170,6 +183,7 @@
 		"btn_import": "Cargar Copia de Seguridad",
 		"import_success": "Datos restaurados",
 		"import_error": "No se pudo restaurar. Verifica que el archivo sea válido.",
+		"import_invalid": "Archivo ignorado. Por favor sube una copia de seguridad válida (BM_Backup*.json).",
 		"delete_all_btn": "Restablecer de Fábrica (Borrar Todo)",
 		"danger_zone_description": "Estas acciones son destructivas e irreversibles. Procede con precaución.",
 		"factory_reset_warning": "Se eliminarán <strong>todos</strong> los clientes y vínculos de este navegador. La aplicación volverá al estado inicial.<br><br>Tus archivos de la tarjeta SD no se verán afectados.",
@@ -206,7 +220,10 @@
 		"record_detached": "Medición desvinculada",
 		"backup_exported": "Copia de seguridad generada",
 		"backup_restored": "Copia de seguridad restaurada",
-		"factory_reset_success": "Aplicación restablecida"
+		"factory_reset_success": "Aplicación restablecida",
+		"reset_success": "Datos restablecidos correctamente",
+		"ignored_files_warning": "Se han ignorado archivos de sistema o exportaciones (BM/PROF). Por favor, sube solo los archivos de datos originales.",
+		"processed_files_omitted": "Se procesaron {n} archivos. Se omitieron archivos de sistema."
 	},
 	"upload": {
 		"instruction_title": "Carga de Datos",
@@ -214,13 +231,24 @@
 		"instruction_path": "/TANITA/GRAPHV1/DATA/",
 		"btn_load": "Cargar archivos DATA.CSV",
 		"drag_instruction": "Arrastra o selecciona los archivos aquí",
-		"error_title": "Archivo Incorrecto",
-		"error": "Solo se admiten archivos DATA.CSV válidos",
+		"error_title": "Error de Lectura",
+		"error": "El archivo DATA.CSV parece estar corrupto o tener un formato inválido.",
 		"processing": "Analizando archivos..."
 	},
 	"welcome_modal": {
 		"title": "¡Bienvenido a BodyMetrics!",
 		"text": "Tu herramienta privada para analizar la composición corporal. Te recomendamos visitar la pestaña 'Ayuda' para aprender a aprovechar al máximo tus datos.",
 		"button": "Entendido / Ir a Ayuda"
+	},
+	"toast": {
+		"export_success": "Informe CSV generado correctamente"
+	},
+	"status": {
+		"under": "bajo",
+		"over": "alto"
+	},
+	"languages": {
+		"es": "Español",
+		"en": "Inglés"
 	}
 }

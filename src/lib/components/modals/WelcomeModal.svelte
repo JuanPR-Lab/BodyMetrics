@@ -1,15 +1,23 @@
 <script lang="ts">
-	import { Sparkles } from 'lucide-svelte';
 	import { t } from 'svelte-i18n';
 
 	export let onClose: () => void;
 	export let onGoToHelp: () => void;
 </script>
 
+<svelte:window on:keydown={(e) => {
+	e.stopPropagation();
+	
+	if (e.key === 'Enter') {
+		e.preventDefault();
+		onClose();
+		onGoToHelp();
+	}
+}} />
+
 <div class="modal-overlay">
 	<div class="modal-content">
 		<div class="modal-header">
-			<Sparkles size={48} class="welcome-icon" />
 			<h2>{$t('welcome_modal.title')}</h2>
 		</div>
 		<div class="modal-body">

@@ -63,7 +63,20 @@
 		"multi_assignment": "Bulk Linking",
 		"pagination": {
 			"page_of": "Page {current} of {total}"
-		}
+		},
+		"no_data_title": "No data to export",
+		"no_data_client": "This client has no recorded measurements yet."
+	},
+	"segments": {
+		"title": "Segmental Analysis",
+		"fat": "Fat",
+		"muscle": "Muscle",
+		"right_arm": "Right Arm",
+		"left_arm": "Left Arm",
+		"right_leg": "Right Leg",
+		"left_leg": "Left Leg",
+		"trunk": "Trunk",
+		"visceral": "Visceral Fat"
 	},
 	"help": {
 		"page_title": "Help Center",
@@ -170,6 +183,7 @@
 		"btn_import": "Load Backup",
 		"import_success": "Data restored",
 		"import_error": "Couldn't restore. Please check the file is valid.",
+		"import_invalid": "File ignored. Please upload a valid backup (BM_Backup*.json).",
 		"delete_all_btn": "Factory Reset (Delete All)",
 		"danger_zone_description": "These actions are destructive and irreversible. Proceed with caution.",
 		"factory_reset_warning": "This will delete <strong>all</strong> clients and links from this browser. The app will return to its initial state.<br><br>Your SD card files won't be affected.",
@@ -206,7 +220,10 @@
 		"record_detached": "Measurement unlinked",
 		"backup_exported": "Backup created",
 		"backup_restored": "Backup restored",
-		"factory_reset_success": "App reset to defaults"
+		"factory_reset_success": "App reset to defaults",
+		"reset_success": "Data reset successfully",
+		"ignored_files_warning": "System or export files (BM/PROF) have been ignored. Please upload only original data files.",
+		"processed_files_omitted": "{n} files processed. System files omitted."
 	},
 	"upload": {
 		"instruction_title": "Data Upload",
@@ -214,13 +231,24 @@
 		"instruction_path": "/TANITA/GRAPHV1/DATA/",
 		"btn_load": "Load DATA.CSV files",
 		"drag_instruction": "Drag or select files here",
-		"error_title": "Incorrect File",
-		"error": "Only valid DATA.CSV files are supported",
+		"error_title": "Read Error",
+		"error": "The DATA.CSV file appears to be corrupt or invalid.",
 		"processing": "Analyzing files..."
 	},
 	"welcome_modal": {
 		"title": "Welcome to BodyMetrics!",
 		"text": "Your private tool for body composition analysis. We recommend visiting the 'Help' tab to learn how to get the most from your data.",
 		"button": "Got it / Go to Help"
+	},
+	"toast": {
+		"export_success": "CSV report generated successfully"
+	},
+	"status": {
+		"under": "low",
+		"over": "high"
+	},
+	"languages": {
+		"es": "Spanish",
+		"en": "English"
 	}
 }

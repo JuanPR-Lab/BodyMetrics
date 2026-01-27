@@ -22,7 +22,7 @@
 </script>
 
 <div class="max-w-3xl mx-auto space-y-6 animate-fade-in pb-12">
-	<div class="text-center pt-4 mb-2">
+	<div class="text-center pt-4 mb-10">
 		<h2 class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">
 			{$t('help.page_title')}
 		</h2>
