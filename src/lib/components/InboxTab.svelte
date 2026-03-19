@@ -4,6 +4,8 @@
 	import type { BioMetricRecord } from '$lib/utils/csvSDparser';
 	import type { Client } from '$lib/utils/patientManager';
 	import { Inbox, FolderOpen, Upload, AlertTriangle, Clock } from 'lucide-svelte';
+	import { settings } from '$lib/utils/settings.svelte';
+    import { formatWeight } from '$lib/utils/format';
 
 	export let inboxRecords: BioMetricRecord[] = [];
 	export let clients: Client[] = [];
@@ -364,8 +366,8 @@
 									</div>
 									<div class="text-right">
 										<div class="text-xl font-black text-slate-800 leading-none">
-											{rec.weight}<span class="text-xs font-medium text-slate-400 ml-0.5">{$t('units.kg')}</span>
-										</div>
+                                            {formatWeight(rec.weight, settings.unit)}<span class="text-xs font-medium text-slate-400 ml-0.5">{$t('units.' + settings.unit)}</span>
+                                        </div>
 									</div>
 								</div>
 
@@ -473,9 +475,9 @@
 							</div>
 
 							<div class="w-24 px-2">
-								<span class="text-lg font-black text-slate-800">{rec.weight}</span>
-								<span class="text-xs text-slate-500">{$t('units.kg')}</span>
-							</div>
+                                <span class="text-lg font-black text-slate-800">{formatWeight(rec.weight, settings.unit)}</span>
+                                <span class="text-xs text-slate-500">{$t('units.' + settings.unit)}</span>
+                            </div>
 
 							<div class="flex-1 px-2">
 								<div class="flex flex-wrap gap-2 text-xs">

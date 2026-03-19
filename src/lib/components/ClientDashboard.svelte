@@ -33,6 +33,8 @@
 	import { PatientManager } from '../utils/patientManager';
 	import { CHART_OPTIONS, getStatusColor } from '../utils/constants';
 	import type { Client, BioMetricRecord } from '../../types';
+	import { settings } from '../utils/settings.svelte';
+    import { formatWeight } from '../utils/format';
 
 	// --- PROPERTIES ---
 	export let clients: Client[] = [];
@@ -554,10 +556,10 @@
 									>
 								</div>
 								<div class="font-black text-gray-800 text-lg sm:text-xl">
-									{rec.weight}<span class="text-xs sm:text-sm font-normal text-gray-400 ml-0.5"
-										>{$t('units.kg')}</span
-									>
-								</div>
+                                    {formatWeight(rec.weight, settings.unit)}<span class="text-xs sm:text-sm font-normal text-gray-400 ml-0.5"
+                                        >{$t('units.' + settings.unit)}</span
+                                    >
+                                </div>
 							</button>
 						{/each}
 					</div>
@@ -605,11 +607,12 @@
 								<div class="flex items-end justify-between mt-1">
 									<Scale size={20} class="text-slate-400 mb-1" strokeWidth={2} />
 									<div class="text-right leading-none">
-										<span class="text-xl sm:text-2xl font-black text-slate-800"
-											>{currentRecord?.weight ?? '--'}</span
-										><span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5"
-											>{$t('units.kg')}</span
-										>
+										<span class="text-xl sm:text-2xl font-black text-slate-800">
+    										{formatWeight(currentRecord?.weight, settings.unit)}
+										</span>
+										<span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">
+    {$t('units.' + settings.unit)}
+										</span>
 									</div>
 								</div>
 							</div>
@@ -678,9 +681,12 @@
 								<div class="flex items-end justify-between mt-1">
 									<Dumbbell size={20} class="text-indigo-400 mb-1" strokeWidth={2} />
 									<div class="text-right leading-none">
-										<span class="text-xl sm:text-2xl font-black text-slate-800"
-											>{currentRecord?.muscleMass ?? '--'}</span
-										><span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
+										<span class="text-xl sm:text-2xl font-black text-slate-800">
+    										{formatWeight(currentRecord?.muscleMass, settings.unit)}
+										</span>
+										<span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">
+    										{$t('units.' + settings.unit)}
+										</span>
 									</div>
 								</div>
 							</div>
@@ -718,9 +724,12 @@
 								<div class="flex items-end justify-between mt-1">
 									<Bone size={20} class="text-slate-400 mb-1" strokeWidth={2} />
 									<div class="text-right leading-none">
-										<span class="text-xl sm:text-2xl font-black text-slate-800"
-											>{currentRecord?.boneMass ?? '--'}</span
-										><span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">{$t('units.kg')}</span>
+										<span class="text-xl sm:text-2xl font-black text-slate-800">
+    										{formatWeight(currentRecord?.boneMass, settings.unit)}
+										</span>
+										<span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">
+    										{$t('units.' + settings.unit)}
+										</span>
 									</div>
 								</div>
 							</div>
@@ -942,10 +951,13 @@
 										: '-20px'});"
 								>
 									<div class="font-black text-base sm:text-lg leading-none mb-1">
-										{hoveredPointData.val}
-										<span class="text-xs font-normal opacity-80"
-											>{$t(`units.${hoveredPointData.unitKey}`)}</span
-										>
+    									{#if hoveredPointData.unitKey === 'kg'}
+        									{formatWeight(hoveredPointData.val, settings.unit)}
+        									<span class="text-xs font-normal opacity-80">{$t('units.' + settings.unit)}</span>
+    									{:else}
+        									{hoveredPointData.val}
+        									<span class="text-xs font-normal opacity-80">{$t(`units.${hoveredPointData.unitKey}`)}</span>
+    									{/if}
 									</div>
 									<div
 										class="text-[9px] sm:text-[10px] font-mono text-gray-300 border-t border-gray-700 pt-1 mt-1"

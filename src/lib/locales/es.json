@@ -13,7 +13,9 @@
 		"percent": "%",
 		"years": "años",
 		"kcal": "kcal",
-		"rating": "nivel"
+		"rating": "nivel",
+		"lb": "lb",
+        "st-lb": "st-lb"
 	},
 	"dashboard": {
 		"tabs": {
@@ -189,7 +191,10 @@
 		"factory_reset_warning": "Se eliminarán <strong>todos</strong> los clientes y vínculos de este navegador. La aplicación volverá al estado inicial.<br><br>Tus archivos de la tarjeta SD no se verán afectados.",
 		"delete_client_warning": "Al eliminar a <strong>{name}</strong>, sus mediciones volverán a la bandeja de Entrada para asignarlas a otro cliente.",
 		"type_to_confirm": "Escribe para confirmar:",
-		"confirm_word": "BORRAR"
+		"confirm_word": "BORRAR",
+		"display_section": "Visualización",
+        "unit_preference": "Preferencia de Unidad",
+        "unit_help_text": "Los valores de peso se convertirán automáticamente a la unidad elegida."
 	},
 	"actions": {
 		"save": "Guardar",

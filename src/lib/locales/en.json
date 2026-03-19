@@ -13,7 +13,9 @@
 		"percent": "%",
 		"years": "years",
 		"kcal": "kcal",
-		"rating": "rating"
+		"rating": "rating",
+		"lb": "lb",
+		"st-lb": "st-lb"
 	},
 	"dashboard": {
 		"tabs": {
@@ -189,7 +191,10 @@
 		"factory_reset_warning": "This will delete <strong>all</strong> clients and links from this browser. The app will return to its initial state.<br><br>Your SD card files won't be affected.",
 		"delete_client_warning": "Deleting <strong>{name}</strong> will return their measurements to the Inbox for reassignment.",
 		"type_to_confirm": "Type to confirm:",
-		"confirm_word": "DELETE"
+		"confirm_word": "DELETE",
+		"display_section": "Display Settings",
+		"unit_preference": "Weight Unit Preference",
+		"unit_help_text": "Weight values will automatically converted to your selected unit."
 	},
 	"actions": {
 		"save": "Save",
