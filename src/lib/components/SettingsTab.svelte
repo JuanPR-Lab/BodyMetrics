@@ -7,6 +7,7 @@
     import { settings } from '$lib/utils/settings.svelte';
     import type { Client } from '../../types';
 
+
     // Props received from parent
     export let clients: Client[] = [];
 
@@ -25,6 +26,12 @@
         // Calculamos el valor real nada más cargar el navegador
         totalMeasurements = PatientManager.getAssignmentCount();
     });
+
+	const STYLES = {
+    	card: "bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center transition-all hover:scale-[1.02]",
+    	button: "py-2.5 rounded-lg font-bold text-sm transition-all",
+    	badge: "text-xs text-slate-400 font-bold uppercase tracking-wider mt-1"
+    };
 
     const dispatch = createEventDispatcher();
 
