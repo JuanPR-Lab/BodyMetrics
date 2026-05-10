@@ -571,15 +571,15 @@
                         </text>
 
                         <text
-                            x="140"
-                            y="240"
-                            font-size="14"
-                            font-weight="900"
-                            fill="white"
-                            text-anchor="middle"
-                            style="text-shadow: 0 1px 2px rgba(0,0,0,0.2)"
+                        x="140"
+                        y="240"
+                        font-size="14"
+                        font-weight="900"
+                        fill="white"
+                        text-anchor="middle"
+                        style="text-shadow: 0 1px 2px rgba(0,0,0,0.2)"
                         >
-                            {visceralFat}
+                        {visceralFat !== null && visceralFat !== undefined ? visceralFat : '--'}
                         </text>
                     </g>
                 {/if}

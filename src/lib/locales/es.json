@@ -60,6 +60,7 @@
 		"detach_record_title": "Desvincular medición",
 		"client_data_missing_short": "Este cliente tiene historial guardado. Carga los archivos de la SD para ver sus datos.",
 		"client_no_history": "Este cliente aún no tiene mediciones.",
+		"no_data_in_period": "No hay mediciones en este periodo de tiempo. Selecciona otro filtro o cambia el rango de fechas.",
 		"no_clients_created": "Aún no hay clientes",
 		"records_selected": "registros seleccionados",
 		"multi_assignment": "Vinculación Múltiple",
@@ -68,6 +69,8 @@
 		},
 		"no_data_title": "Sin datos para exportar",
 		"no_data_client": "Este cliente aún no tiene mediciones registradas."
+		,"export_error_title": "Datos no cargados"
+		,"export_missing_sd": "Este cliente tiene mediciones vinculadas, pero para exportarlas primero debes cargar los archivos de la tarjeta SD en la pestaña Inbox."
 	},
 	"segments": {
 		"title": "Análisis Segmental",
@@ -187,7 +190,7 @@
 		"import_error": "No se pudo restaurar. Verifica que el archivo sea válido.",
 		"import_invalid": "Archivo ignorado. Por favor sube una copia de seguridad válida (BM_Backup*.json).",
 		"delete_all_btn": "Restablecer de Fábrica (Borrar Todo)",
-		"danger_zone_description": "Estas acciones son destructivas e irreversibles. Procede con precaución.",
+		"danger_zone_description": "Estas acciones son irreversibles. Procede con precaución.",
 		"factory_reset_warning": "Se eliminarán <strong>todos</strong> los clientes y vínculos de este navegador. La aplicación volverá al estado inicial.<br><br>Tus archivos de la tarjeta SD no se verán afectados.",
 		"delete_client_warning": "Al eliminar a <strong>{name}</strong>, sus mediciones volverán a la bandeja de Entrada para asignarlas a otro cliente.",
 		"type_to_confirm": "Escribe para confirmar:",
@@ -229,6 +232,7 @@
 		"reset_success": "Datos restablecidos correctamente",
 		"ignored_files_warning": "Se han ignorado archivos de sistema o exportaciones (BM/PROF). Por favor, sube solo los archivos de datos originales.",
 		"processed_files_omitted": "Se procesaron {n} archivos. Se omitieron archivos de sistema."
+		,"invalid_csv_file": "Archivo ignorado. Por favor, sube un archivo de mediciones válido (DATA*.csv)."
 	},
 	"upload": {
 		"instruction_title": "Carga de Datos",

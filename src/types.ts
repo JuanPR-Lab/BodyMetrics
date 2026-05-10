@@ -19,26 +19,26 @@ export interface BioMetricRecord {
 	height: number;
 	activityLevel: number;
 	weight: number; // Wk
-	bmi: number; // MI
-	bodyFat: number; // FW
-	muscleMass: number; // mW
-	boneMass: number; // bW
-	visceralFat: number; // IF
-	waterPercentage: number; // ww
-	metabolicAge: number; // rA
-	dci: number; // rD
+	bmi: number | null; // MI
+	bodyFat: number | null; // FW
+	muscleMass: number | null; // mW
+	boneMass: number | null; // bW
+	visceralFat: number | null; // IF
+	waterPercentage: number | null; // ww
+	metabolicAge: number | null; // rA
+	dci: number | null; // rD
 
 	// Segmentals
-	fatArmR: number; // Fr
-	fatArmL: number; // Fl
-	fatLegR: number; // FR
-	fatLegL: number; // FL
-	fatTrunk: number; // FT
-	muscleArmR: number; // mr
-	muscleArmL: number; // ml
-	muscleLegR: number; // mR
-	muscleLegL: number; // mL
-	muscleTrunk: number; // mT
+	fatArmR: number | null; // Fr
+	fatArmL: number | null; // Fl
+	fatLegR: number | null; // FR
+	fatLegL: number | null; // FL
+	fatTrunk: number | null; // FT
+	muscleArmR: number | null; // mr
+	muscleArmL: number | null; // ml
+	muscleLegR: number | null; // mR
+	muscleLegL: number | null; // mL
+	muscleTrunk: number | null; // mT
 
 	// NEW PROPERTY: Source file name
 	sourceFile: string;

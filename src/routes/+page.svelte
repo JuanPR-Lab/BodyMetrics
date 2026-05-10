@@ -42,8 +42,10 @@
 	let isDragging = false;
 	let fileInput: HTMLInputElement | null = null;
 
-	// Selection
-	let selectedClientId: string = '';
+    // Selection
+    let selectedClientId: string = '';
+    // Track selected record for UI updates after unassign
+    let selectedRecordId: string | null = null;
 	
 	// --- STATE: MODALS & TOAST ---
 	
@@ -158,12 +160,13 @@
 			}
 		});
 		
-		// Case A: Only garbage
-		if (validFiles.length === 0 && ignoredFiles.length > 0) {
-			const $t = get(t);
-			triggerToast($t('alerts.ignored_files_warning') || 'Archivo ignorado. Solo DATA*.csv');
-			return;
-		}
+        // Case A: Only garbage (no valid DATA*.CSV files)
+        if (validFiles.length === 0 && ignoredFiles.length > 0) {
+            const $t = get(t);
+            // Use the new translation key specific for invalid CSV uploads
+            triggerToast($t('alerts.invalid_csv_file'));
+            return;
+        }
 		
 		// Case B: Mixed content
 		if (ignoredFiles.length > 0) {
@@ -314,15 +317,17 @@
 		showUnassignModal = true;
 	};
 
-	const confirmUnassignAction = () => {
-		if (!unassignTargetId) return;
-		PatientManager.unassignRecord(unassignTargetId);
-		refreshClients();
-		const $t = get(t);
-		triggerToast($t('alerts.record_detached'));
-		unassignTargetId = null;
-		showUnassignModal = false;
-	};
+    const confirmUnassignAction = () => {
+        if (!unassignTargetId) return;
+        PatientManager.unassignRecord(unassignTargetId);
+        // After unassigning, clear the selected record so the derived currentRecord falls back to the first entry
+        selectedRecordId = null;
+        refreshClients();
+        const $t = get(t);
+        triggerToast($t('alerts.record_detached'));
+        unassignTargetId = null;
+        showUnassignModal = false;
+    };
 
 	// --- EXPORT & IMPORT ---
 	
@@ -335,9 +340,17 @@
 			return;
 		}
 
+		// Determine if client has any linked measurements (clientCounts) and if history is loaded
+		const linkedCount = clientCounts[targetClientId] || 0;
 		const history = PatientManager.getClientHistory(targetClientId, allRecords);
-		if (!history || history.length === 0) {
+		if (linkedCount <= 0) {
+			// No linked measurements at all
 			setTimeout(() => showAlert($t('dashboard.no_data_title'), $t('dashboard.no_data_client'), 'error'), 10);
+			return;
+		}
+		if (!history || history.length === 0) {
+			// Measurements linked but data not loaded (no SD files)
+			setTimeout(() => showAlert($t('dashboard.export_error_title'), $t('dashboard.export_missing_sd'), 'error'), 10);
 			return;
 		}
 
@@ -382,9 +395,8 @@
 	// --- HELPER FUNCTIONS ---
 
 	const triggerToast = (msg: string) => {
-		toastMessage = msg;
-		showToast = true;
-		setTimeout(() => { showToast = false; }, 3000);
+    	toastMessage = msg;
+    	showToast = true;
 	};
 
 	const showAlert = (title: string, message: string, type: 'alert' | 'error' | 'success' = 'alert') => {
@@ -476,17 +488,18 @@
 			{/if}
 
 			{#if currentTab === 'clients'}
-				<ClientDashboard
-					{clients}
-					{allRecords}
-					bind:selectedClientId
-					isReadOnly={false}
-					on:createClient={(e) => createClient(e.detail)}
-					on:deleteClient={(e) => requestDeleteClient(e.detail)}
-					on:renameClient={(e) => requestRenameClient(e.detail.id, e.detail.newName)}
-					on:exportClient={(e) => exportClientData(e.detail)}
-					on:requestUnassign={handleRequestUnassign}
-				/>
+    <ClientDashboard
+        {clients}
+        {allRecords}
+        bind:selectedClientId
+        bind:selectedRecordId
+        isReadOnly={false}
+        on:createClient={(e) => createClient(e.detail)}
+        on:deleteClient={(e) => requestDeleteClient(e.detail)}
+        on:renameClient={(e) => requestRenameClient(e.detail.id, e.detail.newName)}
+        on:exportClient={(e) => exportClientData(e.detail)}
+        on:requestUnassign={handleRequestUnassign}
+    />
 			{/if}
 
 			{#if currentTab === 'settings'}

@@ -60,6 +60,7 @@
 		"detach_record_title": "Unlink measurement",
 		"client_data_missing_short": "This client has saved history. Load the SD files to view their data.",
 		"client_no_history": "This client has no measurements yet.",
+		"no_data_in_period": "No measurements found for this period. Select another filter or change the date range.",
 		"no_clients_created": "No clients yet",
 		"records_selected": "records selected",
 		"multi_assignment": "Bulk Linking",
@@ -68,6 +69,8 @@
 		},
 		"no_data_title": "No data to export",
 		"no_data_client": "This client has no recorded measurements yet."
+		,"export_error_title": "Data not loaded"
+		,"export_missing_sd": "This client has linked measurements, but to export them you must first load the SD card files in the Inbox tab."
 	},
 	"segments": {
 		"title": "Segmental Analysis",
@@ -187,7 +190,7 @@
 		"import_error": "Couldn't restore. Please check the file is valid.",
 		"import_invalid": "File ignored. Please upload a valid backup (BM_Backup*.json).",
 		"delete_all_btn": "Factory Reset (Delete All)",
-		"danger_zone_description": "These actions are destructive and irreversible. Proceed with caution.",
+		"danger_zone_description": "These actions are irreversible. Proceed with caution.",
 		"factory_reset_warning": "This will delete <strong>all</strong> clients and links from this browser. The app will return to its initial state.<br><br>Your SD card files won't be affected.",
 		"delete_client_warning": "Deleting <strong>{name}</strong> will return their measurements to the Inbox for reassignment.",
 		"type_to_confirm": "Type to confirm:",
@@ -229,6 +232,7 @@
 		"reset_success": "Data reset successfully",
 		"ignored_files_warning": "System or export files (BM/PROF) have been ignored. Please upload only original data files.",
 		"processed_files_omitted": "{n} files processed. System files omitted."
+		,"invalid_csv_file": "File ignored. Please upload a valid measurement file (DATA*.csv)."
 	},
 	"upload": {
 		"instruction_title": "Data Upload",

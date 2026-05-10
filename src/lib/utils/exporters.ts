@@ -30,7 +30,6 @@ export const exportToCSV = (
 	const columns: (keyof BioMetricRecord)[] = [
 		'date',
 		'time',
-		'model',
 		'weight',
 		'bmi',
 		'bodyFat',
@@ -53,13 +52,15 @@ export const exportToCSV = (
 	];
 
 	// 2. Build Header Row (Quoted & Semicolon separated)
-	const headerRow = columns
-		.map((col) => {
-			// Fallback to internal key if translation is missing
-			const label = headersMap[col] || col;
-			return `"${String(label).replace(/"/g, '""')}"`;
-		})
-		.join(';');
+  const headerRow = columns
+    .map((col, idx) => {
+      // Fallback to internal key if translation is missing
+      let label = headersMap[col] || col;
+      // Magic string prefix for the first column
+      if (idx === 0) label = `BM>${label}`;
+      return `"${String(label).replace(/"/g, '""')}"`;
+    })
+    .join(';');
 
 	// 3. Build Data Rows
 	const bodyRows = data.map((row) => {

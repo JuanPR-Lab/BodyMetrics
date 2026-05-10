@@ -67,10 +67,11 @@
 				>
 					{cancelBtnText}
 				</button>
-				<button
-					on:click={confirm}
-					class="px-4 py-2 bg-amber-600 text-white font-bold text-sm rounded-lg shadow-sm flex items-center gap-2 transition-all hover:bg-amber-700 hover:shadow-md"
-				>
+                <button
+                    type="button"
+                    on:click|stopPropagation={confirm}
+                    class="px-4 py-2 bg-amber-600 text-white font-bold text-sm rounded-lg shadow-sm flex items-center gap-2 transition-all hover:bg-amber-700 hover:shadow-md"
+                >
 					<AlertTriangle size={16} />
 					{confirmBtnText}
 				</button>

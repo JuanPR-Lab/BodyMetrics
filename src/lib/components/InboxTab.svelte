@@ -86,8 +86,9 @@
         });
         
         if (validFiles.length === 0 && ignoredFiles.length > 0) {
+            // Use the dedicated translation for invalid CSV uploads in the Inbox
             dispatch('error', {
-                message: $t('settings.import_invalid'),
+                message: $t('alerts.invalid_csv_file'),
                 isIgnoredFile: true
             });
             return;
@@ -268,14 +269,14 @@
                     {/if}
                 </div>
 
-                <div class="hidden lg:flex px-6 py-3 bg-slate-100/50 text-slate-500 font-semibold uppercase text-[11px] tracking-wider border-t border-slate-200">
-                    <div class="w-12 text-center"></div>
-                    <div class="w-32 px-2">{$t('analysis.date')}</div>
-                    <div class="w-32 px-2">{$t('metrics.weight')}</div>
-                    <div class="flex-1 px-2">{$t('dashboard.key_data')}</div>
-                    <div class="w-40 px-2">{$t('dashboard.source_file')}</div>
-                    <div class="w-72 px-2 text-right">{$t('dashboard.action')}</div>
-                </div>
+                    <div class="hidden lg:flex px-6 py-3 bg-slate-100/50 text-slate-500 font-semibold uppercase text-[11px] tracking-wider border-t border-slate-200">
+                        <div class="w-12 text-center"></div>
+                        <div class="w-40 px-2">{$t('analysis.date')}</div>
+                        <div class="w-40 px-2">{$t('metrics.weight')}</div>
+                        <!-- key_data column removed -->
+                        <div class="w-40 px-2">{$t('dashboard.source_file')}</div>
+                        <div class="w-72 px-2 text-right">{$t('dashboard.action')}</div>
+                    </div>
             </div>
 
             <div class="block lg:hidden bg-slate-50/50 p-3 space-y-3 rounded-b-xl">
@@ -308,11 +309,7 @@
                                     </div>
                                 </div>
 
-                                <div class="flex flex-wrap gap-1.5 mb-3">
-                                    <Badge variant="indigo">{rec.height}cm</Badge>
-                                    <Badge variant="slate">{$t(rec.gender === 'male' ? 'common.male' : 'common.female')}</Badge>
-                                    <Badge variant="slate">{rec.age} {$t('units.years')}</Badge>
-                                </div>
+                                <!-- Height, gender and age badges removed for cleaner UI -->
 
                                 <div class="mb-3">
                                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{$t('dashboard.source_file')}</span>
@@ -367,29 +364,23 @@
                                     type="checkbox"
                                     checked={selectedInboxMeasurements.includes(rec.id)}
                                     onchange={() => toggleInboxSelection(rec.id)}
-                                    class="h-5 w-5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+                                            class="h-5 w-5 text-indigo-600 rounded border border-slate-300 bg-slate-100 focus:ring-indigo-500 cursor-pointer"
                                 />
                             </div>
 
-                            <div class="w-32 px-2">
-                                <div class="font-bold text-slate-700 text-sm">{rec.date}</div>
-                                <div class="text-[11px] text-slate-400 font-mono mt-0.5 flex items-center gap-1">
+                            <div class="w-40 px-2 font-bold text-slate-700">
+                                <div class="text-base font-bold text-slate-800">{rec.date}</div>
+                                <div class="text-sm text-slate-500 font-mono mt-0.5 flex items-center gap-1">
                                     <Clock size={10} /> {rec.time}
                                 </div>
                             </div>
 
-                            <div class="w-32 px-2">
-                                <span class="text-lg font-black text-slate-800">{formatWeight(rec.weight, settings.unit)}</span>
-                                <span class="text-[11px] text-slate-400 font-bold ml-0.5">{$t('units.' + settings.unit)}</span>
+                            <div class="w-40 px-2 font-bold text-slate-700">
+                                <span class="text-base font-black text-slate-800">{formatWeight(rec.weight, settings.unit)}</span>
+                                <span class="text-sm text-slate-500 font-medium ml-0.5">{$t('units.' + settings.unit)}</span>
                             </div>
 
-                            <div class="flex-1 px-2">
-                                <div class="flex flex-wrap gap-1.5">
-                                    <Badge variant="indigo">{rec.height}cm</Badge>
-                                    <Badge variant="slate">{$t(rec.gender === 'male' ? 'common.male' : 'common.female')}</Badge>
-                                    <Badge variant="slate">{rec.age} {$t('units.years')}</Badge>
-                                </div>
-                            </div>
+                            <!-- Key data column removed to free space -->
 
                             <div class="w-40 px-2 truncate">
                                 <span class="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">
@@ -405,7 +396,7 @@
                                             type="text"
                                             disabled={clients.length === 0}
                                             placeholder={clients.length === 0 ? $t('dashboard.no_clients_created') : $t('dashboard.assign_btn')}
-                                            class="w-full text-sm border border-slate-200 rounded-lg px-3 py-1.5 outline-none transition-shadow bg-white focus:ring-2 focus:ring-indigo-500"
+                                            class="w-full text-sm border border-slate-200 rounded-lg px-3 py-1.5 outline-none transition-shadow bg-slate-50 focus:ring-2 focus:ring-indigo-500"
                                             bind:value={assignmentSearchTerms[rec.id]}
                                             onkeydown={(e) => {
                                                 if (e.key === 'Enter' && filteredAssignmentClients(assignmentSearchTerms[rec.id]).length > 0) {

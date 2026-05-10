@@ -3,7 +3,7 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 
 	export let message: string = '';
-	export let duration: number = 3000;
+	export let duration: number = 5000;
 
 	// Si quieres que el componente se cierre solo, usamos onMount
 	const dispatch = createEventDispatcher();

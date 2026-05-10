@@ -31,21 +31,33 @@
 	import InfoModal from './modals/InfoModal.svelte';
 	import { t } from 'svelte-i18n';
 	import { PatientManager } from '../utils/patientManager';
-	import { CHART_OPTIONS, getStatusColor } from '../utils/constants';
+  import { CHART_OPTIONS, getStatusColor } from '../utils/constants';
 	import type { Client, BioMetricRecord } from '../../types';
 	import { settings } from '../utils/settings.svelte';
     import { formatWeight } from '../utils/format';
 
 	// --- PROPERTIES ---
-	export let clients: Client[] = [];
-	export let selectedClientId: string | null = null;
-	export let allRecords: BioMetricRecord[] = [];
-	export let isReadOnly = false;
-	export let records: BioMetricRecord[] | undefined = undefined;
-	export let clientName: string | undefined = undefined;
-	export let readonly = false;
+    let {
+        clients = [],
+        selectedClientId = $bindable(null),
+        selectedRecordId = $bindable<string | null>(null),
+        allRecords = [],
+        isReadOnly = false,
+        records = undefined,
+        clientName = undefined,
+        readonly = false
+    } = $props<{
+        clients?: Client[];
+        selectedClientId?: string | null;
+        selectedRecordId?: string | null;
+        allRecords?: BioMetricRecord[];
+        isReadOnly?: boolean;
+        records?: BioMetricRecord[];
+        clientName?: string;
+        readonly?: boolean;
+    }>();
 	
-	$: effectiveReadOnly = isReadOnly || readonly;
+	const effectiveReadOnly = $derived(isReadOnly || readonly);
 	
 	const dispatch = createEventDispatcher();
 	
@@ -56,95 +68,112 @@
 	};
 	
 	// Sidebar and Filters
-	let clientSearchTerm = '';
-	let isClientListOpen = false;
-	let currentPage = 1;
+	let clientSearchTerm = $state('');
+	let isClientListOpen = $state(false);
+	let currentPage = $state(1);
 	const clientsPerPage = 10;
 	
-	let newClientCodeOrAlias = '';
-	let currentFilter = 'all';
-	let customDateStart = '';
-	let customDateEnd = '';
-	let selectedRecordId: string | null = null;
+	let newClientCodeOrAlias = $state('');
+	let currentFilter = $state('all');
+	let customDateStart = $state('');
+    let customDateEnd = $state('');
 	
 	// Charts
-	let selectedChartMetric: keyof BioMetricRecord = 'weight';
-	let hoveredIndex: number | null = null;
-	let hoveredPointData: any = null;
-	
+	let selectedChartMetric = $state<keyof BioMetricRecord>('weight');
+	let hoveredIndex = $state<number | null>(null);
+	let hoveredPointData = $state<any>(null);
+
 	// Modals
-	let showInfoModal = false;
-	let infoModalTitle = '';
-	let infoModalContent = '';
+	let showInfoModal = $state(false);
+	let infoModalTitle = $state('');
+	let infoModalContent = $state('');
 	
 	// --- REACTIVE LOGIC ---
 
 	// Filtering
-	$: filteredClients = clients.filter((c) =>
-		c.alias.toLowerCase().includes(clientSearchTerm.toLowerCase())
+	const filteredClients = $derived(
+		clients.filter((c) => c.alias.toLowerCase().includes(clientSearchTerm.toLowerCase()))
 	);
 
 	// Reset page when searching
-	$: {
-		if (clientSearchTerm) currentPage = 1;
-	}
 
-	$: totalPages = Math.ceil(filteredClients.length / clientsPerPage);
+	$effect(() => {
+		if (clientSearchTerm) {
+			currentPage = 1;
+		}
+	});
 
-	$: paginatedClients = filteredClients.slice(
-		(currentPage - 1) * clientsPerPage,
-		currentPage * clientsPerPage
+	const totalPages = $derived(Math.ceil(filteredClients.length / clientsPerPage));
+
+	const paginatedClients = $derived(
+		filteredClients.slice((currentPage - 1) * clientsPerPage, currentPage * clientsPerPage)
 	);
 
 	// Client and Data
-	$: currentClient = clients.find((c) => c.id === selectedClientId);
+	const currentClient = $derived(clients.find((c) => c.id === selectedClientId));
 
-	$: clientHistory =
+	const clientHistory = $derived(
 		effectiveReadOnly && records
 			? records
 			: currentClient
 				? PatientManager.getClientHistory(currentClient.id, allRecords)
-				: [];
+				: []
+	);
 
-	$: displayedHistory = filterHistory(clientHistory, currentFilter, customDateStart, customDateEnd);
+	const displayedHistory = $derived(filterHistory(clientHistory, currentFilter, customDateStart, customDateEnd));
 
-	$: currentRecord = selectedRecordId
-		? displayedHistory.find((r: BioMetricRecord) => r.id === selectedRecordId)
-		: displayedHistory.length > 0
-			? displayedHistory[0]
-			: null;
+    // Auto-select the current record: prefer the explicitly selected ID, otherwise fallback to the first in history
+    const currentRecord = $derived(displayedHistory.find((r: BioMetricRecord) => r.id === selectedRecordId) || displayedHistory[0] || null);
 
-    $: isWeightMetric = ['weight', 'muscleMass', 'boneMass'].includes(selectedChartMetric);
+	   const isWeightMetric = $derived(['weight', 'muscleMass', 'boneMass'].includes(selectedChartMetric));
 
-    $: chartHistory = displayedHistory.map(r => ({
-        ...r,
-        [selectedChartMetric]: isWeightMetric 
-            ? getChartValue(r[selectedChartMetric] as number) 
-            : r[selectedChartMetric]
-    }));
-    $: chartData =
-        currentClient && chartHistory.length > 0
-            ? PatientManager.computeChartData(
-                    chartHistory,
-                    selectedChartMetric as keyof BioMetricRecord
-                )
-            : null;
+	   const chartHistory = $derived(
+	       displayedHistory.map(r => ({
+	           ...r,
+	           [selectedChartMetric]: isWeightMetric
+	               ? getChartValue(r[selectedChartMetric] as number)
+	               : r[selectedChartMetric]
+	       }))
+	   );
 
-	$: activeChartColor =
-		CHART_OPTIONS.find((o) => o.key === selectedChartMetric)?.color || '#6366f1';
-	$: activeChartUnitKey = CHART_OPTIONS.find((o) => o.key === selectedChartMetric)?.unitKey || '';
+  // Filter chart options to only those with at least one valid numeric value in the displayed history
+  const availableChartOptions = $derived(
+    CHART_OPTIONS.filter((opt) =>
+      displayedHistory.some((rec) => {
+        const val = rec[opt.key as keyof BioMetricRecord];
+        return typeof val === 'number' && !isNaN(val);
+      })
+    )
+  );
+
+  const chartData = $derived(
+    currentClient && chartHistory.length > 0
+      ? PatientManager.computeChartData(
+          chartHistory,
+          selectedChartMetric as keyof BioMetricRecord
+        )
+      : null
+  );
+
+	const activeChartColor = $derived(
+		CHART_OPTIONS.find((o) => o.key === selectedChartMetric)?.color || '#6366f1'
+	);
+
+	const activeChartUnitKey = $derived(
+		CHART_OPTIONS.find((o) => o.key === selectedChartMetric)?.unitKey || ''
+	);
 
 	// Counters
-	$: clientCounts = (() => {
-		if (effectiveReadOnly && records) {
-			const count = records.length;
-			const counts: Record<string, number> = {};
-			clients.forEach((client) => (counts[client.id] = count));
-			return counts;
-		} else {
-			return PatientManager.getClientCounts();
-		}
-	})();
+	const clientCounts = $derived(
+		effectiveReadOnly && records
+			? (() => {
+				const count = records.length;
+				const counts: Record<string, number> = {};
+				clients.forEach((client) => (counts[client.id] = count));
+				return counts;
+			})()
+			: PatientManager.getClientCounts()
+	);
 
 	// --- FUNCTIONS ---
 
@@ -159,13 +188,14 @@
 	}
 
 	// Save Button (Hybrid Safe Version)
-	let isProcessing = false;
+	let isProcessing = $state(false);
 	function handleCreateClient(e?: Event) {
-	 if (isProcessing) return;
-	 isProcessing = true;
-	 setTimeout(() => {
-	  isProcessing = false;
-	 }, 500);
+		if (e) e.preventDefault();
+		if (isProcessing) return;
+		isProcessing = true;
+		setTimeout(() => {
+			isProcessing = false;
+		}, 500);
 
 		const inputElement = document.getElementById('new-client-input') as HTMLInputElement;
 		const valueToSave = inputElement?.value?.trim() || newClientCodeOrAlias?.trim();
@@ -182,18 +212,24 @@
 		currentPage = 1;
 	}
 
-	function handleDeleteClient() {
+	function handleDeleteClient(e?: Event) {
+		if (e) e.preventDefault();
 		dispatch('deleteClient', selectedClientId);
 	}
-	function handleRenameClient() {
+	function handleRenameClient(e?: Event) {
+		if (e) e.preventDefault();
 		dispatch('renameClient', { id: selectedClientId, newName: currentClient?.alias || '' });
 	}
-	function handleUnassignRecord() {
-		if (currentRecord) {
-			dispatch('requestUnassign', currentRecord.id);
-		}
-	}
-	function handleExport() {
+    function handleUnassignRecord(e?: Event) {
+        if (e) e.preventDefault();
+        if (currentRecord) {
+            // Capture the ID at this moment and dispatch the unassign request
+            const id = currentRecord.id;
+            dispatch('requestUnassign', id);
+        }
+    }
+	function handleExport(e?: Event) {
+		if (e) e.preventDefault();
 		dispatch('exportClient', selectedClientId);
 	}
 
@@ -223,14 +259,14 @@
 						bind:value={newClientCodeOrAlias}
 						placeholder={$t('dashboard.client_id_placeholder')}
 						class="w-full text-sm border border-indigo-200 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-						on:keydown={(e) => e.key === 'Enter' && handleCreateClient()}
+						onkeydown={(e) => e.key === 'Enter' && handleCreateClient(e)}
 					/>
 
 					<button
 						type="button"
 						class="w-full bg-gray-800 text-white text-sm font-bold py-2 rounded hover:bg-black transition shadow-sm flex items-center justify-center gap-2 active:scale-95 touch-manipulation"
-						on:click|preventDefault|stopPropagation={handleCreateClient}
-						on:touchstart|passive={handleCreateClient}
+						onclick={handleCreateClient}
+						ontouchstart={(e) => handleCreateClient(e)}
 					>
 						<CheckCircle size={14} />
 						{$t('actions.save')}
@@ -241,7 +277,7 @@
 
 		<div class="lg:hidden bg-white rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
 			<button
-				on:click={() => (isClientListOpen = !isClientListOpen)}
+				onclick={() => (isClientListOpen = !isClientListOpen)}
 				class="w-full flex items-center justify-center px-3 py-5 font-medium text-gray-700 hover:bg-gray-50 transition relative"
 			>
 				<Users class="text-indigo-600 absolute left-3 top-1/2 -translate-y-1/2" size={20} />
@@ -264,8 +300,9 @@
 							bind:value={clientSearchTerm}
 							placeholder={$t('dashboard.filter_placeholder')}
 							class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-							on:keydown={(e) => {
+							onkeydown={(e) => {
 								if (e.key === 'Enter' && filteredClients.length > 0) {
+									e.preventDefault();
 									selectedClientId = filteredClients[0].id;
 								}
 							}}
@@ -279,7 +316,7 @@
 						{:else}
 							{#each paginatedClients as client (client.id)}
 								<button
-									on:click={() => {
+									onclick={() => {
 										selectedClientId = client.id;
 										isClientListOpen = false;
 									}}
@@ -305,7 +342,7 @@
 							class="border-t border-gray-100 p-2 bg-gray-50 flex justify-center gap-4 items-center"
 						>
 							<button
-								on:click={() => (currentPage = Math.max(1, currentPage - 1))}
+								onclick={() => (currentPage = Math.max(1, currentPage - 1))}
 								disabled={currentPage === 1}
 								class="p-1 rounded border bg-white hover:bg-gray-50 disabled:opacity-50"
 								><ChevronLeft size={16} /></button
@@ -316,7 +353,7 @@
 								})}</span
 							>
 							<button
-								on:click={() => (currentPage = Math.min(totalPages, currentPage + 1))}
+								onclick={() => (currentPage = Math.min(totalPages, currentPage + 1))}
 								disabled={currentPage === totalPages}
 								class="p-1 rounded border bg-white hover:bg-gray-50 disabled:opacity-50"
 								><ChevronRight size={16} /></button
@@ -336,8 +373,9 @@
 					bind:value={clientSearchTerm}
 					placeholder={$t('dashboard.filter_placeholder')}
 					class="w-full text-sm border rounded px-3 py-2 bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-					on:keydown={(e) => {
+					onkeydown={(e) => {
 						if (e.key === 'Enter' && filteredClients.length > 0) {
+							e.preventDefault();
 							selectedClientId = filteredClients[0].id;
 							isClientListOpen = false;
 						}
@@ -356,7 +394,7 @@
 				{:else}
 					{#each paginatedClients as client (client.id)}
 						<button
-							on:click={() => (selectedClientId = client.id)}
+							onclick={() => (selectedClientId = client.id)}
 							class="w-full text-left px-3 py-3 rounded-lg text-sm group transition-all duration-150 flex justify-between items-center touch-manipulation border border-transparent hover:border-indigo-200 hover:shadow-sm {selectedClientId ===
 							client.id
 								? 'bg-indigo-50 text-indigo-800 border-indigo-300 shadow-sm'
@@ -380,7 +418,7 @@
 					class="border-t border-gray-200 p-2 bg-gray-50 flex justify-center gap-4 items-center mt-auto"
 				>
 					<button
-						on:click={() => (currentPage = Math.max(1, currentPage - 1))}
+						onclick={() => (currentPage = Math.max(1, currentPage - 1))}
 						disabled={currentPage === 1}
 						class="p-1 rounded border hover:bg-gray-50 disabled:opacity-50"
 						><ChevronLeft size={16} /></button
@@ -391,7 +429,7 @@
 						})}</span
 					>
 					<button
-						on:click={() => (currentPage = Math.min(totalPages, currentPage + 1))}
+						onclick={() => (currentPage = Math.min(totalPages, currentPage + 1))}
 						disabled={currentPage === totalPages}
 						class="p-1 rounded border hover:bg-gray-50 disabled:opacity-50"
 						><ChevronRight size={16} /></button
@@ -428,7 +466,7 @@
 
 					<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full sm:w-auto">
 						<button
-							on:click={handleExport}
+							onclick={handleExport}
 							class="w-full sm:col-span-1 justify-center text-emerald-600 hover:text-white border border-emerald-200 hover:bg-emerald-600 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm flex items-center gap-2"
 							title={$t('dashboard.export_csv_btn')}
 						>
@@ -437,7 +475,7 @@
 
 						{#if !effectiveReadOnly}
 							<button
-								on:click={handleRenameClient}
+								onclick={handleRenameClient}
 								class="w-full sm:col-span-1 sm:w-auto justify-center text-indigo-600 hover:text-white border border-indigo-200 hover:bg-indigo-600 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm flex items-center gap-2"
 								title={$t('actions.rename')}
 							>
@@ -445,7 +483,7 @@
 							</button>
 
 							<button
-								on:click={handleDeleteClient}
+								onclick={handleDeleteClient}
 								class="w-full sm:col-span-1 sm:w-auto justify-center text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm flex items-center gap-2"
 								title={$t('actions.delete')}
 							>
@@ -468,31 +506,31 @@
 							class="flex flex-wrap justify-center sm:justify-start gap-2 flex-grow px-10 sm:px-0"
 						>
 							<button
-								on:click={() => (currentFilter = 'all')}
+								onclick={() => (currentFilter = 'all')}
 								class="{STYLES.filterBtn} {currentFilter === 'all'
 									? STYLES.filterBtnActive
 									: STYLES.filterBtnInactive}">{$t('dashboard.filters.all')}</button
 							>
 							<button
-								on:click={() => (currentFilter = '1m')}
+								onclick={() => (currentFilter = '1m')}
 								class="{STYLES.filterBtn} {currentFilter === '1m'
 									? STYLES.filterBtnActive
 									: STYLES.filterBtnInactive}">{$t('dashboard.filters.last_month')}</button
 							>
 							<button
-								on:click={() => (currentFilter = '3m')}
+								onclick={() => (currentFilter = '3m')}
 								class="{STYLES.filterBtn} {currentFilter === '3m'
 									? STYLES.filterBtnActive
 									: STYLES.filterBtnInactive}">{$t('dashboard.filters.last_3_months')}</button
 							>
 							<button
-								on:click={() => (currentFilter = '6m')}
+								onclick={() => (currentFilter = '6m')}
 								class="{STYLES.filterBtn} {currentFilter === '6m'
 									? STYLES.filterBtnActive
 									: STYLES.filterBtnInactive}">{$t('dashboard.filters.last_6_months')}</button
 							>
 							<button
-								on:click={() => (currentFilter = '1y')}
+								onclick={() => (currentFilter = '1y')}
 								class="{STYLES.filterBtn} {currentFilter === '1y'
 									? STYLES.filterBtnActive
 									: STYLES.filterBtnInactive}">{$t('dashboard.filters.last_year')}</button
@@ -509,7 +547,7 @@
 						<input
 							type="date"
 							bind:value={customDateStart}
-							on:change={() => (currentFilter = 'custom')}
+							onchange={() => (currentFilter = 'custom')}
 							class="text-xs text-gray-500 font-bold bg-transparent outline-none cursor-pointer hover:text-indigo-600 transition-colors"
 						/>
 						<span class="text-slate-300 mx-1">|</span>
@@ -519,7 +557,7 @@
 						<input
 							type="date"
 							bind:value={customDateEnd}
-							on:change={() => (currentFilter = 'custom')}
+							onchange={() => (currentFilter = 'custom')}
 							class="text-xs text-gray-500 font-bold bg-transparent outline-none cursor-pointer hover:text-indigo-600 transition-colors"
 						/>
 					</div>
@@ -529,34 +567,36 @@
 			<div
 				class="w-full flex-shrink-0 bg-gray-50 p-2 sm:p-3 rounded-xl border border-gray-200 shadow-inner overflow-x-auto scrollbar-thin"
 			>
-				{#if displayedHistory.length === 0}
-					<div
-						class="flex flex-col items-center justify-center py-4 text-center px-4 w-full h-[85px] sm:h-[105px]"
-					>
-						{#if effectiveReadOnly}
-							<div class="text-gray-400 flex flex-col items-center gap-1">
-								<span class="text-xs italic">{$t('dashboard.client_no_history')}</span>
-							</div>
-						{:else if (clientCounts[currentClient?.id || ''] || 0) === 0}
-							<div class="text-gray-400 flex flex-col items-center gap-1">
-								<span class="text-xs italic">{$t('dashboard.client_no_history')}</span>
-							</div>
-						{:else}
-							<div
-								class="flex items-center gap-3 text-amber-600 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200 shadow-sm animate-pulse"
-							>
-								<AlertCircle size={18} class="flex-shrink-0" />
-								<p class="text-xs font-bold text-left">
-									{$t('dashboard.client_data_missing_short')}
-								</p>
-							</div>
-						{/if}
-					</div>
-				{:else}
+                {#if displayedHistory.length === 0}
+                    <div class="flex flex-col items-center justify-center py-4 text-center px-4 w-full h-[85px] sm:h-[105px]">
+                        {#if effectiveReadOnly}
+                            <div class="text-gray-400 flex flex-col items-center gap-1">
+                                <span class="text-xs italic">{$t('dashboard.client_no_history')}</span>
+                            </div>
+                        {:else if (clientCounts[currentClient?.id || ''] || 0) === 0}
+                            <div class="text-gray-400 flex flex-col items-center gap-1">
+                                <span class="text-xs italic">{$t('dashboard.client_no_history')}</span>
+                            </div>
+                        {:else if clientHistory.length === 0}
+                            <div class="flex items-center gap-3 text-amber-600 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200 shadow-sm animate-pulse">
+                                <AlertCircle size={18} class="flex-shrink-0" />
+                                <p class="text-xs font-bold text-left">{$t('dashboard.client_data_missing_short')}</p>
+                            </div>
+                        {:else}
+                            <div class="flex items-center gap-3 text-amber-600 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200 shadow-sm animate-pulse">
+                                <AlertCircle size={18} class="flex-shrink-0" />
+                                <p class="text-xs font-bold text-left">{$t('dashboard.no_data_in_period')}</p>
+                            </div>
+                        {/if}
+                    </div>
+                {:else}
 					<div class="flex gap-2 sm:gap-3">
 						{#each displayedHistory as rec (rec.id)}
 							<button
-								on:click={() => (selectedRecordId = rec.id)}
+								onclick={(e) => {
+									e.preventDefault();
+									selectedRecordId = rec.id;
+								}}
 								class="flex-shrink-0 w-[85px] sm:w-[85px] p-2 rounded-lg border text-left transition-all touch-manipulation relative
                 {selectedRecordId === rec.id || (!selectedRecordId && rec === currentRecord)
 									? 'border-indigo-400 bg-indigo-50 shadow-md transform scale-105 z-10'
@@ -597,7 +637,7 @@
 
 					{#if !effectiveReadOnly}
 						<button
-							on:click={handleUnassignRecord}
+							onclick={handleUnassignRecord}
 							class="text-red-600 hover:text-white border border-red-200 hover:bg-red-600 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm flex items-center gap-2"
 						>
 							<Undo2 size={14} />
@@ -638,7 +678,7 @@
 										class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate"
 										>{$t('metrics.bmi')}</span
 									><button
-										on:click={() => openInfo('bmi')}
+										onclick={() => openInfo('bmi')}
 										class="text-slate-300 hover:text-indigo-500 transition-colors"
 										><Info size={16} /></button
 									>
@@ -663,7 +703,7 @@
 										class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate"
 										>{$t('metrics.body_fat')}</span
 									><button
-										on:click={() => openInfo('body_fat')}
+										onclick={() => openInfo('body_fat')}
 										class="text-slate-300 hover:text-indigo-500 transition-colors"
 										><Info size={16} /></button
 									>
@@ -712,7 +752,7 @@
 										class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate"
 										>{$t('metrics.water')}</span
 									><button
-										on:click={() => openInfo('water')}
+										onclick={() => openInfo('water')}
 										class="text-slate-300 hover:text-indigo-500 transition-colors"
 										><Info size={16} /></button
 									>
@@ -774,7 +814,7 @@
 										class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate"
 										>{$t('metrics.metabolic_age')}</span
 									><button
-										on:click={() => openInfo('metabolic_age')}
+										onclick={() => openInfo('metabolic_age')}
 										class="text-slate-300 hover:text-indigo-500 transition-colors"
 										><Info size={16} /></button
 									>
@@ -798,19 +838,19 @@
 							</div>
 						</div>
 
-						<InfoModal
-							isOpen={showInfoModal}
-							title={infoModalTitle}
-							message={infoModalContent}
-							closeAriaLabel={$t('common.close') || 'Close'}
-							on:close={() => (showInfoModal = false)}
-						/>
+                        <InfoModal
+                            isOpen={showInfoModal}
+                            title={infoModalTitle}
+                            message={infoModalContent}
+                            closeAriaLabel={$t('common.close') || 'Close'}
+                            on:close={() => (showInfoModal = false)}
+                        />
 					</div>
 
 					<div
 						class="xl:col-span-1 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]"
 					>
-						<BodyMap record={currentRecord} on:info={() => openInfo('segmental')} />
+						<BodyMap record={currentRecord} oninfo={() => openInfo('segmental')} />
 					</div>
 				</div>
 
@@ -823,20 +863,20 @@
 								<BarChart3 size={16} class="text-indigo-600" />
 								{$t('dashboard.evolution_chart')} ({chartData.pointsData.length})
 							</h3>
-							<select
-								bind:value={selectedChartMetric}
-								class="w-full sm:w-auto min-w-[200px] sm:min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-xs sm:text-sm font-medium bg-white hover:border-indigo-500 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 outline-none cursor-pointer shadow-sm"
-							>
-								{#each CHART_OPTIONS as option}<option value={option.key}>{$t(option.label)}</option
-									>{/each}
-							</select>
+                          <select
+                              bind:value={selectedChartMetric}
+                              class="w-full sm:w-auto min-w-[200px] sm:min-w-[240px] border border-gray-300 rounded px-3 py-1.5 text-xs sm:text-sm font-medium bg-white hover:border-indigo-500 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 outline-none cursor-pointer shadow-sm"
+                          >
+                              {#each availableChartOptions as option}<option value={option.key}>{$t(option.label)}</option
+                                  >{/each}
+                          </select>
 						</div>
 
 						<div
 							role="img"
 							aria-label="Evolution Chart"
 							class="h-48 sm:h-64 md:h-72 w-full relative group"
-							on:mouseleave={() => {
+							onmouseleave={() => {
 								hoveredIndex = null;
 								hoveredPointData = null;
 							}}
@@ -901,7 +941,7 @@
 										height="100"
 										fill="transparent"
 										class="cursor-pointer hover:fill-gray-50/10"
-										on:mouseenter={() => {
+										onmouseenter={() => {
 											const isHighPoint = p.y < 20;
 											let alignment = 'center';
 											if (p.x < 15) {
@@ -917,7 +957,7 @@
 												alignment
 											};
 										}}
-										on:touchstart|passive={() => {
+										ontouchstart={() => {
 											const isHighPoint = p.y < 20;
 											let alignment = 'center';
 											if (p.x < 15) {

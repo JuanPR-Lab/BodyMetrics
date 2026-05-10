@@ -75,7 +75,8 @@
         // The name of the file must contain the literal string 'BM_Backup' (case insensitive) AND have .json extension
         const fileName = file.name.toLowerCase();
         if (!fileName.includes('bm_backup') || !fileName.endsWith('.json')) {
-            dispatch('error', { message: $t('alerts.ignored_files_warning'), isIgnoredFile: true });
+            // Use the dedicated translation for invalid backup files
+            dispatch('error', { message: $t('settings.import_invalid'), isIgnoredFile: true });
             return;
         }
 
