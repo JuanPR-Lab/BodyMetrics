@@ -87,8 +87,9 @@ const KEYS = {
           const isManual = Array.isArray(firstRow) && typeof firstRow[0] === 'string' && firstRow[0].startsWith('BM>');
 
           // Fixed column order matching exporter (model excluded)
+          // Updated order to include real age after time
           const manualOrder: (keyof BioMetricRecord)[] = [
-            'date', 'time', 'weight', 'bmi', 'bodyFat', 'muscleMass', 'visceralFat', 'waterPercentage',
+            'date', 'time', 'age', 'weight', 'bmi', 'bodyFat', 'muscleMass', 'visceralFat', 'waterPercentage',
             'boneMass', 'metabolicAge', 'dci', 'fatTrunk', 'fatArmR', 'fatArmL', 'fatLegR', 'fatLegL',
             'muscleTrunk', 'muscleArmR', 'muscleArmL', 'muscleLegR', 'muscleLegL'
           ];
@@ -116,16 +117,32 @@ const KEYS = {
               };
 
               // Map the remaining columns (starting at index 2) using the defined order
-              const [weightVal, bmiVal, bodyFatVal, muscleMassVal, visceralVal, waterVal,
-                boneVal, metabolicAgeVal, dciVal, fatTrunkVal, fatArmRVal, fatArmLVal,
-                fatLegRVal, fatLegLVal, muscleTrunkVal, muscleArmRVal, muscleArmLVal,
-                muscleLegRVal, muscleLegLVal] = [
-                parseNum(row[2]), parseNum(row[3]), parseNum(row[4]), parseNum(row[5]),
-                parseNum(row[6]), parseNum(row[7]), parseNum(row[8]), parseNum(row[9]),
-                parseNum(row[10]), parseNum(row[11]), parseNum(row[12]), parseNum(row[13]),
-                parseNum(row[14]), parseNum(row[15]), parseNum(row[16]), parseNum(row[17]),
-                parseNum(row[18]), parseNum(row[19]), parseNum(row[20])
-              ];
+               // Shift indices to account for added age column at position 2
+               const [ageVal, weightVal, bmiVal, bodyFatVal, muscleMassVal, visceralVal, waterVal,
+                 boneVal, metabolicAgeVal, dciVal, fatTrunkVal, fatArmRVal, fatArmLVal,
+                 fatLegRVal, fatLegLVal, muscleTrunkVal, muscleArmRVal, muscleArmLVal,
+                 muscleLegRVal, muscleLegLVal] = [
+                 parseNum(row[2]), // age
+                 parseNum(row[3]), // weight
+                 parseNum(row[4]), // bmi
+                 parseNum(row[5]), // bodyFat
+                 parseNum(row[6]), // muscleMass
+                 parseNum(row[7]), // visceral
+                 parseNum(row[8]), // water
+                 parseNum(row[9]), // bone
+                 parseNum(row[10]), // metabolicAge
+                 parseNum(row[11]), // dci
+                 parseNum(row[12]), // fatTrunk
+                 parseNum(row[13]), // fatArmR
+                 parseNum(row[14]), // fatArmL
+                 parseNum(row[15]), // fatLegR
+                 parseNum(row[16]), // fatLegL
+                 parseNum(row[17]), // muscleTrunk
+                 parseNum(row[18]), // muscleArmR
+                 parseNum(row[19]), // muscleArmL
+                 parseNum(row[20]), // muscleLegR
+                 parseNum(row[21])  // muscleLegL (shifted)
+               ];
 
               if (!dateVal || weightVal === null) return;
 
@@ -135,7 +152,7 @@ const KEYS = {
                 time: timeVal || '00:00',
                 model: 'Manual-Export',
                 gender: 'male', // default, manual files are language‑agnostic
-                age: 0,
+                 age: ageVal as any,
                 height: 0,
                 activityLevel: 0,
                 weight: weightVal,

@@ -1,7 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import { t } from 'svelte-i18n';
-    import { Info } from 'lucide-svelte';
     import type { BioMetricRecord } from '$lib/utils/csvSDparser';
     import { getBodyFatStatus, type HealthStatus } from '$lib/utils/ranges';
 
@@ -90,8 +89,15 @@
         return getBodyFatStatus(valToCheck, record.gender, record.age);
     })();
 
+    // Returns appropriate Tailwind classes for each traffic‑light segment.
+    // If the overall status is "unknown" (e.g., no record or null values),
+    // all segments are rendered with a very low opacity to indicate a disabled state.
     const getTrafficLightClass = (blockType: HealthStatus, activeStatus: string): string => {
         const isActive = blockType === activeStatus;
+        // When there is no valid data, treat the status as unknown and dim all segments.
+        if (activeStatus === 'unknown') {
+            return 'bg-gray-200 opacity-20';
+        }
         switch (blockType) {
             case 'under':
                 return isActive
@@ -125,13 +131,6 @@
             <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest">
                 {$t('segments.title')}
             </h3>
-            <button
-                on:click={() => dispatch('info')}
-                class="text-slate-300 hover:text-indigo-500 transition-colors"
-                aria-label="Info Segmental"
-            >
-                <Info size={16} />
-            </button>
         </div>
 
         <div

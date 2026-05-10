@@ -139,12 +139,12 @@
   // Filter chart options to only those with at least one valid numeric value in the displayed history
   const availableChartOptions = $derived(
     CHART_OPTIONS.filter((opt) =>
-      displayedHistory.some((rec) => {
-        const val = rec[opt.key as keyof BioMetricRecord];
-        return typeof val === 'number' && !isNaN(val);
-      })
+        displayedHistory.some((rec) => {
+            const val = rec[opt.key as keyof BioMetricRecord];
+            return val !== null && val !== undefined && typeof val === 'number';
+        })
     )
-  );
+);
 
   const chartData = $derived(
     currentClient && chartHistory.length > 0
@@ -684,15 +684,9 @@
 									>
 								</div>
 								<div class="flex items-end justify-between mt-1">
-									<Activity size={20} class="text-pink-500 mb-1" strokeWidth={2} /><span
-										class="text-xl sm:text-2xl font-black leading-none {getStatusColor(
-											'bmi',
-											currentRecord?.bmi,
-											currentRecord
-										)
-											.replace('bg-', 'text-')
-											.replace('-100', '-600')}">{currentRecord?.bmi ?? '--'}</span
-									>
+									<Activity size={20} class="text-pink-500 mb-1" strokeWidth={2} /><span class={currentRecord?.bmi == null ? 'text-xl sm:text-2xl font-black text-slate-900' : `text-xl sm:text-2xl font-black ${getStatusColor('bmi', currentRecord.bmi, currentRecord).replace('bg-', 'text-').replace('-100', '-600')}`}>
+    {currentRecord?.bmi ?? '--'}
+</span>
 								</div>
 							</div>
 							<div
@@ -711,15 +705,9 @@
 								<div class="flex items-end justify-between mt-1">
 									<Droplets size={20} class="text-amber-400 mb-1" strokeWidth={2} />
 									<div class="text-right leading-none">
-										<span
-											class="text-xl sm:text-2xl font-black {getStatusColor(
-												'fat',
-												currentRecord?.bodyFat,
-												currentRecord
-											)
-												.replace('bg-', 'text-')
-												.replace('-100', '-600')}">{currentRecord?.bodyFat ?? '--'}</span
-										><span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">%</span>
+										<span class={currentRecord?.bodyFat == null ? 'text-xl sm:text-2xl font-black text-slate-900' : `text-xl sm:text-2xl font-black ${getStatusColor('fat', currentRecord.bodyFat, currentRecord).replace('bg-', 'text-').replace('-100', '-600')}`}>
+    {currentRecord?.bodyFat ?? '--'}
+</span><span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">%</span>
 									</div>
 								</div>
 							</div>
@@ -822,15 +810,11 @@
 								<div class="flex items-end justify-between mt-1">
 									<Clock size={20} class="text-purple-400 mb-1" strokeWidth={2} />
 									<div class="text-right leading-none">
-										<span
-											class="text-xl sm:text-2xl font-black {getStatusColor(
-												'meta',
-												currentRecord?.metabolicAge,
-												currentRecord
-											)
-												.replace('bg-', 'text-')
-												.replace('-100', '-600')}">{currentRecord?.metabolicAge ?? '--'}</span
-										><span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5"
+										<span class={(currentRecord?.metabolicAge == null || !currentRecord?.age) 
+    ? 'text-xl sm:text-2xl font-black text-slate-900' 
+    : (currentRecord.metabolicAge <= currentRecord.age ? 'text-xl sm:text-2xl font-black text-green-600' : 'text-xl sm:text-2xl font-black text-red-600')}>
+    {currentRecord?.metabolicAge ?? '--'}
+</span><span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5"
 											>{$t('units.years')}</span
 										>
 									</div>

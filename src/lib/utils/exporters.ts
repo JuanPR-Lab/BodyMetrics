@@ -27,10 +27,11 @@ export const exportToCSV = (
 	if (!data || data.length === 0) return;
 
 	// 1. Define strict column order
-	const columns: (keyof BioMetricRecord)[] = [
-		'date',
-		'time',
-		'weight',
+  const columns: (keyof BioMetricRecord)[] = [
+    'date',
+    'time',
+    'age', // NEW: Real age column added after time
+    'weight',
 		'bmi',
 		'bodyFat',
 		'muscleMass',
