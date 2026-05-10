@@ -49,6 +49,12 @@
 	
 	const dispatch = createEventDispatcher();
 	
+	const getChartValue = (value: number): number => {
+    	if (!value) return 0;
+    	if (settings.unit === 'kg') return value;
+    	return Number((value * 2.20462).toFixed(2));
+	};
+	
 	// Sidebar and Filters
 	let clientSearchTerm = '';
 	let isClientListOpen = false;
@@ -108,13 +114,21 @@
 			? displayedHistory[0]
 			: null;
 
-	$: chartData =
-		currentClient && displayedHistory.length > 0
-			? PatientManager.computeChartData(
-					displayedHistory,
-					selectedChartMetric as keyof BioMetricRecord
-				)
-			: null;
+    $: isWeightMetric = ['weight', 'muscleMass', 'boneMass'].includes(selectedChartMetric);
+
+    $: chartHistory = displayedHistory.map(r => ({
+        ...r,
+        [selectedChartMetric]: isWeightMetric 
+            ? getChartValue(r[selectedChartMetric] as number) 
+            : r[selectedChartMetric]
+    }));
+    $: chartData =
+        currentClient && chartHistory.length > 0
+            ? PatientManager.computeChartData(
+                    chartHistory,
+                    selectedChartMetric as keyof BioMetricRecord
+                )
+            : null;
 
 	$: activeChartColor =
 		CHART_OPTIONS.find((o) => o.key === selectedChartMetric)?.color || '#6366f1';
@@ -951,14 +965,14 @@
 										: '-20px'});"
 								>
 									<div class="font-black text-base sm:text-lg leading-none mb-1">
-    									{#if hoveredPointData.unitKey === 'kg'}
-        									{formatWeight(hoveredPointData.val, settings.unit)}
-        									<span class="text-xs font-normal opacity-80">{$t('units.' + settings.unit)}</span>
-    									{:else}
-        									{hoveredPointData.val}
-        									<span class="text-xs font-normal opacity-80">{$t(`units.${hoveredPointData.unitKey}`)}</span>
-    									{/if}
-									</div>
+        								{#if isWeightMetric}
+            								{hoveredPointData.val}
+            								<span class="text-xs font-normal opacity-80">{$t('units.' + settings.unit)}</span>
+        								{:else}
+            								{hoveredPointData.val}
+            								<span class="text-xs font-normal opacity-80">{$t(`units.${hoveredPointData.unitKey}`)}</span>
+        								{/if}
+    								</div>
 									<div
 										class="text-[9px] sm:text-[10px] font-mono text-gray-300 border-t border-gray-700 pt-1 mt-1"
 									>
