@@ -45,7 +45,8 @@
         isReadOnly = false,
         records = undefined,
         clientName = undefined,
-        readonly = false
+        readonly = false,
+        isViewer = false
     } = $props<{
         clients?: Client[];
         selectedClientId?: string | null;
@@ -55,9 +56,11 @@
         records?: BioMetricRecord[];
         clientName?: string;
         readonly?: boolean;
+        isViewer?: boolean;
     }>();
-	
-	const effectiveReadOnly = $derived(isReadOnly || readonly);
+ 
+ const viewerMode = $derived(isViewer);
+ const effectiveReadOnly = $derived(isReadOnly || readonly || viewerMode);
 	
 	const dispatch = createEventDispatcher();
 	
@@ -244,6 +247,7 @@
 <div
 	class="flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[800px] animate-fade-in"
 >
+	{#if !viewerMode}
 	<div class="lg:col-span-1 flex flex-col gap-3 sm:gap-4 h-auto lg:h-full">
 		{#if !effectiveReadOnly}
 			<div
@@ -438,9 +442,10 @@
 			{/if}
 		</div>
 	</div>
+	{/if}
 
 	<div
-		class="lg:col-span-3 flex flex-col gap-4 sm:gap-6 h-full lg:overflow-y-auto lg:pr-1 lg:pb-10"
+		class="{viewerMode ? 'lg:col-span-4' : 'lg:col-span-3'} flex flex-col gap-4 sm:gap-6 h-full lg:overflow-y-auto lg:pr-1 lg:pb-10"
 	>
 		{#if !selectedClientId}
 			<div
