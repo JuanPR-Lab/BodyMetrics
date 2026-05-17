@@ -9,11 +9,11 @@
 
 {#if !$isLoading}
 	<div class="min-h-screen flex flex-col bg-slate-50">
-		<ViewerHeader />
-		<main class="flex-1 overflow-y-auto pb-16">
-			{@render children()}
-		</main>
-		<BottomNav />
+<ViewerHeader />
+<BottomNav />
+<main class="flex-1 overflow-y-auto pt-4">
+    {@render children()}
+</main>
 	</div>
 {:else}
 	<div class="min-h-screen flex items-center justify-center bg-slate-50">
