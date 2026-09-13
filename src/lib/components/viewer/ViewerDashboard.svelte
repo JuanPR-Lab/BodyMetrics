@@ -67,7 +67,7 @@
     // Chart data
     const chartHistory = $derived(displayedHistory.map(r => ({
         ...r,
-        weight: formatWeight(r.weight, settings.unit) as number
+        weight: (Number(formatWeight(r.weight, settings.unit)))
     })));
 
     const chartData = $derived(currentRecord && chartHistory.length > 0 ? computeChartData(chartHistory, selectedChartMetric) : null);
@@ -156,6 +156,16 @@
     function selectRecord(recordId: string) {
         viewerState.selectRecord(recordId);
     }
+
+    // Helper to check for segmental data
+    const hasSegmental = $derived(currentRecord && (
+        currentRecord.fatArmR != null || currentRecord.fatArmL != null ||
+        currentRecord.fatLegR != null || currentRecord.fatLegL != null ||
+        currentRecord.fatTrunk != null ||
+        currentRecord.muscleArmR != null || currentRecord.muscleArmL != null ||
+        currentRecord.muscleLegR != null || currentRecord.muscleLegL != null ||
+        currentRecord.muscleTrunk != null
+    ));
 </script>
 
 {#if !hasData}
@@ -163,9 +173,9 @@
         <div class="w-20 h-20 mx-auto mb-4 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-400">
             <Inbox size={40} strokeWidth={1.5} />
         </div>
-        <h2 class="text-xl font-bold text-slate-800 mb-2">Sin datos disponibles</h2>
+        <h2 class="text-xl font-bold text-slate-800 mb-2">{$t('dashboard.inbox_empty')}</h2>
         <p class="text-sm text-slate-500 mb-6">
-            Dirígete a la pestaña "Carga" en el menú superior para subir tu archivo de mediciones.
+            {$t('help.starting_first_steps_text')}
         </p>
     </div>
 {:else}
@@ -240,6 +250,7 @@
                 <div class="flex flex-col gap-3 sm:gap-4 xl:col-span-1">
                     <div class="grid grid-cols-2 gap-3 sm:gap-4">
                         
+                        {#if currentRecord.weight != null}
                         <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-slate-800 transition-transform hover:scale-[1.02] flex flex-col justify-between">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">{$t('metrics.weight')}</span>
@@ -252,7 +263,9 @@
                                 </div>
                             </div>
                         </div>
+                        {/if}
 
+                        {#if currentRecord.bmi != null}
                         <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-pink-500 transition-transform hover:scale-[1.02] flex flex-col justify-between">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">{$t('metrics.bmi')}</span>
@@ -260,12 +273,14 @@
                             </div>
                             <div class="flex items-end justify-between mt-1">
                                 <Activity size={20} class="text-pink-400 mb-1" strokeWidth={2} />
-                                <span class="text-xl sm:text-2xl font-black {currentRecord.bmi == null ? 'text-slate-900' : getStatusColor('bmi', currentRecord.bmi, currentRecord)}">
-                                    {currentRecord.bmi ?? '--'}
+                                <span class="text-xl sm:text-2xl font-black {getStatusColor('bmi', currentRecord.bmi, currentRecord)}">
+                                    {currentRecord.bmi}
                                 </span>
                             </div>
                         </div>
+                        {/if}
 
+                        {#if currentRecord.bodyFat != null}
                         <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-amber-500 transition-transform hover:scale-[1.02] flex flex-col justify-between">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest truncate">{$t('metrics.body_fat')}</span>
@@ -274,14 +289,16 @@
                             <div class="flex items-end justify-between mt-1">
                                 <Droplets size={20} class="text-amber-400 mb-1" strokeWidth={2} />
                                 <div class="text-right leading-none">
-                                    <span class="text-xl sm:text-2xl font-black {currentRecord.bodyFat == null ? 'text-slate-900' : getStatusColor('bodyFat', currentRecord.bodyFat, currentRecord)}">
-                                        {currentRecord.bodyFat ?? '--'}
+                                    <span class="text-xl sm:text-2xl font-black {getStatusColor('bodyFat', currentRecord.bodyFat, currentRecord)}">
+                                        {currentRecord.bodyFat}
                                     </span>
                                     <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">%</span>
                                 </div>
                             </div>
                         </div>
+                        {/if}
 
+                        {#if currentRecord.muscleMass != null}
                         <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-indigo-500 transition-transform hover:scale-[1.02] flex flex-col justify-between">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest">{$t('metrics.muscle_mass')}</span>
@@ -294,7 +311,9 @@
                                 </div>
                             </div>
                         </div>
+                        {/if}
 
+                        {#if currentRecord.waterPercentage != null}
                         <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-cyan-500 transition-transform hover:scale-[1.02] flex flex-col justify-between">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest">{$t('metrics.water')}</span>
@@ -303,12 +322,14 @@
                             <div class="flex items-end justify-between mt-1">
                                 <Droplets size={20} class="text-cyan-400 mb-1" strokeWidth={2} />
                                 <div class="text-right leading-none">
-                                    <span class="text-xl sm:text-2xl font-black text-slate-800">{currentRecord.waterPercentage ?? '--'}</span>
+                                    <span class="text-xl sm:text-2xl font-black text-slate-800">{currentRecord.waterPercentage}</span>
                                     <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">%</span>
                                 </div>
                             </div>
                         </div>
+                        {/if}
 
+                        {#if currentRecord.boneMass != null}
                         <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-gray-400 transition-transform hover:scale-[1.02] flex flex-col justify-between">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest">{$t('metrics.bone_mass')}</span>
@@ -321,7 +342,9 @@
                                 </div>
                             </div>
                         </div>
+                        {/if}
 
+                        {#if currentRecord.dci != null}
                         <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500 transition-transform hover:scale-[1.02] flex flex-col justify-between">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest">{$t('metrics.dci')}</span>
@@ -329,12 +352,14 @@
                             <div class="flex items-end justify-between mt-1">
                                 <Flame size={20} class="text-emerald-400 mb-1" strokeWidth={2} />
                                 <div class="text-right leading-none">
-                                    <span class="text-xl sm:text-2xl font-black text-slate-800">{currentRecord.dci ?? '--'}</span>
+                                    <span class="text-xl sm:text-2xl font-black text-slate-800">{currentRecord.dci}</span>
                                     <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">{$t('units.kcal')}</span>
                                 </div>
                             </div>
                         </div>
+                        {/if}
 
+                        {#if currentRecord.metabolicAge != null}
                         <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500 transition-transform hover:scale-[1.02] flex flex-col justify-between">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[10px] sm:text-xs font-black text-slate-700 uppercase tracking-widest">{$t('metrics.metabolic_age')}</span>
@@ -344,18 +369,21 @@
                                 <Clock size={20} class="text-purple-400 mb-1" strokeWidth={2} />
                                 <div class="text-right leading-none">
                                     <span class="text-xl sm:text-2xl font-black {currentRecord.metabolicAge == null || !currentRecord.age ? 'text-slate-900' : (currentRecord.metabolicAge <= currentRecord.age ? 'text-green-600' : 'text-red-600')}">
-                                        {currentRecord.metabolicAge ?? '--'}
+                                        {currentRecord.metabolicAge}
                                     </span>
                                     <span class="text-[10px] sm:text-xs font-bold text-slate-400 ml-0.5">{$t('units.years')}</span>
                                 </div>
                             </div>
                         </div>
+                        {/if}
                     </div>
                 </div>
 
+                {#if hasSegmental}
                 <div class="xl:col-span-1 h-full min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] xl:min-h-[500px]">
                     <BodyMap record={currentRecord} />
                 </div>
+                {/if}
             </div>
 
             {#if chartData}
@@ -447,7 +475,7 @@
             <div class="max-w-md mx-auto mt-12 p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
                 <FileSpreadsheet size={36} class="text-slate-300 mx-auto mb-4" />
                 <p class="text-sm font-medium text-slate-500">
-                    No hay mediciones en este periodo de tiempo. Prueba seleccionando otro filtro.
+                    {$t('dashboard.no_data_in_period')}
                 </p>
             </div>
         {/if}

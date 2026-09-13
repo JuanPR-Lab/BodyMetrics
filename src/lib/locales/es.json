@@ -3,6 +3,11 @@
 		"title": "BodyMetrics",
 		"privacy_badge": "Datos Locales"
 	},
+	"nav": {
+		"load": "Carga",
+		"viewer": "Visor",
+		"help": "Ayuda"
+	},
 	"common": {
 		"male": "Hombre",
 		"female": "Mujer",
@@ -255,6 +260,18 @@
 	"status": {
 		"under": "bajo",
 		"over": "alto"
+	},
+	"viewer": {
+		"upload": {
+			"title": "Cargar mediciones",
+			"description": "Sube el archivo proporcionado por tu dietista",
+			"invalidFormat": "Archivo no válido, asegúrate que siga el formato BM_nombre_fecha",
+			"dragAndDrop": "Arrastra y suelta el archivo aquí",
+			"clickToSelect": "o haz clic para explorar",
+			"selectFile": "Seleccionar archivo",
+			"lastUpdate": "Última actualización:",
+			"noPreviousUpload": "Aún no has subido ningún archivo"
+		}
 	},
 	"languages": {
 		"es": "Español",

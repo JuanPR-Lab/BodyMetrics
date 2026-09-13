@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { t } from 'svelte-i18n';
-    import { Lock } from 'lucide-svelte';
     import LanguageSelector from '$lib/components/LanguageSelector.svelte';
 </script>
 
@@ -14,18 +12,12 @@
                 <h1 class="text-base sm:text-xl font-bold text-slate-800 leading-none">
                     BodyMetrics Viewer
                 </h1>
-                <p class="text-xs text-slate-500 mt-0.5">
-                    {$t('app.privacy_badge')}
-                </p>
             </div>
         </div>
 
         <div class="flex items-center gap-1.5 sm:gap-3">
-            <span class="px-2 sm:px-3 py-1 bg-emerald-50 text-emerald-700 text-xs uppercase tracking-wider rounded-full font-semibold border border-emerald-200 shadow-sm flex items-center gap-1">
-                <Lock size={12} />
-                <span class="hidden sm:inline">{$t('app.privacy_badge')}</span>
-            </span>
             <LanguageSelector />
         </div>
     </div>
+    <slot name="nav" />
 </header>

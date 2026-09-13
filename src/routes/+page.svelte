@@ -164,7 +164,7 @@
         if (validFiles.length === 0 && ignoredFiles.length > 0) {
             const $t = get(t);
             // Use the new translation key specific for invalid CSV uploads
-            triggerToast($t('alerts.invalid_csv_file'));
+            triggerToast($t('viewer.upload.invalidFormat'));
             return;
         }
 		
@@ -397,6 +397,7 @@
 	const triggerToast = (msg: string) => {
     	toastMessage = msg;
     	showToast = true;
+		setTimeout(() => { showToast = false; }, 7000);
 	};
 
 	const showAlert = (title: string, message: string, type: 'alert' | 'error' | 'success' = 'alert') => {
@@ -571,7 +572,7 @@
 			/>
 			
 			{#if showToast}
-				<ToastNotification message={toastMessage} on:close={() => (showToast = false)} />
+				<ToastNotification showToast={showToast} toastMessage={toastMessage} />
 			{/if}
 		</main>
 	</div>

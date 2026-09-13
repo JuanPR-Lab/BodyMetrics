@@ -3,6 +3,11 @@
 		"title": "BodyMetrics",
 		"privacy_badge": "Local Data"
 	},
+	"nav": {
+		"load": "Load",
+		"viewer": "Viewer",
+		"help": "Help"
+	},
 	"common": {
 		"male": "Male",
 		"female": "Female",
@@ -255,6 +260,18 @@
 	"status": {
 		"under": "low",
 		"over": "high"
+	},
+	"viewer": {
+		"upload": {
+			"title": "Upload measurements",
+			"description": "Upload the file provided by your dietitian",
+			"invalidFormat": "Invalid file. Make sure it follows the format BM_name_date",
+			"dragAndDrop": "Drag and drop your file here",
+			"clickToSelect": "or click to browse",
+			"selectFile": "Select file",
+			"lastUpdate": "Last update:",
+			"noPreviousUpload": "No file uploaded yet"
+		}
 	},
 	"languages": {
 		"es": "Spanish",
