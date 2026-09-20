@@ -20,7 +20,7 @@
 		"kcal": "kcal",
 		"rating": "nivel",
 		"lb": "lb",
-        "st-lb": "st-lb"
+		"st-lb": "st-lb"
 	},
 	"dashboard": {
 		"tabs": {
@@ -201,8 +201,8 @@
 		"type_to_confirm": "Escribe para confirmar:",
 		"confirm_word": "BORRAR",
 		"display_section": "Visualización",
-        "unit_preference": "Preferencia de Unidad",
-        "unit_help_text": "Los valores de peso se convertirán automáticamente a la unidad elegida."
+		"unit_preference": "Preferencia de Unidad",
+		"unit_help_text": "Los valores de peso se convertirán automáticamente a la unidad elegida."
 	},
 	"actions": {
 		"save": "Guardar",
@@ -262,6 +262,16 @@
 		"over": "alto"
 	},
 	"viewer": {
+		"filters": {
+			"view": "Ver",
+			"all": "Todo",
+			"from": "Desde",
+			"to": "Hasta",
+			"oneMonth": "1 Mes",
+			"threeMonths": "3 Meses",
+			"sixMonths": "6 Meses",
+			"oneYear": "1 Año"
+		},
 		"upload": {
 			"title": "Cargar mediciones",
 			"description": "Sube el archivo proporcionado por tu dietista",
@@ -271,7 +281,19 @@
 			"selectFile": "Seleccionar archivo",
 			"lastUpdate": "Última actualización:",
 			"noPreviousUpload": "Aún no has subido ningún archivo"
-		}
+		},
+		"info": {
+  			"title": "Información y Uso",
+ 			"subtitle": "Todo lo que necesitas saber sobre el funcionamiento de BodyMetrics.",
+  			"upload_title": "Carga de archivos",
+  			"upload_desc": "Sube el archivo proporcionado por tu dietista en la pestaña de Carga. Los datos se procesan de forma instantánea. Asegúrate de tener cargado siempre el último archivo proporcionado.",
+  			"viewer_title": "Visor de métricas",
+  			"viewer_desc": "Consulta tu evolución detallada y visualiza tus progresos en la pestaña del Visor.",
+  			"storage_title": "Privacidad Extrema",
+  			"storage_desc": "Tus datos NO se suben a internet ni se guardan en ninguna base de datos externa. Se almacenan exclusivamente en este dispositivo. Si usas otro móvil o PC, deberás cargar tu archivo allí.",
+  			"offline_title": "Uso sin conexión (App)",
+  			"offline_desc": "Puedes instalar esta web para usarla sin internet. Si borras los datos del navegador, el almacenamiento se limpiará y tendrás que volver a cargar tu archivo."
+}
 	},
 	"languages": {
 		"es": "Español",
